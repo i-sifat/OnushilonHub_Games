@@ -64,6 +64,10 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
 
+      - name: Verify keystore
+        run: |
+          keytool -list -v -keystore android/app/upload-keystore.jks -storepass ${{ secrets.KEYSTORE_PASSWORD }}
+
       - name: Create key.properties
         run: |
           cat > android/key.properties << EOF
