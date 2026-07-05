@@ -273,12 +273,16 @@ class DatabaseService {
     ''', ids);
     final antMap = {for (final r in antRows) r['word_id'] as int: r['ants'] as String? ?? ''};
 
-    // Bengali meanings — IPA-table trimming means only matching words remain
+    // Bengali meanings — IPA-table trimming means only matching words remain.
+    // MC6: ORDER BY LENGTH(bd.bn) ASC so the Dart last-write-wins dict keeps
+    // the longest (most complete) Bengali entry when multiple rows share the
+    // same LOWER(en) key.
     final bnRows = await db.rawQuery('''
       SELECT LOWER(w.word) AS wl, bd.bn
       FROM words w
       JOIN bengali_dictionary bd ON LOWER(w.word) = LOWER(bd.en)
       WHERE w.id IN ($ph)
+      ORDER BY LENGTH(bd.bn) ASC
     ''', ids);
     final bnMap = {for (final r in bnRows) r['wl'] as String: r['bn'] as String};
 
