@@ -1,0 +1,1763 @@
+[
+  {
+    "id": 1,
+    "text": "To be, or not to be, that is the question.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "existence",
+      "famous",
+      "soliloquy",
+      "mortality",
+      "drama",
+      "elizabethan"
+    ]
+  },
+  {
+    "id": 2,
+    "text": "All the world's a stage, and all the men and women merely players.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "as-you-like-it",
+      "stage",
+      "life",
+      "players",
+      "famous",
+      "comedy",
+      "elizabethan"
+    ]
+  },
+  {
+    "id": 3,
+    "text": "No man is an island, entire of itself.",
+    "author_id": 18,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      5
+    ],
+    "tags": [
+      "donne",
+      "metaphysical",
+      "humanity",
+      "connected",
+      "sermon",
+      "devotion",
+      "17th-century",
+      "famous"
+    ]
+  },
+  {
+    "id": 4,
+    "text": "Beauty is truth, truth beauty — that is all ye know on earth, and all ye need to know.",
+    "author_id": 41,
+    "work_id": 31,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "ode",
+      "beauty",
+      "truth",
+      "romantic",
+      "aesthetic",
+      "grecian-urn",
+      "famous"
+    ]
+  },
+  {
+    "id": 5,
+    "text": "April is the cruellest month, breeding lilacs out of the dead land.",
+    "author_id": 55,
+    "work_id": 41,
+    "era_id": 7,
+    "movement_ids": [
+      14
+    ],
+    "tags": [
+      "eliot",
+      "waste-land",
+      "april",
+      "modernism",
+      "opening",
+      "spring",
+      "famous",
+      "20th-century"
+    ]
+  },
+  {
+    "id": 6,
+    "text": "The past is a foreign country: they do things differently there.",
+    "author_id": 188,
+    "work_id": 70,
+    "era_id": 8,
+    "movement_ids": [],
+    "tags": [
+      "hartley",
+      "go-between",
+      "memory",
+      "past",
+      "famous",
+      "nostalgia",
+      "postwar",
+      "opening"
+    ]
+  },
+  {
+    "id": 7,
+    "text": "I am no bird; and no net ensnares me.",
+    "author_id": 45,
+    "work_id": 36,
+    "era_id": 6,
+    "movement_ids": [
+      11
+    ],
+    "tags": [
+      "charlotte-bronte",
+      "jane-eyre",
+      "freedom",
+      "female",
+      "independence",
+      "victorian",
+      "defiance",
+      "famous"
+    ]
+  },
+  {
+    "id": 8,
+    "text": "It was the best of times, it was the worst of times.",
+    "author_id": 42,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      11
+    ],
+    "tags": [
+      "dickens",
+      "tale-two-cities",
+      "famous",
+      "opening",
+      "paradox",
+      "victorian",
+      "revolution",
+      "contrast"
+    ]
+  },
+  {
+    "id": 10,
+    "text": "What's in a name? That which we call a rose by any other name would smell as sweet.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "romeo-juliet",
+      "name",
+      "language",
+      "famous",
+      "elizabethan",
+      "romance",
+      "drama"
+    ]
+  },
+  {
+    "id": 11,
+    "text": "All animals are equal, but some animals are more equal than others.",
+    "author_id": 111,
+    "work_id": 47,
+    "era_id": 7,
+    "movement_ids": [],
+    "tags": [
+      "orwell",
+      "animal-farm",
+      "equality",
+      "satire",
+      "totalitarianism",
+      "famous",
+      "political",
+      "irony"
+    ]
+  },
+  {
+    "id": 12,
+    "text": "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+    "author_id": 39,
+    "work_id": 27,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "austen",
+      "pride-prejudice",
+      "irony",
+      "famous",
+      "opening",
+      "marriage",
+      "regency",
+      "social"
+    ]
+  },
+  {
+    "id": 13,
+    "text": "We are all of us the worse for too much solitude.",
+    "author_id": 43,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      11
+    ],
+    "tags": [
+      "eliot",
+      "community",
+      "isolation",
+      "victorian",
+      "moral",
+      "wisdom",
+      "fellowship",
+      "prose"
+    ]
+  },
+  {
+    "id": 16,
+    "text": "Do not go gentle into that good night. Rage, rage against the dying of the light.",
+    "author_id": 110,
+    "work_id": null,
+    "era_id": 7,
+    "movement_ids": [],
+    "tags": [
+      "dylan-thomas",
+      "death",
+      "defiance",
+      "villanelle",
+      "welsh",
+      "famous",
+      "rage",
+      "father"
+    ]
+  },
+  {
+    "id": 17,
+    "text": "Vanity of vanities, all is vanity.",
+    "author_id": 174,
+    "work_id": 63,
+    "era_id": 6,
+    "movement_ids": [
+      11
+    ],
+    "tags": [
+      "thackeray",
+      "vanity-fair",
+      "ecclesiastes",
+      "opening",
+      "vanity",
+      "satirical",
+      "victorian",
+      "biblical-allusion"
+    ]
+  },
+  {
+    "id": 18,
+    "text": "Whatever our souls are made of, his and mine are the same.",
+    "author_id": 46,
+    "work_id": 37,
+    "era_id": 6,
+    "movement_ids": [
+      11
+    ],
+    "tags": [
+      "emily-bronte",
+      "wuthering-heights",
+      "heathcliff",
+      "catherine",
+      "love",
+      "soul",
+      "gothic",
+      "passionate"
+    ]
+  },
+  {
+    "id": 19,
+    "text": "There is nothing either good or bad, but thinking makes it so.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "moral-relativism",
+      "thought",
+      "elizabethan",
+      "philosophy",
+      "drama",
+      "perception"
+    ]
+  },
+  {
+    "id": 20,
+    "text": "The lady doth protest too much, methinks.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "famous-misquote",
+      "protest",
+      "lady",
+      "elizabethan",
+      "irony",
+      "drama"
+    ]
+  },
+  {
+    "id": 21,
+    "text": "I have measured out my life with coffee spoons.",
+    "author_id": 55,
+    "work_id": null,
+    "era_id": 7,
+    "movement_ids": [
+      14
+    ],
+    "tags": [
+      "eliot",
+      "prufrock",
+      "modernism",
+      "measurement",
+      "life",
+      "famous",
+      "irony",
+      "coffee"
+    ]
+  },
+  {
+    "id": 22,
+    "text": "In my beginning is my end.",
+    "author_id": 55,
+    "work_id": 45,
+    "era_id": 7,
+    "movement_ids": [
+      14
+    ],
+    "tags": [
+      "eliot",
+      "four-quartets",
+      "east-coker",
+      "cyclical",
+      "time",
+      "modernism",
+      "meditation",
+      "spiritual"
+    ]
+  },
+  {
+    "id": 23,
+    "text": "If you prick us, do we not bleed?",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "merchant-venice",
+      "shylock",
+      "humanity",
+      "equality",
+      "elizabethan",
+      "famous",
+      "jewish"
+    ]
+  },
+  {
+    "id": 24,
+    "text": "Give me my robe, put on my crown; I have immortal longings in me.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "antony-cleopatra",
+      "cleopatra",
+      "death",
+      "immortality",
+      "elizabethan",
+      "noble",
+      "tragedy"
+    ]
+  },
+  {
+    "id": 25,
+    "text": "Conscience doth make cowards of us all.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "conscience",
+      "cowardice",
+      "elizabethan",
+      "moral",
+      "psychology",
+      "famous"
+    ]
+  },
+  {
+    "id": 26,
+    "text": "A good book is the precious lifeblood of a master spirit.",
+    "author_id": 22,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      6
+    ],
+    "tags": [
+      "milton",
+      "areopagitica",
+      "books",
+      "censorship",
+      "17th-century",
+      "prose",
+      "freedom-of-press",
+      "learning"
+    ]
+  },
+  {
+    "id": 27,
+    "text": "The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.",
+    "author_id": 22,
+    "work_id": 16,
+    "era_id": 3,
+    "movement_ids": [
+      6
+    ],
+    "tags": [
+      "milton",
+      "paradise-lost",
+      "satan",
+      "mind",
+      "hell",
+      "heaven",
+      "famous",
+      "puritan"
+    ]
+  },
+  {
+    "id": 28,
+    "text": "To strive, to seek, to find, and not to yield.",
+    "author_id": 47,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      12
+    ],
+    "tags": [
+      "tennyson",
+      "ulysses",
+      "striving",
+      "heroic",
+      "victorian",
+      "determination",
+      "poem",
+      "famous"
+    ]
+  },
+  {
+    "id": 29,
+    "text": "Tis better to have loved and lost than never to have loved at all.",
+    "author_id": 47,
+    "work_id": 58,
+    "era_id": 6,
+    "movement_ids": [
+      12
+    ],
+    "tags": [
+      "tennyson",
+      "in-memoriam",
+      "love",
+      "loss",
+      "grief",
+      "victorian",
+      "famous",
+      "consolation"
+    ]
+  },
+  {
+    "id": 30,
+    "text": "I am part of all that I have met.",
+    "author_id": 47,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      12
+    ],
+    "tags": [
+      "tennyson",
+      "ulysses",
+      "identity",
+      "experience",
+      "victorian",
+      "poem",
+      "self",
+      "travel"
+    ]
+  },
+  {
+    "id": 31,
+    "text": "Yet each man kills the thing he loves.",
+    "author_id": 52,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "ballad-reading-gaol",
+      "paradox",
+      "love",
+      "destruction",
+      "prison",
+      "aestheticism",
+      "famous"
+    ]
+  },
+  {
+    "id": 32,
+    "text": "The only way to get rid of a temptation is to yield to it.",
+    "author_id": 52,
+    "work_id": 39,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "dorian-gray",
+      "temptation",
+      "pleasure",
+      "epigram",
+      "aestheticism",
+      "wit",
+      "famous"
+    ]
+  },
+  {
+    "id": 33,
+    "text": "We are all in the gutter, but some of us are looking at the stars.",
+    "author_id": 52,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "lady-windermere",
+      "hope",
+      "pessimism",
+      "optimism",
+      "epigram",
+      "wit",
+      "famous"
+    ]
+  },
+  {
+    "id": 34,
+    "text": "I can resist everything except temptation.",
+    "author_id": 52,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "lady-windermere",
+      "temptation",
+      "epigram",
+      "wit",
+      "comedy",
+      "aestheticism",
+      "famous"
+    ]
+  },
+  {
+    "id": 35,
+    "text": "The truth is rarely pure and never simple.",
+    "author_id": 52,
+    "work_id": 40,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "importance-of-earnest",
+      "truth",
+      "complexity",
+      "wit",
+      "comedy",
+      "epigram",
+      "famous"
+    ]
+  },
+  {
+    "id": 36,
+    "text": "If you want to tell people the truth, make them laugh, otherwise they'll kill you.",
+    "author_id": 52,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "attributed",
+      "truth",
+      "comedy",
+      "laughter",
+      "epigram",
+      "wit",
+      "satire"
+    ]
+  },
+  {
+    "id": 37,
+    "text": "We shall not cease from exploration.",
+    "author_id": 55,
+    "work_id": 45,
+    "era_id": 7,
+    "movement_ids": [
+      14
+    ],
+    "tags": [
+      "eliot",
+      "four-quartets",
+      "exploration",
+      "journey",
+      "spiritual",
+      "modernism",
+      "famous",
+      "little-gidding"
+    ]
+  },
+  {
+    "id": 38,
+    "text": "Wouldst thou have that which thou esteem'st the ornament of life, and live a coward in thine own esteem?",
+    "author_id": 13,
+    "work_id": 12,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "macbeth",
+      "lady-macbeth",
+      "courage",
+      "cowardice",
+      "ambition",
+      "elizabethan",
+      "famous"
+    ]
+  },
+  {
+    "id": 39,
+    "text": "Ripeness is all.",
+    "author_id": 13,
+    "work_id": 11,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "king-lear",
+      "edgar",
+      "maturity",
+      "acceptance",
+      "elizabethan",
+      "brief",
+      "tragic"
+    ]
+  },
+  {
+    "id": 40,
+    "text": "Out, out, brief candle! Life's but a walking shadow.",
+    "author_id": 13,
+    "work_id": 12,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "macbeth",
+      "nihilism",
+      "life",
+      "mortality",
+      "elizabethan",
+      "famous",
+      "soliloquy"
+    ]
+  },
+  {
+    "id": 41,
+    "text": "Come, thick night, and pall thee in the dunnest smoke of hell.",
+    "author_id": 13,
+    "work_id": 12,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "macbeth",
+      "lady-macbeth",
+      "darkness",
+      "night",
+      "elizabethan",
+      "incantation",
+      "tragedy"
+    ]
+  },
+  {
+    "id": 43,
+    "text": "O, she doth teach the torches to burn bright!",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "romeo-juliet",
+      "juliet",
+      "beauty",
+      "love",
+      "elizabethan",
+      "first-sight",
+      "famous"
+    ]
+  },
+  {
+    "id": 44,
+    "text": "The quality of mercy is not strained.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "merchant-venice",
+      "mercy",
+      "portia",
+      "famous",
+      "elizabethan",
+      "justice",
+      "speech"
+    ]
+  },
+  {
+    "id": 45,
+    "text": "Remember I am an ass; though it be not written down, yet forget not that I am an ass.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "much-ado",
+      "dogberry",
+      "comedy",
+      "elizabethan",
+      "self-deprecating",
+      "humor",
+      "constable"
+    ]
+  },
+  {
+    "id": 46,
+    "text": "I could be bounded in a nutshell, and count myself a king of infinite space.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "imagination",
+      "space",
+      "mind",
+      "elizabethan",
+      "famous",
+      "philosophy"
+    ]
+  },
+  {
+    "id": 47,
+    "text": "We know what we are, but know not what we may be.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "ophelia",
+      "identity",
+      "potential",
+      "elizabethan",
+      "famous",
+      "psychology"
+    ]
+  },
+  {
+    "id": 48,
+    "text": "O, what a tangled web we weave, when first we practise to deceive!",
+    "author_id": 156,
+    "work_id": null,
+    "era_id": 4,
+    "movement_ids": [],
+    "tags": [
+      "scott",
+      "marmion",
+      "deception",
+      "lies",
+      "famous",
+      "web",
+      "attributed",
+      "scottish"
+    ]
+  },
+  {
+    "id": 49,
+    "text": "Water, water, every where, nor any drop to drink.",
+    "author_id": 38,
+    "work_id": 26,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "coleridge",
+      "ancient-mariner",
+      "thirst",
+      "sea",
+      "curse",
+      "famous",
+      "misquoted",
+      "romantic"
+    ]
+  },
+  {
+    "id": 51,
+    "text": "I have nothing to declare except my genius.",
+    "author_id": 52,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [
+      13
+    ],
+    "tags": [
+      "wilde",
+      "attributed",
+      "customs",
+      "epigram",
+      "wit",
+      "genius",
+      "famous",
+      "america"
+    ]
+  },
+  {
+    "id": 52,
+    "text": "Words are, of course, the most powerful drug used by mankind.",
+    "author_id": 92,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [],
+    "tags": [
+      "kipling",
+      "words",
+      "language",
+      "power",
+      "famous",
+      "attributed",
+      "imperial",
+      "writing"
+    ]
+  },
+  {
+    "id": 53,
+    "text": "Beware the Jabberwock, my son! The jaws that bite, the claws that catch!",
+    "author_id": 97,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [],
+    "tags": [
+      "carroll",
+      "jabberwocky",
+      "nonsense",
+      "monster",
+      "warning",
+      "victorian",
+      "children",
+      "famous"
+    ]
+  },
+  {
+    "id": 54,
+    "text": "Curiouser and curiouser!",
+    "author_id": 97,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [],
+    "tags": [
+      "carroll",
+      "alice",
+      "wonder",
+      "curiosity",
+      "famous",
+      "victorian",
+      "children",
+      "nonsense"
+    ]
+  },
+  {
+    "id": 55,
+    "text": "If you don't know where you are going, any road will get you there.",
+    "author_id": 97,
+    "work_id": null,
+    "era_id": 6,
+    "movement_ids": [],
+    "tags": [
+      "carroll",
+      "attributed",
+      "direction",
+      "advice",
+      "famous",
+      "children",
+      "wisdom",
+      "cheshire-cat"
+    ]
+  },
+  {
+    "id": 57,
+    "text": "They also serve who only stand and wait.",
+    "author_id": 22,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      6
+    ],
+    "tags": [
+      "milton",
+      "sonnet",
+      "blindness",
+      "service",
+      "waiting",
+      "puritan",
+      "patience",
+      "17th-century"
+    ]
+  },
+  {
+    "id": 58,
+    "text": "Tyger Tyger, burning bright, in the forests of the night.",
+    "author_id": 36,
+    "work_id": 24,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "blake",
+      "tyger",
+      "innocence",
+      "experience",
+      "romantic",
+      "illuminated",
+      "famous",
+      "creation"
+    ]
+  },
+  {
+    "id": 60,
+    "text": "If music be the food of love, play on.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "twelfth-night",
+      "music",
+      "love",
+      "opening",
+      "elizabethan",
+      "famous",
+      "orsino"
+    ]
+  },
+  {
+    "id": 61,
+    "text": "Men of few words are the best men.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "henry-v",
+      "brevity",
+      "men",
+      "silence",
+      "elizabethan",
+      "drama",
+      "words"
+    ]
+  },
+  {
+    "id": 62,
+    "text": "Brevity is the soul of wit.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "polonius",
+      "brevity",
+      "wit",
+      "irony",
+      "elizabethan",
+      "famous"
+    ]
+  },
+  {
+    "id": 63,
+    "text": "Cowards die many times before their deaths; the valiant never taste of death but once.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "julius-caesar",
+      "courage",
+      "death",
+      "caesar",
+      "elizabethan",
+      "famous",
+      "stoicism"
+    ]
+  },
+  {
+    "id": 64,
+    "text": "There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "wonder",
+      "supernatural",
+      "philosophy",
+      "elizabethan",
+      "famous",
+      "ghost"
+    ]
+  },
+  {
+    "id": 65,
+    "text": "Thou still unravished bride of quietness.",
+    "author_id": 41,
+    "work_id": 31,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "grecian-urn",
+      "ode",
+      "beauty",
+      "silence",
+      "romantic",
+      "famous",
+      "art"
+    ]
+  },
+  {
+    "id": 66,
+    "text": "Season of mists and mellow fruitfulness.",
+    "author_id": 41,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "to-autumn",
+      "ode",
+      "season",
+      "opening",
+      "romantic",
+      "famous",
+      "nature"
+    ]
+  },
+  {
+    "id": 67,
+    "text": "A thing of beauty is a joy for ever.",
+    "author_id": 41,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "endymion",
+      "beauty",
+      "joy",
+      "romantic",
+      "famous",
+      "opening",
+      "permanence"
+    ]
+  },
+  {
+    "id": 68,
+    "text": "Much have I travell'd in the realms of gold.",
+    "author_id": 41,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "chapman-homer",
+      "reading",
+      "exploration",
+      "romantic",
+      "sonnet",
+      "famous",
+      "literature"
+    ]
+  },
+  {
+    "id": 69,
+    "text": "My heart aches, and a drowsy numbness pains my sense.",
+    "author_id": 41,
+    "work_id": 30,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "nightingale",
+      "ode",
+      "feeling",
+      "romantic",
+      "opening",
+      "famous",
+      "sensory"
+    ]
+  },
+  {
+    "id": 70,
+    "text": "I wandered lonely as a cloud.",
+    "author_id": 37,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "wordsworth",
+      "daffodils",
+      "romantic",
+      "famous",
+      "opening",
+      "nature",
+      "solitude",
+      "clouds"
+    ]
+  },
+  {
+    "id": 71,
+    "text": "Bliss was it in that dawn to be alive, but to be young was very heaven.",
+    "author_id": 37,
+    "work_id": 57,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "wordsworth",
+      "prelude",
+      "french-revolution",
+      "youth",
+      "joy",
+      "romantic",
+      "famous",
+      "political"
+    ]
+  },
+  {
+    "id": 72,
+    "text": "We murder to dissect.",
+    "author_id": 37,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "wordsworth",
+      "tables-turned",
+      "analysis",
+      "nature",
+      "romantic",
+      "famous",
+      "critique",
+      "dissection"
+    ]
+  },
+  {
+    "id": 73,
+    "text": "Poetry is the spontaneous overflow of powerful feelings.",
+    "author_id": 37,
+    "work_id": 25,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "wordsworth",
+      "lyrical-ballads",
+      "poetry-theory",
+      "feeling",
+      "romantic",
+      "famous",
+      "definition",
+      "manifesto"
+    ]
+  },
+  {
+    "id": 74,
+    "text": "She walks in beauty, like the night.",
+    "author_id": 40,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "byron",
+      "hebrew-melodies",
+      "beauty",
+      "night",
+      "woman",
+      "romantic",
+      "famous",
+      "lyric"
+    ]
+  },
+  {
+    "id": 76,
+    "text": "Roll on, thou deep and dark blue Ocean — roll!",
+    "author_id": 40,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "byron",
+      "childe-harold",
+      "ocean",
+      "sublime",
+      "romantic",
+      "famous",
+      "nature",
+      "lyric"
+    ]
+  },
+  {
+    "id": 78,
+    "text": "Fear no more the heat o' the sun.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "cymbeline",
+      "death",
+      "consolation",
+      "song",
+      "elizabethan",
+      "peace",
+      "lyric"
+    ]
+  },
+  {
+    "id": 81,
+    "text": "The best lack all conviction, while the worst are full of passionate intensity.",
+    "author_id": 83,
+    "work_id": null,
+    "era_id": 7,
+    "movement_ids": [],
+    "tags": [
+      "yeats",
+      "second-coming",
+      "anarchy",
+      "modern",
+      "famous",
+      "political",
+      "irish",
+      "poem"
+    ]
+  },
+  {
+    "id": 82,
+    "text": "Things fall apart; the centre cannot hold.",
+    "author_id": 83,
+    "work_id": null,
+    "era_id": 7,
+    "movement_ids": [],
+    "tags": [
+      "yeats",
+      "second-coming",
+      "chaos",
+      "modern",
+      "famous",
+      "political",
+      "irish",
+      "achebe-title"
+    ]
+  },
+  {
+    "id": 83,
+    "text": "I have measured out my life with coffee spoons.",
+    "author_id": 55,
+    "work_id": null,
+    "era_id": 7,
+    "movement_ids": [
+      14
+    ],
+    "tags": [
+      "eliot",
+      "prufrock",
+      "life",
+      "measurement",
+      "irony",
+      "famous",
+      "modernism",
+      "monotony"
+    ]
+  },
+  {
+    "id": 84,
+    "text": "Methinks I see my father's ghost.",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "father",
+      "ghost",
+      "vision",
+      "elizabethan",
+      "tragedy",
+      "famous"
+    ]
+  },
+  {
+    "id": 85,
+    "text": "What a piece of work is man!",
+    "author_id": 13,
+    "work_id": 10,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "hamlet",
+      "humanity",
+      "famous",
+      "elizabethan",
+      "wonder",
+      "cynicism",
+      "ambiguous"
+    ]
+  },
+  {
+    "id": 86,
+    "text": "My name is Ozymandias, King of Kings; Look on my works, ye Mighty, and despair!",
+    "author_id": 159,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "shelley",
+      "ozymandias",
+      "hubris",
+      "ruin",
+      "famous",
+      "sonnet",
+      "romantic",
+      "time"
+    ]
+  },
+  {
+    "id": 87,
+    "text": "If Winter comes, can Spring be far behind?",
+    "author_id": 159,
+    "work_id": 60,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "shelley",
+      "ode-west-wind",
+      "hope",
+      "season",
+      "famous",
+      "romantic",
+      "spring",
+      "regeneration"
+    ]
+  },
+  {
+    "id": 88,
+    "text": "Hail to thee, blithe spirit! Bird thou never wert.",
+    "author_id": 159,
+    "work_id": null,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "shelley",
+      "to-a-skylark",
+      "bird",
+      "spirit",
+      "joy",
+      "romantic",
+      "famous",
+      "ode"
+    ]
+  },
+  {
+    "id": 89,
+    "text": "I fall upon the thorns of life! I bleed!",
+    "author_id": 159,
+    "work_id": 60,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "shelley",
+      "ode-west-wind",
+      "pain",
+      "life",
+      "romantic",
+      "famous",
+      "self-pity",
+      "thorns"
+    ]
+  },
+  {
+    "id": 90,
+    "text": "Thou still unravished bride of quietness, thou foster-child of silence.",
+    "author_id": 41,
+    "work_id": 31,
+    "era_id": 5,
+    "movement_ids": [
+      10
+    ],
+    "tags": [
+      "keats",
+      "grecian-urn",
+      "silence",
+      "beauty",
+      "romantic",
+      "ode",
+      "famous",
+      "art"
+    ]
+  },
+  {
+    "id": 91,
+    "text": "Tomorrow, and tomorrow, and tomorrow creeps in this petty pace from day to day.",
+    "author_id": 13,
+    "work_id": 12,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "macbeth",
+      "nihilism",
+      "time",
+      "famous",
+      "soliloquy",
+      "despair",
+      "elizabethan"
+    ]
+  },
+  {
+    "id": 92,
+    "text": "Our doubts are traitors, and make us lose the good we oft might win, by fearing to attempt.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "measure-for-measure",
+      "doubt",
+      "fear",
+      "elizabethan",
+      "famous",
+      "courage",
+      "attempt"
+    ]
+  },
+  {
+    "id": 93,
+    "text": "What light through yonder window breaks? It is the east, and Juliet is the sun.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "romeo-juliet",
+      "juliet",
+      "light",
+      "sun",
+      "famous",
+      "elizabethan",
+      "love",
+      "balcony"
+    ]
+  },
+  {
+    "id": 94,
+    "text": "Parting is such sweet sorrow.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "romeo-juliet",
+      "parting",
+      "sorrow",
+      "famous",
+      "elizabethan",
+      "love",
+      "oxymoron"
+    ]
+  },
+  {
+    "id": 95,
+    "text": "Good night, good night! Parting is such sweet sorrow, that I shall say good night till it be morrow.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "romeo-juliet",
+      "night",
+      "parting",
+      "famous",
+      "elizabethan",
+      "love",
+      "full-quote"
+    ]
+  },
+  {
+    "id": 96,
+    "text": "The fault, dear Brutus, is not in our stars, but in ourselves.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "julius-caesar",
+      "fate",
+      "responsibility",
+      "famous",
+      "elizabethan",
+      "stars",
+      "cassius"
+    ]
+  },
+  {
+    "id": 97,
+    "text": "Et tu, Brute?",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "julius-caesar",
+      "betrayal",
+      "caesar",
+      "famous",
+      "elizabethan",
+      "latin",
+      "death"
+    ]
+  },
+  {
+    "id": 98,
+    "text": "The evil that men do lives after them; the good is oft interred with their bones.",
+    "author_id": 13,
+    "work_id": null,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "julius-caesar",
+      "mark-antony",
+      "evil",
+      "legacy",
+      "elizabethan",
+      "famous",
+      "funeral"
+    ]
+  },
+  {
+    "id": 99,
+    "text": "I am a man more sinned against than sinning.",
+    "author_id": 13,
+    "work_id": 11,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "king-lear",
+      "victim",
+      "lear",
+      "self-pity",
+      "elizabethan",
+      "famous",
+      "tragedy"
+    ]
+  },
+  {
+    "id": 100,
+    "text": "Nothing will come of nothing.",
+    "author_id": 13,
+    "work_id": 11,
+    "era_id": 3,
+    "movement_ids": [
+      4
+    ],
+    "tags": [
+      "shakespeare",
+      "king-lear",
+      "nihilism",
+      "nothing",
+      "elizabethan",
+      "famous",
+      "lear",
+      "tragic"
+    ]
+  }
+]

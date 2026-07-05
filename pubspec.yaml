@@ -1,0 +1,39 @@
+name: onushilonhub
+description: Premium offline-first English vocabulary learning app for Bangladeshi ESL/EFL learners.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.22.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.1
+  go_router: ^17.3.0
+  sqflite: ^2.3.3
+  sqflite_common_ffi: ^2.3.3
+  path: ^1.9.0
+  path_provider: ^2.1.3
+  shared_preferences: ^2.2.3
+  google_fonts: ^8.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    # ── SQLite vocabulary database (replaces all JSON word data) ─────────────
+    - assets/db/
+    # ── Quote data (small JSON files, kept as-is) ────────────────────────────
+    - assets/json/quotes.json
+    - assets/json/quote_authors.json
+    - assets/json/quote_eras.json
+    - assets/json/quote_works.json
+    - assets/json/quote_quiz_questions.json
+    # ── Images ───────────────────────────────────────────────────────────────
+    - assets/images/

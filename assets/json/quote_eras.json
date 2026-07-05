@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Old English (Anglo-Saxon)",
+    "slug": "old-english",
+    "start_year": 450,
+    "end_year": 1066,
+    "description": "The earliest period of English literature, written in Old English by Anglo-Saxon authors. Dominated by oral poetry, heroic epics, and Christian devotional texts. Major works include Beowulf, Caedmon's Hymn, and the Anglo-Saxon Chronicle. The tradition blends Germanic warrior culture with Christian theology, exploring themes of fate, loyalty, and transience.",
+    "key_features": ["alliterative verse", "oral tradition", "heroic epics", "Christian allegory", "kennings"],
+    "tags": ["anglo-saxon", "medieval", "beowulf", "oral-poetry", "germanic", "christian", "alliteration", "epic"]
+  },
+  {
+    "id": 2,
+    "name": "Middle English",
+    "slug": "middle-english",
+    "start_year": 1066,
+    "end_year": 1485,
+    "description": "Following the Norman Conquest, English literature absorbed French and Latin influences. This era produced Chaucer's Canterbury Tales, Langland's Piers Plowman, and the Arthurian romances of Malory. The period saw the rise of vernacular writing, mystery plays, and morality plays, reflecting a society navigating feudalism and emerging civic identity.",
+    "key_features": ["vernacular writing", "romance", "allegory", "mystery plays", "chivalry"],
+    "tags": ["chaucer", "medieval", "romance", "allegory", "norman", "vernacular", "morality-play", "arthurian"]
+  },
+  {
+    "id": 3,
+    "name": "Renaissance (Early Modern)",
+    "slug": "renaissance",
+    "start_year": 1485,
+    "end_year": 1660,
+    "description": "The Renaissance brought humanism, classical learning, and artistic flowering to English literature. Shakespeare, Marlowe, Spenser, and Sidney transformed drama and poetry. The sonnet, blank verse, and the revenge tragedy flourished. The printing press democratized texts, while royal patronage shaped literary output. The period closes with the political upheaval of the Civil War.",
+    "key_features": ["humanism", "blank verse", "sonnet", "Elizabethan drama", "pastoral poetry"],
+    "tags": ["shakespeare", "marlowe", "humanism", "sonnet", "elizabethan", "renaissance", "patronage", "drama", "spenser"]
+  },
+  {
+    "id": 4,
+    "name": "Restoration and 18th Century",
+    "slug": "restoration",
+    "start_year": 1660,
+    "end_year": 1785,
+    "description": "After the Puritan Interregnum, Charles II's restoration brought wit, satire, and theatrical excess. This era includes Dryden, Pope, Swift, and Johnson. Comedy of manners, heroic drama, and political satire dominated. The period also saw the rise of the novel with Defoe, Richardson, and Fielding. Reason, order, and classical imitation defined the Neoclassical aesthetic.",
+    "key_features": ["satire", "heroic couplet", "comedy of manners", "rise of the novel", "Augustan poetry"],
+    "tags": ["restoration", "satire", "neoclassical", "augustan", "novel", "pope", "swift", "dryden", "comedy"]
+  },
+  {
+    "id": 5,
+    "name": "Romantic",
+    "slug": "romantic",
+    "start_year": 1785,
+    "end_year": 1830,
+    "description": "Romanticism reacted against industrialization and Enlightenment rationalism by celebrating nature, emotion, imagination, and the individual. Blake, Wordsworth, Coleridge, Keats, Shelley, and Byron defined this era. The Gothic novel flourished alongside lyric poetry. Revolutionary politics shaped many writers, while the sublime became a central aesthetic concept.",
+    "key_features": ["sublime", "nature worship", "individualism", "Gothic fiction", "lyric poetry", "imagination"],
+    "tags": ["romantic", "wordsworth", "keats", "shelley", "byron", "blake", "nature", "sublime", "gothic", "imagination"]
+  },
+  {
+    "id": 6,
+    "name": "Victorian",
+    "slug": "victorian",
+    "start_year": 1830,
+    "end_year": 1901,
+    "description": "The Victorian era produced the social novel, dramatic monologue, and realist fiction. Dickens, the Brontës, George Eliot, Hardy, and Tennyson dominated. Literature engaged with industrialization, class conflict, empire, science, and religion. The three-decker novel and serialized fiction transformed publishing. The period ends with the Aesthetic Movement and early Modernist stirrings.",
+    "key_features": ["realism", "social novel", "dramatic monologue", "serialization", "industrial critique"],
+    "tags": ["victorian", "dickens", "eliot", "hardy", "tennyson", "realism", "industrial", "class", "empire", "novel"]
+  },
+  {
+    "id": 7,
+    "name": "Modernist",
+    "slug": "modernist",
+    "start_year": 1901,
+    "end_year": 1945,
+    "description": "Modernism broke with Victorian convention through stream of consciousness, fragmentation, and formal experimentation. Woolf, Joyce, Eliot, Pound, Lawrence, and Forster redefined literary possibility. World War I shattered old certainties. The movement embraced allusion, ambiguity, and subjective interiority, rejecting linear narrative and omniscient narration in favor of psychological depth.",
+    "key_features": ["stream of consciousness", "fragmentation", "free verse", "allusion", "unreliable narrator"],
+    "tags": ["modernism", "woolf", "joyce", "eliot", "pound", "stream-of-consciousness", "wwi", "experimental", "fragmentation"]
+  },
+  {
+    "id": 8,
+    "name": "Postmodernist",
+    "slug": "postmodernist",
+    "start_year": 1945,
+    "end_year": 1990,
+    "description": "Postmodernism questioned truth, identity, and narrative authority through irony, metafiction, and intertextuality. Beckett, Pinter, Burgess, Fowles, and Rushdie exemplify this era. The movement challenged grand narratives, embraced pastiche, and blurred high and low culture. Postcolonial voices emerged powerfully alongside experimental British fiction.",
+    "key_features": ["metafiction", "irony", "intertextuality", "pastiche", "unreliable narrator", "self-referentiality"],
+    "tags": ["postmodernism", "metafiction", "beckett", "rushdie", "irony", "intertextuality", "postcolonial", "pastiche"]
+  },
+  {
+    "id": 9,
+    "name": "Contemporary",
+    "slug": "contemporary",
+    "start_year": 1990,
+    "end_year": null,
+    "description": "Contemporary English literature is diverse, global, and genre-fluid. Writers like McEwan, Zadie Smith, Kazuo Ishiguro, and Hilary Mantel explore identity, memory, history, and multiculturalism. Digital culture, climate anxiety, and postcolonial identity shape new voices. The Booker Prize has elevated international English-language fiction while literary boundaries continue to dissolve.",
+    "key_features": ["multiculturalism", "historical fiction", "identity", "memory", "postcolonial", "genre hybridity"],
+    "tags": ["contemporary", "ishiguro", "mcewan", "zadie-smith", "identity", "multiculturalism", "booker", "memory", "postcolonial"]
+  }
+]
