@@ -33,7 +33,7 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Determine version
+      - name: Determine version & changelog
         id: version
         run: |
           CURRENT=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
@@ -46,7 +46,7 @@ jobs:
             CODE=0
           fi
 
-          # If this is a tag push, use the tag as version name
+          # If tag push, use tag as version name
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             NAME=${GITHUB_REF_NAME#v}
           fi
@@ -54,8 +54,23 @@ jobs:
           NEW_CODE=$((CODE + 1))
           sed -i "s/^version: .*/version: ${NAME}+${NEW_CODE}/" pubspec.yaml
 
+          # Generate changelog
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [[ -n "$LAST_TAG" && "${{ github.ref }}" != refs/tags/* ]]; then
+            # For continuous builds, show commits since last tag
+            CHANGES=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s" || echo "- Latest continuous build")
+          else
+            # For tag builds or first run, show last 10 commits
+            CHANGES=$(git log -10 --pretty=format:"- %s")
+          fi
+
+          # Save multiline output
           echo "version_name=$NAME" >> $GITHUB_OUTPUT
           echo "version_code=$NEW_CODE" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
           echo "Building $NAME+$NEW_CODE"
 
       - name: Decode keystore
@@ -93,14 +108,14 @@ jobs:
         run: |
           mkdir -p release
           cp build/app/outputs/flutter-apk/app-release.apk \
-            "release/onushilonhub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
+            "release/OnushilonHub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
           cp build/app/outputs/bundle/release/app-release.aab \
-            "release/onushilonhub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.aab"
+            "release/OnushilonHub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.aab"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: onushilonhub-build-${{ steps.version.outputs.version_code }}
+          name: OnushilonHub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}
           path: release/*
 
       - name: Commit version bump
@@ -112,26 +127,66 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: bump build to ${{ steps.version.outputs.version_code }} [skip ci]"
           git push
 
+      # === PROPER RELEASE (when you push a tag like v1.0.0) ===
       - name: Create GitHub Release (tag push)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ github.ref_name }}"
-          body: "Release ${{ github.ref_name }} — Build ${{ steps.version.outputs.version_code }}"
+          name: "🚀 OnushilonHub v${{ steps.version.outputs.version_name }}"
+          tag_name: "${{ github.ref_name }}"
+          body: |
+            ## What's New
+            ${{ steps.version.outputs.changelog }}
+            
+            ---
+            
+            ### 📦 Downloads
+            | File | Purpose |
+            |------|---------|
+            | `*.apk` | Install directly on Android devices |
+            | `*.aab` | Upload to Google Play Console |
+            
+            ### ℹ️ Build Info
+            - **Version:** `${{ steps.version.outputs.version_name }}`
+            - **Build Number:** `${{ steps.version.outputs.version_code }}`
+            - **Commit:** `${{ github.sha }}`
+            - **Branch:** `${{ github.ref_name }}`
+            - **Date:** `${{ github.event.head_commit.timestamp }}`
           files: release/*
+          draft: false
+          prerelease: false
+          make_latest: true
 
-      - name: Update Continuous Release (branch push)
+      # === CONTINUOUS BUILD (every push to main) ===
+      - name: Update Continuous Release
         if: startsWith(github.ref, 'refs/heads/')
         uses: softprops/action-gh-release@v2
         with:
-          name: "🚀 Continuous Build"
+          name: "⚡ Continuous Build — v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}"
           tag_name: "continuous"
           body: |
-            Latest build from `${{ github.ref_name }}`
+            > ⚡ This is an automated development build from the latest commit on `${{ github.ref_name }}`.
+            
+            ## Latest Changes
+            ${{ steps.version.outputs.changelog }}
+            
+            ---
+            
+            ### 📦 Downloads
+            | File | Purpose |
+            |------|---------|
+            | `*.apk` | Install directly on Android devices |
+            | `*.aab` | Upload to Google Play Console |
+            
+            ### ℹ️ Build Info
             - **Version:** `${{ steps.version.outputs.version_name }}`
-            - **Build:** `${{ steps.version.outputs.version_code }}`
+            - **Build Number:** `${{ steps.version.outputs.version_code }}`
             - **Commit:** `${{ github.sha }}`
+            - **Date:** `${{ github.event.head_commit.timestamp }}`
+            
+            > 💡 **Note:** For stable releases, see the [versioned releases](${{ github.server_url }}/${{ github.repository }}/releases).
           files: release/*
+          draft: false
           prerelease: true
 
       - name: Cleanup keystore
