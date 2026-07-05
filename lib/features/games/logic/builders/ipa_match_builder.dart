@@ -49,7 +49,11 @@ class IpaMatchBuilder extends McqQuestionBuilder {
       if (optionSet == null) continue;
 
       out.add(McqQuestion(
-        prompt: entry.word,
+        // IPA1: display word in UPPERCASE to match every other game in the
+        // family. IPA entries are stored lowercase in the DB; .toUpperCase()
+        // here is purely presentational — the wordId lookup uses .toLowerCase()
+        // so mastery tracking is unaffected.
+        prompt: entry.word.toUpperCase(),
         promptSubtitle: 'Choose the correct IPA pronunciation',
         options: optionSet.options,
         correctAnswer: optionSet.correctAnswer,

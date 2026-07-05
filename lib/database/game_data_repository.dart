@@ -86,14 +86,19 @@ class GameDataRepository implements IGameRepository {
   /// Returns [count] random IPA entries from the vocabulary DB.
   @override
   Future<List<IpaModel>> getRandomIpaEntries({required int count}) async {
-    if (_ipaCache == null) {
-      await _loadIpaFromDb(count * 4);
-    }
+    // IPA2: always reload 2000 entries fresh — same pattern as DM1/DM5.
+    // The original conditional (if _ipaCache == null) meant:
+    //   (a) only 0.55% of 29,055 IPA entries were ever reached per session,
+    //   (b) a stale cache from a force-quit persisted into the next session.
+    // Loading 2000 entries gives broad variety while remaining fast (<50ms).
+    await _loadIpaFromDb(2000);
     final list = _ipaCache!.toList()..shuffle(Random());
     return list.take(count).toList();
   }
 
   Future<void> _loadIpaFromDb(int limit) async {
+    // IPA2: always clear first — guarantees freshness even after abnormal exit.
+    _ipaCache = null;
     // FIX: The original literal AND word NOT LIKE ''''%' was invalid SQLite
     // because the escaped apostrophe sequence broke the LIKE string literal.
     // Solution: pass the apostrophe-prefix pattern as a bound parameter (?)
