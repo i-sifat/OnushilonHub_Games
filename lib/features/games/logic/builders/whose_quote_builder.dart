@@ -15,8 +15,12 @@ class WhoseQuoteBuilder extends McqQuestionBuilder {
     return resolved
         .map((q) => McqQuestion(
               prompt: '"${q.quoteText}"',
-              promptSubtitle:
-                  q.eraName.isNotEmpty ? q.eraName : 'Who said this?',
+              // WQ1: show era as context clue, not as the sole subtitle.
+              // "Who said this?" is always shown so the player knows the task.
+              // Era is appended as context only when available.
+              promptSubtitle: q.eraName.isNotEmpty
+                  ? 'Who said this? · ${q.eraName}'
+                  : 'Who said this?',
               options: q.options,
               correctAnswer: q.correctAuthor,
               questionText: q.quoteText,

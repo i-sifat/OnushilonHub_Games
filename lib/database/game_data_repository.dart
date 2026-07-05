@@ -33,11 +33,15 @@ class ResolvedSynonymAntonymQuestion {
   final String word;
   final String correctAnswer;
   final List<String> options;
+  /// All valid synonyms/antonyms for [word] — used for session-wide dedup
+  /// and future multi-answer validation.
+  final List<String> allCorrect;
 
   const ResolvedSynonymAntonymQuestion({
     required this.word,
     required this.correctAnswer,
     required this.options,
+    this.allCorrect = const [],
   });
 }
 
@@ -246,10 +250,15 @@ class GameDataRepository implements IGameRepository {
     final table = isAntonym ? 'antonyms' : 'synonyms';
     final col = isAntonym ? 'antonym' : 'synonym';
 
-    // Fetch words that have at least one entry in the target table
+    // Fetch words that have at least one entry in the target table.
+    // SA1 FIX: removed LIMIT 10 from GROUP_CONCAT subquery.
+    // With LIMIT 10, words like RAP (273 synonyms) had correctList capped at
+    // 10 entries — the remaining 260+ valid synonyms could appear as
+    // distractors, marking genuinely correct player answers as WRONG.
+    // Removing the limit ensures correctList contains ALL synonyms/antonyms.
     final wordRows = await _db.db.rawQuery('''
       SELECT w.id, w.word,
-             (SELECT GROUP_CONCAT($col, '|') FROM $table WHERE word_id = w.id LIMIT 10) AS answers
+             (SELECT GROUP_CONCAT($col, '|') FROM $table WHERE word_id = w.id) AS answers
       FROM words w
       WHERE EXISTS (SELECT 1 FROM $table WHERE word_id = w.id)
       ORDER BY RANDOM()
@@ -293,10 +302,32 @@ class GameDataRepository implements IGameRepository {
         word: word,
         correctAnswer: correct,
         options: options,
+        // Store the full correctList so the builder / notifier can use it
+        // for multi-answer validation if needed in future.
+        allCorrect: correctList,
       ));
     }
 
-    return questions;
+    // SA2: session-wide dedup — scrub any distractor that is the correct
+    // answer for another question in this session. A player who just answered
+    // Q3 correctly with 'glad' should not see 'glad' as a wrong distractor
+    // in Q7, where it would get them marked wrong for recognising it.
+    final sessionCorrects = questions.map((q) => q.correctAnswer).toSet();
+    final rng2 = Random();
+    return questions.map((q) {
+      final cleanOpts = q.options
+          .where((o) => o == q.correctAnswer ||
+                        !sessionCorrects.contains(o))
+          .toList();
+      if (cleanOpts.length < 4) return q; // fallback: keep original if too few
+      cleanOpts.shuffle(rng2);
+      return ResolvedSynonymAntonymQuestion(
+        word: q.word,
+        correctAnswer: q.correctAnswer,
+        options: cleanOpts,
+        allCorrect: q.allCorrect,
+      );
+    }).toList();
   }
 
   // ── Rich Quotes ────────────────────────────────────────────────────────────

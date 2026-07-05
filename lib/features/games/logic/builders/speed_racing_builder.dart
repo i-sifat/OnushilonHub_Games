@@ -9,6 +9,11 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
   const SpeedRacingBuilder(this.repo);
 
+  // SR1: maximum definition length for MCQ tiles.
+  // Definitions >120 chars overflow option tiles on small screens.
+  // Same cap applied in Definition Match (DM3).
+  static const int _maxDefLength = 120;
+
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
@@ -27,31 +32,56 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
     );
     final rng = Random();
 
-    return words
-        .map((word) {
-          final correct = word.definition;
-          if (correct.isEmpty) return null;
+    // SR2: session-wide dedup — prevents a correct answer from Q3 appearing
+    // as a distractor in Q7, which would penalise players for recognising it.
+    final sessionCorrects = <String>{};
 
-          final distractors = pool
-              .where((w) => w.id != word.id)
-              .map((w) => w.definition)
-              .where((d) => d.isNotEmpty && d != correct)
-              .toSet()
-              .toList()
-            ..shuffle(rng);
-          if (distractors.length < GameRules.minDistractorsRequired) return null;
+    final out = <McqQuestion>[];
 
-          final options = [correct, ...distractors.take(3)]..shuffle(rng);
-          return McqQuestion(
-            prompt: word.word,
-            promptSubtitle: 'What does this mean?',
-            options: options,
-            correctAnswer: correct,
-            questionText: 'Meaning of "${word.word}"',
-            wordId: word.id,
-          );
-        })
-        .whereType<McqQuestion>()
-        .toList();
+    for (final word in words) {
+      // SR1: skip words whose definition exceeds the tile length cap —
+      // same filter as DM3 in Definition Match.
+      final correct = word.definition;
+      if (correct.isEmpty || correct.length > _maxDefLength) continue;
+
+      final distractors = pool
+          .where((w) => w.id != word.id)
+          .map((w) => w.definition)
+          .where((d) =>
+              d.isNotEmpty &&
+              d != correct &&
+              d.length <= _maxDefLength)  // SR1: cap distractors too
+          .toSet()
+          .toList()
+        ..shuffle(rng);
+
+      if (distractors.length < GameRules.minDistractorsRequired) continue;
+
+      // SR2: remove distractors that are correct answers elsewhere in session
+      final cleanDistractors = distractors
+          .where((d) => !sessionCorrects.contains(d))
+          .toList();
+
+      final useDistractors =
+          cleanDistractors.length >= GameRules.minDistractorsRequired
+              ? cleanDistractors
+              : distractors; // fallback if dedup left too few
+
+      final options = [correct, ...useDistractors.take(3)]..shuffle(rng);
+      sessionCorrects.add(correct);
+
+      out.add(McqQuestion(
+        prompt: word.word,
+        promptSubtitle: 'What does this mean?',
+        options: options,
+        correctAnswer: correct,
+        questionText: 'Meaning of "${word.word}"',
+        wordId: word.id,
+      ));
+
+      if (out.length >= count) break;
+    }
+
+    return out;
   }
 }
