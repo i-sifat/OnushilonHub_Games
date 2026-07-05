@@ -1,0 +1,135 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Determine version
+        id: version
+        run: |
+          CURRENT=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          
+          if [[ "$CURRENT" == *"+"* ]]; then
+            NAME=$(echo "$CURRENT" | cut -d '+' -f1)
+            CODE=$(echo "$CURRENT" | cut -d '+' -f2)
+          else
+            NAME="$CURRENT"
+            CODE=0
+          fi
+
+          # If this is a tag push, use the tag as version name
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            NAME=${GITHUB_REF_NAME#v}
+          fi
+
+          NEW_CODE=$((CODE + 1))
+          sed -i "s/^version: .*/version: ${NAME}+${NEW_CODE}/" pubspec.yaml
+
+          echo "version_name=$NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$NEW_CODE" >> $GITHUB_OUTPUT
+          echo "Building $NAME+$NEW_CODE"
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build Signed APK
+        run: |
+          flutter build apk --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ steps.version.outputs.version_code }}
+
+      - name: Build Signed AAB (Play Store ready)
+        run: |
+          flutter build appbundle --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ steps.version.outputs.version_code }}
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            "release/onushilonhub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.apk"
+          cp build/app/outputs/bundle/release/app-release.aab \
+            "release/onushilonhub-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}.aab"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: onushilonhub-build-${{ steps.version.outputs.version_code }}
+          path: release/*
+
+      - name: Commit version bump
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml
+          git diff --cached --quiet || git commit -m "chore: bump build to ${{ steps.version.outputs.version_code }} [skip ci]"
+          git push
+
+      - name: Create GitHub Release (tag push)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ github.ref_name }}"
+          body: "Release ${{ github.ref_name }} — Build ${{ steps.version.outputs.version_code }}"
+          files: release/*
+
+      - name: Update Continuous Release (branch push)
+        if: startsWith(github.ref, 'refs/heads/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "🚀 Continuous Build"
+          tag_name: "continuous"
+          body: |
+            Latest build from `${{ github.ref_name }}`
+            - **Version:** `${{ steps.version.outputs.version_name }}`
+            - **Build:** `${{ steps.version.outputs.version_code }}`
+            - **Commit:** `${{ github.sha }}`
+          files: release/*
+          prerelease: true
+
+      - name: Cleanup keystore
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
