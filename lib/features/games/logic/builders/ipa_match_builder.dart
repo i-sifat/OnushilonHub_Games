@@ -25,7 +25,8 @@ class IpaMatchBuilder extends McqQuestionBuilder {
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
-    final entries = await repo.getRandomIpaEntries(count: count + 30);
+    final entries =
+        await repo.getRandomIpaEntries(count: count + GameRules.ipaOverfetchBuffer);
     if (entries.isEmpty) return const [];
 
     final rng = Random();
@@ -57,7 +58,7 @@ class IpaMatchBuilder extends McqQuestionBuilder {
         promptSubtitle: 'Choose the correct IPA pronunciation',
         options: optionSet.options,
         correctAnswer: optionSet.correctAnswer,
-        questionText: 'IPA for "${entry.word}"',
+        questionText: 'IPA for "\${entry.word}"',
         wordId: wordIdMap[entry.word.toLowerCase()],
       ));
     }
@@ -67,12 +68,16 @@ class IpaMatchBuilder extends McqQuestionBuilder {
     // distractor that is also a correct answer elsewhere in this session.
     // Falls back to original options if scrubbing would leave < minOptionCount.
     final sessionCorrects = out.map((q) => q.correctAnswer).toSet();
+
     final deduped = out.map((q) {
       final cleanOpts = q.options
           .where((o) => o == q.correctAnswer || !sessionCorrects.contains(o))
           .toList();
+
       if (cleanOpts.length < GameRules.minOptionCount) return q;
+
       cleanOpts.shuffle(rng);
+
       return McqQuestion(
         prompt: q.prompt,
         promptSubtitle: q.promptSubtitle,

@@ -11,18 +11,13 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
 
   const SpeedRacingBuilder(this.repo);
 
-  // SR1: maximum definition length for MCQ tiles.
-  // Definitions >120 chars overflow option tiles on small screens.
-  // Same cap applied in Definition Match (DM3).
-  static const int _maxDefLength = 120;
-
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
 
     // G-07: over-fetch by speedRacingOverfetchFactor so that words filtered
-    // out by _maxDefLength (SR1) or missing definitions do not shrink the
-    // session below `count`. Mirrors the B-04 fix for Unscramble.
+    // out by GameRules.maxDefinitionLength (SR1) or missing definitions do not
+    // shrink the session below `count`. Mirrors the B-04 fix for Unscramble.
     // The `if (out.length >= count) break` guard below ensures the final
     // list is still exactly `count` questions.
     final words = await repo.getEligibleWords(
@@ -35,7 +30,8 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
     final pool = await repo.getEligibleWords(
       gameType: 'speed_racing',
       difficulty: 0,
-      limit: (count * GameRules.distractorOverfetchFactor).clamp(60, 300),
+      limit: (count * GameRules.distractorOverfetchFactor)
+          .clamp(GameRules.distractorPoolMin, GameRules.distractorPoolMax),
       requiresDefinition: true,
     );
 
@@ -46,17 +42,19 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
     final sessionCorrects = <String>{};
 
     final out = <McqQuestion>[];
-
     for (final word in words) {
       // SR1: skip words whose definition exceeds the tile length cap —
       // same filter as DM3 in Definition Match.
       final correct = word.definition;
-      if (correct.isEmpty || correct.length > _maxDefLength) continue;
+      if (correct.isEmpty || correct.length > GameRules.maxDefinitionLength) continue;
 
       final distractors = pool
           .where((w) => w.id != word.id)
           .map((w) => w.definition)
-          .where((d) => d.isNotEmpty && d != correct && d.length <= _maxDefLength) // SR1: cap distractors too
+          .where((d) =>
+              d.isNotEmpty &&
+              d != correct &&
+              d.length <= GameRules.maxDefinitionLength) // SR1: cap distractors too
           .toSet()
           .toList()
         ..shuffle(rng);
@@ -64,15 +62,18 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
       if (distractors.length < GameRules.minDistractorsRequired) continue;
 
       // SR2: remove distractors that are correct answers elsewhere in session
-      final cleanDistractors = distractors
-          .where((d) => !sessionCorrects.contains(d))
-          .toList();
+      final cleanDistractors =
+          distractors.where((d) => !sessionCorrects.contains(d)).toList();
 
-      final useDistractors = cleanDistractors.length >= GameRules.minDistractorsRequired
-          ? cleanDistractors
-          : distractors; // fallback if dedup left too few
+      final useDistractors =
+          cleanDistractors.length >= GameRules.minDistractorsRequired
+              ? cleanDistractors
+              : distractors; // fallback if dedup left too few
 
-      final options = [correct, ...useDistractors.take(3)]..shuffle(rng);
+      final options = [
+        correct,
+        ...useDistractors.take(GameRules.mcqOptionCount - 1),
+      ]..shuffle(rng);
 
       sessionCorrects.add(correct);
 
@@ -81,7 +82,7 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
         promptSubtitle: 'What does this mean?',
         options: options,
         correctAnswer: correct,
-        questionText: 'Meaning of "${word.word}"',
+        questionText: 'Meaning of "\${word.word}"',
         wordId: word.id,
       ));
 

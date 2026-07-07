@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import '../../../../core/models/game_config.dart';
 import '../../../../database/game_data_repository.dart';
 import '../game_rules.dart';
@@ -7,6 +8,7 @@ import 'mcq_question_builder.dart';
 
 class DefinitionMatchBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
+
   const DefinitionMatchBuilder(this.repo);
 
   @override
@@ -25,9 +27,10 @@ class DefinitionMatchBuilder extends McqQuestionBuilder {
     // Using the same pool for both questions and distractors (previous bug)
     // allowed pattern recognition: every distractor was also a correct answer
     // elsewhere in the session. Now questions and distractors are independent.
-    // 200 entries gives ample variety for up to 20 questions × 3 distractors.
-    final distractorPool =
-        await repo.getDefinitionDistractorPool(limit: 200);
+    // GameRules.definitionDistractorPoolLimit entries gives ample variety
+    // for up to 20 questions × 3 distractors.
+    final distractorPool = await repo.getDefinitionDistractorPool(
+        limit: GameRules.definitionDistractorPoolLimit);
     if (distractorPool.isEmpty) return [];
 
     // Resolve wordIds for mastery tracking in one batch call.
@@ -37,7 +40,6 @@ class DefinitionMatchBuilder extends McqQuestionBuilder {
 
     // ── Build questions ───────────────────────────────────────────────────
     final out = <McqQuestion>[];
-
     for (final entry in entries) {
       // DM2: distractors come exclusively from the independent pool.
       // Filter out any distractor whose definition exactly matches the
@@ -48,22 +50,25 @@ class DefinitionMatchBuilder extends McqQuestionBuilder {
           .toSet()
           .toList()
         ..shuffle(rng);
-
       if (distractors.length < GameRules.minDistractorsRequired) continue;
 
-      final options = [entry.definition, ...distractors.take(3)]..shuffle(rng);
+      final options = [
+        entry.definition,
+        ...distractors.take(GameRules.mcqOptionCount - 1),
+      ]..shuffle(rng);
 
       // DM7: posLabel kept as localisation-friendly constant; the subtitle
       // follows the same pattern as other builders for easy future l10n.
       final posLabel = entry.partOfSpeech.isNotEmpty
           ? ' (${entry.partOfSpeech.toLowerCase()})'
           : '';
+
       out.add(McqQuestion(
         prompt: entry.word,
         promptSubtitle: 'Choose the correct definition$posLabel',
         options: options,
         correctAnswer: entry.definition,
-        questionText: 'Definition of "${entry.word}"',
+        questionText: 'Definition of "\${entry.word}"',
         wordId: wordIdMap[entry.word.toLowerCase()],
       ));
     }

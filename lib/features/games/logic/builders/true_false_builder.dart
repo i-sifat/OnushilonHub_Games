@@ -17,7 +17,8 @@ import 'mcq_question_builder.dart';
 ///   the question as true, and never make up bogus content.
 /// * TF1: Each decoy definition is used at most ONCE per session so the
 ///   player cannot learn patterns ("I saw this fake def already in Q2").
-/// * TF2: Definitions >120 chars are excluded to prevent tile overflow.
+/// * TF2: Definitions exceeding [GameRules.maxDefinitionLength] chars are
+///   excluded to prevent tile overflow.
 /// * G-09: Exactly count~/2 True questions and count~/2 False questions
 ///   per session — pre-allocated slots prevent pattern-winning strategies.
 class TrueFalseBuilder extends McqQuestionBuilder {
@@ -25,27 +26,23 @@ class TrueFalseBuilder extends McqQuestionBuilder {
 
   const TrueFalseBuilder(this.repo);
 
-  static const int _maxDefLength = 120;
-
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
     final rng = Random();
-
     final words = await repo.getEligibleWords(
       gameType: config.gameType.dbKey,
       difficulty: config.difficulty,
-      limit: count * 2,
+      limit: count * GameRules.trueFalseWordOverfetch,
       requiresDefinition: true,
     );
-
     final pool = await repo.getEligibleWords(
       gameType: 'true_false',
       difficulty: 0,
-      limit: (count * GameRules.distractorOverfetchFactor).clamp(60, 300),
+      limit: (count * GameRules.distractorOverfetchFactor)
+          .clamp(GameRules.distractorPoolMin, GameRules.distractorPoolMax),
       requiresDefinition: true,
     );
-
     if (words.isEmpty) return [];
 
     // G-09: Pre-allocate exactly count~/2 True slots, shuffled.
@@ -62,7 +59,8 @@ class TrueFalseBuilder extends McqQuestionBuilder {
       if (out.length >= count) break;
 
       // TF2: skip words with definitions too long for the UI tile.
-      if (word.definition.isEmpty || word.definition.length > _maxDefLength) {
+      if (word.definition.isEmpty ||
+          word.definition.length > GameRules.maxDefinitionLength) {
         continue;
       }
 
@@ -81,13 +79,12 @@ class TrueFalseBuilder extends McqQuestionBuilder {
                 w.id != word.id &&
                 w.definition.isNotEmpty &&
                 w.definition != word.definition &&
-                w.definition.length <= _maxDefLength && // TF2
+                w.definition.length <= GameRules.maxDefinitionLength &&
+                // TF2
                 !usedDecoys.contains(w.definition)) // TF1
             .toList()
           ..shuffle(rng);
-
         if (decoys.isEmpty) continue;
-
         presentedDefinition = decoys.first.definition;
         correctAnswer = 'False';
         usedDecoys.add(presentedDefinition); // TF1: mark as used
@@ -98,7 +95,7 @@ class TrueFalseBuilder extends McqQuestionBuilder {
         promptSubtitle: presentedDefinition,
         options: const ['True', 'False'],
         correctAnswer: correctAnswer,
-        questionText: '"${word.word}" — "$presentedDefinition"',
+        questionText: '"\${word.word}" — "$presentedDefinition"',
         wordId: word.id,
       ));
     }
