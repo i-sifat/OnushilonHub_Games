@@ -39,24 +39,15 @@ class IpaMatchBuilder extends McqQuestionBuilder {
 
     final difficulty = IpaDifficulty.fromLegacy(config.difficulty);
 
-    final sessionCorrects = <String>{}; // G-13: session-wide dedup set
     final out = <McqQuestion>[];
     for (final entry in selected) {
-      // G-13: Scrub already-used correct IPAs from the cross-word distractor
-      // pool so a word's IPA cannot appear as a distractor in a later question.
-      // Mirrors the MC4/DM4 dedup pattern applied to every other game.
-      final filteredPool = crossWordPool
-          .where((ipa) => !sessionCorrects.contains(ipa))
-          .toList();
-
       final optionSet = optionSetBuilder.build(
         correctIpa: entry.ipa,
         difficulty: difficulty,
-        crossWordPool: filteredPool,
+        crossWordPool: crossWordPool,
       );
       if (optionSet == null) continue;
 
-      sessionCorrects.add(entry.ipa); // track after successful question build
       out.add(McqQuestion(
         // IPA1: display word in UPPERCASE to match every other game in the
         // family. IPA entries are stored lowercase in the DB; .toUpperCase()
@@ -71,6 +62,27 @@ class IpaMatchBuilder extends McqQuestionBuilder {
       ));
     }
 
-    return out;
+    // G-13: session-wide correct-answer dedup.
+    // Mirror the MC4/DM4 pattern applied to every other game: scrub any
+    // distractor that is also a correct answer elsewhere in this session.
+    // Falls back to original options if scrubbing would leave < minOptionCount.
+    final sessionCorrects = out.map((q) => q.correctAnswer).toSet();
+    final deduped = out.map((q) {
+      final cleanOpts = q.options
+          .where((o) => o == q.correctAnswer || !sessionCorrects.contains(o))
+          .toList();
+      if (cleanOpts.length < GameRules.minOptionCount) return q;
+      cleanOpts.shuffle(rng);
+      return McqQuestion(
+        prompt: q.prompt,
+        promptSubtitle: q.promptSubtitle,
+        options: cleanOpts,
+        correctAnswer: q.correctAnswer,
+        questionText: q.questionText,
+        wordId: q.wordId,
+      );
+    }).toList();
+
+    return deduped;
   }
 }

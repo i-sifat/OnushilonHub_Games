@@ -1,3 +1,5 @@
+//home/claude/OnushilonHub/lib/features/profile/screens/profile_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math' show pi;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,28 +15,30 @@ import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
 
-/// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
-/// Notifier. The counter increment pattern maps to a one-line [increment]
-/// method — semantics are identical, legacy import is removed.
-class _ProfileRefreshNotifier extends Notifier<int> {
+/// Incrementing counter used to force-refresh profile data after a game.
+/// Replacing the old StreamController pattern (which leaked listeners).
+class ProfileRefreshCounterNotifier extends Notifier<int> {
   @override
   int build() => 0;
   void increment() => state++;
+  // Backward-compatible shim — matches the StateProvider.notifier.update()
+  // call pattern used in ResultsScreen while StateProvider migration is pending.
+  void update(int Function(int) fn) => state = fn(state);
 }
 
-/// Incrementing counter used to force-refresh profile data after a game.
-/// Replacing the old StreamController pattern (which leaked listeners).
 final profileRefreshCounterProvider =
-    NotifierProvider<_ProfileRefreshNotifier, int>(
-  _ProfileRefreshNotifier.new,
+    NotifierProvider<ProfileRefreshCounterNotifier, int>(
+  ProfileRefreshCounterNotifier.new,
 );
 
-final _profileStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final _profileStatsProvider =
+    FutureProvider<Map<String, dynamic>>((ref) async {
   ref.watch(profileRefreshCounterProvider);
   return DatabaseService.instance.getProfileStats();
 });
 
-final _profileProgressProvider = FutureProvider<UserProgressModel>((ref) async {
+final _profileProgressProvider =
+    FutureProvider<UserProgressModel>((ref) async {
   ref.watch(profileRefreshCounterProvider);
   return DatabaseService.instance.getUserProgress();
 });
@@ -53,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App Bar ──────────────────────────────────────────────────────────────
+            // ── App Bar ──────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTokens.screenPaddingH,
@@ -81,7 +85,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Hero Card ───────────────────────────────────────────────────
+                    // ── Hero Card ─────────────────────────────────────────
                     Builder(builder: (context) {
                       final sessions = statsAsync.when(
                         data: (s) => s['totalSessions'] as int,
@@ -96,7 +100,7 @@ class ProfileScreen extends ConsumerWidget {
                       );
                     }),
                     const SizedBox(height: AppTokens.space24),
-                    // ── Statistics ────────────────────────────────────────────────
+                    // ── Statistics ────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -107,7 +111,7 @@ class ProfileScreen extends ConsumerWidget {
                       error: (_, __) => const SizedBox(),
                     ),
                     const SizedBox(height: AppTokens.space24),
-                    // ── Game Breakdown ────────────────────────────────────────────
+                    // ── Game Breakdown ────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -125,7 +129,7 @@ class ProfileScreen extends ConsumerWidget {
                       error: (_, __) => const SizedBox(),
                     ),
                     const SizedBox(height: AppTokens.space24),
-                    // ── Saved Words ───────────────────────────────────────────────
+                    // ── Saved Words ───────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
@@ -139,7 +143,8 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero Card ────────────────────────────────────────────────────────────────────────────────
+// ── Hero Card ────────────────────────────────────────────────────────────────
+
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
   final int totalSessions;
@@ -173,42 +178,69 @@ class _HeroCard extends ConsumerWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.person_rounded,
-                    color: Colors.white, size: 28),
+                    color: Colors.white, size: 32),
               ),
               const SizedBox(width: AppTokens.space12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(displayName,
-                      style: textTheme.titleMedium
-                          ?.copyWith(color: Colors.white)),
-                  Text('Level $level',
-                      style: textTheme.bodyMedium
-                          ?.copyWith(color: Colors.white70)),
+                  Text(
+                    displayName,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppTokens.space4),
+                  Text(
+                    'Level $level',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: AppTokens.space16),
           // Progress bar
-          LinearProgressIndicator(
-            value: LevelCalculator.progressToNextLevel(progress.totalXp),
-            backgroundColor: Colors.white.withOpacity(0.2),
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppTokens.radiusSmall),
+            child: LinearProgressIndicator(
+              value: LevelCalculator.progressToNextLevel(progress.totalXp),
+              backgroundColor: Colors.white.withOpacity(0.2),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Colors.white),
+              minHeight: 8,
+            ),
           ),
           const SizedBox(height: AppTokens.space8),
-          Text('${progress.totalXp} XP',
-              style: textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-          const SizedBox(height: AppTokens.space8),
-          Text('$totalSessions Sessions',
-              style: textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+          // XP and sessions
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${progress.totalXp} XP',
+                style: textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                '$totalSessions Sessions',
+                style: textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-// ── Overall Stats ─────────────────────────────────────────────────────────────────────────────
+// ── Overall Stats ────────────────────────────────────────────────────────────
+
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
 
@@ -217,13 +249,12 @@ class _OverallStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
     final totalSessions = stats['totalSessions'] as int;
     final totalTime = stats['totalTime'] as int;
     final totalWords = stats['totalWords'] as int;
     final totalCorrect = stats['totalCorrect'] as int;
-
-    final accuracy = totalWords > 0 ? (totalCorrect / totalWords) * 100 : 0;
+    final accuracy =
+        totalWords > 0 ? (totalCorrect / totalWords) * 100 : 0;
 
     return Container(
       padding: const EdgeInsets.all(AppTokens.space16),
@@ -244,17 +275,17 @@ class _OverallStats extends StatelessWidget {
             label: 'Total Sessions',
             value: totalSessions.toString(),
           ),
-          const SizedBox(height: AppTokens.space12),
+          const Divider(),
           _StatRow(
             label: 'Total Time',
             value: '${(totalTime / 60).toStringAsFixed(1)} mins',
           ),
-          const SizedBox(height: AppTokens.space12),
+          const Divider(),
           _StatRow(
             label: 'Total Words',
             value: totalWords.toString(),
           ),
-          const SizedBox(height: AppTokens.space12),
+          const Divider(),
           _StatRow(
             label: 'Accuracy',
             value: '${accuracy.toStringAsFixed(1)}%',
@@ -275,17 +306,22 @@ class _StatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: textTheme.bodyMedium),
-        Text(value,
-            style: textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w600)),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: textTheme.bodyMedium),
+          Text(value,
+              style: textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+        ],
+      ),
     );
   }
 }
+
+// ── Game Breakdown ───────────────────────────────────────────────────────────
 
 class _GameBreakdownChart extends StatelessWidget {
   final List<Map<String, dynamic>> gameStats;
@@ -294,8 +330,6 @@ class _GameBreakdownChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     final totalGames =
         gameStats.fold<int>(0, (sum, item) => sum + (item['count'] as int));
 
@@ -313,31 +347,67 @@ class _GameBreakdownChart extends StatelessWidget {
         ],
       ),
       child: Column(
-        children: gameStats.map((game) {
-          final gameName = game['gameName'] as String;
-          final count = game['count'] as int;
-          final percentage = (count / totalGames) * 100;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(gameName, style: textTheme.bodyMedium),
-                ),
-                Text(
-                  '${percentage.toStringAsFixed(1)}%',
-                  style: textTheme.bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ],
+        children: [
+          for (final game in gameStats)
+            _GameStatRow(
+              gameName: game['gameName'] as String,
+              count: game['count'] as int,
+              totalGames: totalGames,
             ),
-          );
-        }).toList(),
+        ],
       ),
     );
   }
 }
+
+class _GameStatRow extends StatelessWidget {
+  final String gameName;
+  final int count;
+  final int totalGames;
+
+  const _GameStatRow({
+    required this.gameName,
+    required this.count,
+    required this.totalGames,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final percentage = (count / totalGames) * 100;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(gameName, style: textTheme.bodyMedium),
+          ),
+          Expanded(
+            flex: 2,
+            child: LinearProgressIndicator(
+              value: count / totalGames,
+              backgroundColor: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              '${percentage.toStringAsFixed(1)}%',
+              style: textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Empty Breakdown ──────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
@@ -368,51 +438,38 @@ class _EmptyBreakdown extends StatelessWidget {
   }
 }
 
+// ── Saved Words Entry ────────────────────────────────────────────────────────
+
 class _SavedWordsEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final savedWords = ref.watch(savedWordsProvider);
+    final textTheme = Theme.of(context).textTheme;
 
-    return GestureDetector(
-      onTap: () => context.push('/saved-words'),
-      child: Container(
-        padding: const EdgeInsets.all(AppTokens.space16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
+    return savedWords.when(
+      data: (words) {
+        if (words.isEmpty) {
+          return const SizedBox();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.bookmark_rounded, color: AppColors.primary),
-            const SizedBox(width: AppTokens.space12),
-            Expanded(
-              child: Text(
-                'Saved Words',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
+            Text('Saved Words',
+                style: textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: AppTokens.space16),
+            for (final word in words)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppTokens.space8),
+                child: Text(word, style: textTheme.bodyMedium),
               ),
-            ),
-            Text(
-              '${savedWords.length}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: AppColors.textSecondary),
-            ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textSecondary),
           ],
-        ),
-      ),
+        );
+      },
+      loading: () => const SkeletonCard(height: 100),
+      error: (_, __) => const SizedBox(),
     );
   }
 }
