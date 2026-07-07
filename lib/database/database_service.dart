@@ -248,11 +248,11 @@ class DatabaseService {
     );
     final wordTextMap = {for (final r in wordTexts) r['id'] as int: r['word'] as String};
 
-    // Definitions (first sense only) with example
+    // Definitions (first sense only)
+    // DB-01: removed LEFT JOIN usage_examples — example column no longer fetched.
     final defRows = await db.rawQuery('''
-      SELECT d.word_id, d.pos, d.definition, ue.example
+      SELECT d.word_id, d.pos, d.definition
       FROM definitions d
-      LEFT JOIN usage_examples ue ON ue.definition_id = d.id
       WHERE d.word_id IN ($ph) AND d.sense_order = 0
     ''', ids);
     final defMap = {for (final r in defRows) r['word_id'] as int: r};
