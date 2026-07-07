@@ -30,6 +30,18 @@ class GameRules {
   /// Bonus XP added on top of the base correct-answer XP for fast answers.
   static const int speedRacingFastAnswerBonus = AppTokens.xpBonusStreak;
 
+  /// Word over-fetch multiplier for the Speed Racing word pool.
+  ///
+  /// WHY 3 AND NOT 5:
+  /// Speed Racing applies two lossy post-fetch filters:
+  ///   1. requiresDefinition  — drops ~15% of words (no definition in DB)
+  ///   2. _maxDefLength cap   — drops ~10-15% (definitions > 120 chars skipped)
+  /// No anagram-dedup step, so total attrition is far lower than Unscramble.
+  /// Factor=3 gives a comfortable over-fetch buffer — sessions are always
+  /// full even when several definitions exceed the length cap.
+  /// Mirrors [unscrambleOverfetchFactor] added for the same root cause (B-04).
+  static const int speedRacingOverfetchFactor = 3;
+
   // ── Question generation ──────────────────────────────────────────────────
 
   /// Default question count when [GameConfig.questionCount] is unset.
@@ -53,7 +65,7 @@ class GameRules {
 
   /// Word-length constraints per difficulty for the Unscramble builder.
   /// (min, max) — null means unbounded.
-  static const Map<int, (int?, int?)> unscrambleLengthByDifficulty = {
+  static const Map<int, (int, int?)> unscrambleLengthByDifficulty = {
     1: (3, 4),
     2: (4, 6),
     3: (6, null),
@@ -64,9 +76,9 @@ class GameRules {
   /// WHY 5 AND NOT 3:
   /// The original factor of 3 caused short sessions (8/10, 48/50 questions)
   /// at medium difficulty. The fetch goes through three lossy filters:
-  ///   1. withBangla  — drops ~30% of words (no Bengali meaning)
-  ///   2. lengthFilter — drops ~40% at difficulty=2 (only 4-6 letter words)
-  ///   3. anagramDedup — collapses anagram groups to 1 unique question each
+  /// 1. withBangla — drops ~30% of words (no Bengali meaning)
+  /// 2. lengthFilter — drops ~40% at difficulty=2 (only 4-6 letter words)
+  /// 3. anagramDedup — collapses anagram groups to 1 unique question each
   /// Combined attrition: only ~42% of fetched words survive to become
   /// questions. Factor=3 gives a 26% survival margin — razor thin.
   /// Factor=5 gives a 110% survival margin, verified over 500 trials with

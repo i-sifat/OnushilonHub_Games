@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import '../../../../core/models/game_config.dart';
 import '../../../../database/game_data_repository.dart';
 import '../game_rules.dart';
@@ -7,6 +8,7 @@ import 'mcq_question_builder.dart';
 
 class SpeedRacingBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
+
   const SpeedRacingBuilder(this.repo);
 
   // SR1: maximum definition length for MCQ tiles.
@@ -18,18 +20,25 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
 
+    // G-07: over-fetch by speedRacingOverfetchFactor so that words filtered
+    // out by _maxDefLength (SR1) or missing definitions do not shrink the
+    // session below `count`. Mirrors the B-04 fix for Unscramble.
+    // The `if (out.length >= count) break` guard below ensures the final
+    // list is still exactly `count` questions.
     final words = await repo.getEligibleWords(
       gameType: config.gameType.dbKey,
       difficulty: config.difficulty,
-      limit: count,
+      limit: (count * GameRules.speedRacingOverfetchFactor),
       requiresDefinition: true,
     );
+
     final pool = await repo.getEligibleWords(
       gameType: 'speed_racing',
       difficulty: 0,
       limit: (count * GameRules.distractorOverfetchFactor).clamp(60, 300),
       requiresDefinition: true,
     );
+
     final rng = Random();
 
     // SR2: session-wide dedup — prevents a correct answer from Q3 appearing
@@ -47,10 +56,7 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
       final distractors = pool
           .where((w) => w.id != word.id)
           .map((w) => w.definition)
-          .where((d) =>
-              d.isNotEmpty &&
-              d != correct &&
-              d.length <= _maxDefLength)  // SR1: cap distractors too
+          .where((d) => d.isNotEmpty && d != correct && d.length <= _maxDefLength) // SR1: cap distractors too
           .toSet()
           .toList()
         ..shuffle(rng);
@@ -62,12 +68,12 @@ class SpeedRacingBuilder extends McqQuestionBuilder {
           .where((d) => !sessionCorrects.contains(d))
           .toList();
 
-      final useDistractors =
-          cleanDistractors.length >= GameRules.minDistractorsRequired
-              ? cleanDistractors
-              : distractors; // fallback if dedup left too few
+      final useDistractors = cleanDistractors.length >= GameRules.minDistractorsRequired
+          ? cleanDistractors
+          : distractors; // fallback if dedup left too few
 
       final options = [correct, ...useDistractors.take(3)]..shuffle(rng);
+
       sessionCorrects.add(correct);
 
       out.add(McqQuestion(
