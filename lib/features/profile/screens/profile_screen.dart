@@ -1,10 +1,8 @@
 //home/claude/OnushilonHub/lib/features/profile/screens/profile_screen.dart
-
 import 'package:flutter/material.dart';
 import 'dart:math' show pi;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/models/game_config.dart';
 import '../../../core/models/user_progress_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -15,30 +13,32 @@ import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
 
-/// Incrementing counter used to force-refresh profile data after a game.
-/// Replacing the old StreamController pattern (which leaked listeners).
+/// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
+/// Notifier. The counter increment pattern maps to a one-line [increment]
+/// method — semantics are identical, legacy import is removed.
+/// Backward-compatible [update] shim retained for existing call sites.
 class ProfileRefreshCounterNotifier extends Notifier<int> {
   @override
   int build() => 0;
   void increment() => state++;
   // Backward-compatible shim — matches the StateProvider.notifier.update()
-  // call pattern used in ResultsScreen while StateProvider migration is pending.
+  // call pattern used in ResultsScreen.
   void update(int Function(int) fn) => state = fn(state);
 }
 
+/// Incrementing counter used to force-refresh profile data after a game.
+/// Replacing the old StreamController pattern (which leaked listeners).
 final profileRefreshCounterProvider =
     NotifierProvider<ProfileRefreshCounterNotifier, int>(
   ProfileRefreshCounterNotifier.new,
 );
 
-final _profileStatsProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final _profileStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   ref.watch(profileRefreshCounterProvider);
   return DatabaseService.instance.getProfileStats();
 });
 
-final _profileProgressProvider =
-    FutureProvider<UserProgressModel>((ref) async {
+final _profileProgressProvider = FutureProvider<UserProgressModel>((ref) async {
   ref.watch(profileRefreshCounterProvider);
   return DatabaseService.instance.getUserProgress();
 });
@@ -76,6 +76,7 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
             ),
+
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -100,6 +101,7 @@ class ProfileScreen extends ConsumerWidget {
                       );
                     }),
                     const SizedBox(height: AppTokens.space24),
+
                     // ── Statistics ────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
@@ -111,6 +113,7 @@ class ProfileScreen extends ConsumerWidget {
                       error: (_, __) => const SizedBox(),
                     ),
                     const SizedBox(height: AppTokens.space24),
+
                     // ── Game Breakdown ────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
@@ -118,8 +121,7 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: AppTokens.space16),
                     statsAsync.when(
                       data: (stats) {
-                        final gameStats =
-                            stats['gameStats'] as List<Map<String, dynamic>>;
+                        final gameStats = stats['gameStats'] as List;
                         if (gameStats.isEmpty) {
                           return _EmptyBreakdown();
                         }
@@ -129,6 +131,7 @@ class ProfileScreen extends ConsumerWidget {
                       error: (_, __) => const SizedBox(),
                     ),
                     const SizedBox(height: AppTokens.space24),
+
                     // ── Saved Words ───────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
@@ -148,15 +151,13 @@ class ProfileScreen extends ConsumerWidget {
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
   final int totalSessions;
-
   const _HeroCard({required this.progress, required this.totalSessions});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final name = ref.watch(userProfileProvider).name ?? '';
-    final displayName =
-        name.trim().isNotEmpty ? name.trim() : 'Learner';
+    final displayName = name.trim().isNotEmpty ? name.trim() : 'Learner';
     final level = LevelCalculator.levelFor(progress.totalXp);
 
     return Container(
@@ -174,68 +175,72 @@ class _HeroCard extends ConsumerWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_rounded,
-                    color: Colors.white, size: 32),
+                child:
+                    const Icon(Icons.person_rounded, color: Colors.white, size: 28),
               ),
               const SizedBox(width: AppTokens.space12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    displayName,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: AppTokens.space4),
-                  Text(
-                    'Level $level',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
+                  Text(displayName,
+                      style: textTheme.titleMedium?.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.w700)),
+                  Text('Level $level',
+                      style: textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.75))),
                 ],
               ),
             ],
           ),
           const SizedBox(height: AppTokens.space16),
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppTokens.radiusSmall),
-            child: LinearProgressIndicator(
-              value: LevelCalculator.progressToNextLevel(progress.totalXp),
-              backgroundColor: Colors.white.withOpacity(0.2),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(Colors.white),
-              minHeight: 8,
-            ),
-          ),
-          const SizedBox(height: AppTokens.space8),
-          // XP and sessions
+          // Stats row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${progress.totalXp} XP',
-                style: textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                '$totalSessions Sessions',
-                style: textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                ),
-              ),
+              _HeroStat(value: '${progress.totalXp}', label: 'XP'),
+              _Divider(),
+              _HeroStat(value: '${progress.streak}', label: 'Day streak'),
+              _Divider(),
+              _HeroStat(value: '$totalSessions', label: 'Games'),
             ],
           ),
         ],
       ),
     );
+  }
+}
+
+class _HeroStat extends StatelessWidget {
+  final String value;
+  final String label;
+  const _HeroStat({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value,
+              style: textTheme.titleLarge?.copyWith(
+                  color: Colors.white, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 2),
+          Text(label,
+              style: textTheme.labelSmall
+                  ?.copyWith(color: Colors.white.withValues(alpha: 0.7))),
+        ],
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: 1, height: 32, color: Colors.white.withValues(alpha: 0.25));
   }
 }
 
@@ -243,163 +248,103 @@ class _HeroCard extends ConsumerWidget {
 
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
-
   const _OverallStats({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final totalSessions = stats['totalSessions'] as int;
-    final totalTime = stats['totalTime'] as int;
-    final totalWords = stats['totalWords'] as int;
-    final totalCorrect = stats['totalCorrect'] as int;
+    final total =
+        (stats['totalCorrect'] as int) + (stats['totalWrong'] as int);
     final accuracy =
-        totalWords > 0 ? (totalCorrect / totalWords) * 100 : 0;
+        total > 0 ? (stats['totalCorrect'] as int) / total * 100 : 0.0;
 
-    return Container(
-      padding: const EdgeInsets.all(AppTokens.space16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              _MiniStat(
+                label: 'Words Learned',
+                value: '${stats['totalMastered']}',
+                icon: Icons.menu_book_rounded,
+                color: AppColors.primary,
+              ),
+              const SizedBox(height: AppTokens.space10),
+              _MiniStat(
+                label: 'Accuracy',
+                value: '${accuracy.round()}%',
+                icon: Icons.track_changes_rounded,
+                color: Colors.orange,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _StatRow(
-            label: 'Total Sessions',
-            value: totalSessions.toString(),
+        ),
+        const SizedBox(width: AppTokens.space10),
+        Expanded(
+          child: Column(
+            children: [
+              _MiniStat(
+                label: 'Games Played',
+                value: '${stats['totalSessions']}',
+                icon: Icons.sports_esports_rounded,
+                color: const Color(0xFF1565C0),
+              ),
+              const SizedBox(height: AppTokens.space10),
+              _MiniStat(
+                label: 'Questions Done',
+                value:
+                    '${(stats['totalCorrect'] as int) + (stats['totalWrong'] as int)}',
+                icon: Icons.quiz_rounded,
+                color: Colors.purple,
+              ),
+            ],
           ),
-          const Divider(),
-          _StatRow(
-            label: 'Total Time',
-            value: '${(totalTime / 60).toStringAsFixed(1)} mins',
-          ),
-          const Divider(),
-          _StatRow(
-            label: 'Total Words',
-            value: totalWords.toString(),
-          ),
-          const Divider(),
-          _StatRow(
-            label: 'Accuracy',
-            value: '${accuracy.toStringAsFixed(1)}%',
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-class _StatRow extends StatelessWidget {
+class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
+  final IconData icon;
+  final Color color;
 
-  const _StatRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: textTheme.bodyMedium),
-          Text(value,
-              style: textTheme.bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Game Breakdown ───────────────────────────────────────────────────────────
-
-class _GameBreakdownChart extends StatelessWidget {
-  final List<Map<String, dynamic>> gameStats;
-
-  const _GameBreakdownChart({required this.gameStats});
-
-  @override
-  Widget build(BuildContext context) {
-    final totalGames =
-        gameStats.fold<int>(0, (sum, item) => sum + (item['count'] as int));
-
-    return Container(
-      padding: const EdgeInsets.all(AppTokens.space16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          for (final game in gameStats)
-            _GameStatRow(
-              gameName: game['gameName'] as String,
-              count: game['count'] as int,
-              totalGames: totalGames,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GameStatRow extends StatelessWidget {
-  final String gameName;
-  final int count;
-  final int totalGames;
-
-  const _GameStatRow({
-    required this.gameName,
-    required this.count,
-    required this.totalGames,
+  const _MiniStat({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final percentage = (count / totalGames) * 100;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppTokens.space12),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        border:
+            Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
       child: Row(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(gameName, style: textTheme.bodyMedium),
-          ),
-          Expanded(
-            flex: 2,
-            child: LinearProgressIndicator(
-              value: count / totalGames,
-              backgroundColor: AppColors.primary.withOpacity(0.2),
-              color: AppColors.primary,
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              '${percentage.toStringAsFixed(1)}%',
-              style: textTheme.bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-              textAlign: TextAlign.end,
-            ),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: AppTokens.space10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800)),
+              Text(label,
+                  style: textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
+            ],
           ),
         ],
       ),
@@ -407,69 +352,232 @@ class _GameStatRow extends StatelessWidget {
   }
 }
 
-// ── Empty Breakdown ──────────────────────────────────────────────────────────
+// ── Game Breakdown ────────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      height: 80,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        border:
+            Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Text('No games played yet',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant)),
+    );
+  }
+}
+
+class _GameBreakdownChart extends StatelessWidget {
+  final List<Map<String, dynamic>> gameStats;
+  const _GameBreakdownChart({required this.gameStats});
+
+  static const _colors = [
+    AppColors.primary,
+    Color(0xFF1565C0),
+    Color(0xFFE8A020),
+    Color(0xFF9C27B0),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    final total = gameStats.fold<int>(
+        0,
+        (sum, g) =>
+            sum + ((g['correct'] as int? ?? 0) + (g['wrong'] as int? ?? 0)));
+
     return Container(
-      padding: const EdgeInsets.all(AppTokens.space16),
+      padding: const EdgeInsets.all(AppTokens.space20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+        border:
+            Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: CustomPaint(
+              painter: _DonutPainter(gameStats: gameStats, total: total),
+            ),
+          ),
+          const SizedBox(width: AppTokens.space20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(
+                gameStats.length.clamp(0, 4),
+                (i) {
+                  final g = gameStats[i];
+                  final gt = GameType.fromString(g['game_type'] as String);
+                  final count =
+                      (g['correct'] as int? ?? 0) + (g['wrong'] as int? ?? 0);
+                  final pct = total > 0 ? (count / total * 100).round() : 0;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: _colors[i % _colors.length],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(gt.label,
+                              style: textTheme.labelSmall,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                        Text('$pct%',
+                            style: textTheme.labelSmall
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ],
-      ),
-      child: Center(
-        child: Text(
-          'No game data available',
-          style: textTheme.bodyMedium
-              ?.copyWith(color: AppColors.textSecondary),
-        ),
       ),
     );
   }
 }
 
-// ── Saved Words Entry ────────────────────────────────────────────────────────
+class _DonutPainter extends CustomPainter {
+  final List<Map<String, dynamic>> gameStats;
+  final int total;
+
+  static const _colors = [
+    AppColors.primary,
+    Color(0xFF1565C0),
+    Color(0xFFE8A020),
+    Color(0xFF9C27B0),
+  ];
+
+  _DonutPainter({required this.gameStats, required this.total});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (total == 0) return;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final radius = size.width / 2 - 8;
+    const strokeW = 18.0;
+    const gap = 0.04;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.round;
+
+    double startAngle = -1.5707963;
+    for (int i = 0; i < gameStats.length.clamp(0, 4); i++) {
+      final g = gameStats[i];
+      final count = (g['correct'] as int? ?? 0) + (g['wrong'] as int? ?? 0);
+      final sweep = (count / total) * (2 * pi) - gap;
+      paint.color = _colors[i % _colors.length];
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(cx, cy), radius: radius),
+        startAngle,
+        sweep,
+        false,
+        paint,
+      );
+      startAngle += sweep + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DonutPainter old) =>
+      old.total != total || old.gameStats != gameStats;
+}
+
+// ── Saved Words Entry ─────────────────────────────────────────────────────────
 
 class _SavedWordsEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final savedWords = ref.watch(savedWordsProvider);
+    final savedAsync = ref.watch(savedWordsProvider);
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return savedWords.when(
-      data: (words) {
-        if (words.isEmpty) {
-          return const SizedBox();
-        }
+    final count = savedAsync.when(
+      data: (list) => list.length,
+      loading: () => 0,
+      error: (_, __) => 0,
+    );
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Saved Words',
-                style: textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: AppTokens.space16),
-            for (final word in words)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: AppTokens.space8),
-                child: Text(word, style: textTheme.bodyMedium),
-              ),
-          ],
-        );
-      },
-      loading: () => const SkeletonCard(height: 100),
-      error: (_, __) => const SizedBox(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Saved Words',
+            style:
+                textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: AppTokens.space12),
+        InkWell(
+          onTap: () => context.push('/saved-words'),
+          borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+          child: Container(
+            padding: const EdgeInsets.all(AppTokens.space16),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+              border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.bookmark_rounded,
+                      color: AppColors.primary, size: 20),
+                ),
+                const SizedBox(width: AppTokens.space12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Saved Words',
+                          style: textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      Text(
+                        count == 0 ? 'No words saved yet' : '$count words saved',
+                        style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    size: 18, color: colorScheme.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
