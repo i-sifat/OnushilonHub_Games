@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../features/home/providers/home_provider.dart';
-import '../../../features/profile/screens/profile_screen.dart' show profileRefreshCounterProvider;
+import '../../../features/profile/screens/profile_screen.dart'
+    show profileRefreshCounterProvider;
 import '../../../core/models/game_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -14,10 +16,10 @@ class ResultsScreen extends ConsumerStatefulWidget {
   const ResultsScreen({super.key, required this.result});
 
   @override
-  ConsumerState<ResultsScreen> createState() => _ResultsScreenState();
+  ConsumerState createState() => _ResultsScreenState();
 }
 
-class _ResultsScreenState extends ConsumerState<ResultsScreen>
+class _ResultsScreenState extends ConsumerState
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -30,8 +32,9 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
       vsync: this,
       duration: const Duration(milliseconds: AppTokens.durationSlow),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _fadeAnim =
+        CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _scaleAnim = Tween(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
     _animController.forward();
@@ -49,16 +52,18 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
     ref.invalidate(homeGameProgressProvider);
     ref.invalidate(playedGamesProvider);
     ref.invalidate(todaySessionCountProvider);
+
     // Trigger profile screen data refresh (replaces the old StreamController approach).
-    ref.read(profileRefreshCounterProvider.notifier).update((n) => n + 1);
+    // A-05: updated from .update((n) => n + 1) to .increment() to match Notifier API.
+    ref.read(profileRefreshCounterProvider.notifier).increment();
   }
 
   String get _emoji {
     final acc = widget.result.accuracy;
-    if (acc >= 0.9) return '🏆';
-    if (acc >= 0.7) return '🎯';
-    if (acc >= 0.5) return '👍';
-    return '💪';
+    if (acc >= 0.9) return '\u{1F3C6}';
+    if (acc >= 0.7) return '\u{1F389}';
+    if (acc >= 0.5) return '\u{1F44D}';
+    return '\u{1F4AA}';
   }
 
   String get _message {
@@ -84,7 +89,10 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) { _invalidateHomeProviders(ref); context.go('/home'); }
+        if (!didPop) {
+          _invalidateHomeProviders(ref);
+          context.go('/home');
+        }
       },
       child: Scaffold(
         body: FadeTransition(
@@ -101,6 +109,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: AppTokens.space24),
+
                     // Trophy icon
                     Container(
                       width: 100,
@@ -110,7 +119,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.primary.withValues(alpha: 0.2),
+                            color: colorScheme.primary.withOpacity(0.2),
                             blurRadius: 32,
                             offset: const Offset(0, 8),
                           ),
@@ -124,6 +133,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                       ),
                     ),
                     const SizedBox(height: AppTokens.space20),
+
                     Text(
                       _message,
                       style: textTheme.headlineMedium?.copyWith(
@@ -150,13 +160,14 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           end: Alignment.bottomRight,
                           colors: [
                             AppColors.primary,
-                            AppColors.primary.withValues(alpha: 0.8),
+                            AppColors.primary.withOpacity(0.8),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
+                        borderRadius:
+                            BorderRadius.circular(AppTokens.radiusLarge),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: AppColors.primary.withOpacity(0.3),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
@@ -167,7 +178,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           Text(
                             'Final Score',
                             style: textTheme.labelLarge?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Colors.white.withOpacity(0.7),
                               letterSpacing: 1,
                             ),
                           ),
@@ -186,7 +197,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                             Text(
                               '${result.baseXp} base + ${result.bonusXp} speed bonus',
                               style: textTheme.labelSmall?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.75),
+                                color: Colors.white.withOpacity(0.75),
                               ),
                             ),
                             const SizedBox(height: AppTokens.space2),
@@ -194,104 +205,104 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           Text(
                             'XP Earned',
                             style: textTheme.labelSmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Colors.white.withOpacity(0.6),
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: AppTokens.space32),
 
-                    const SizedBox(height: AppTokens.space24),
-
-                    // Stats grid
+                    // Accuracy and time
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: _StatCard(
-                            label: 'Correct',
-                            value: '${result.correctCount}',
-                            icon: Icons.check_circle_rounded,
-                            color: AppColors.correctGreen,
-                          ),
+                        Column(
+                          children: [
+                            Text(
+                              'Accuracy',
+                              style: textTheme.labelLarge?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: AppTokens.space4),
+                            Text(
+                              '${(result.accuracy * 100).toStringAsFixed(1)}%',
+                              style: textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: AppTokens.space12),
-                        Expanded(
-                          child: _StatCard(
-                            label: 'Wrong',
-                            value: '${result.wrongCount}',
-                            icon: Icons.cancel_rounded,
-                            color: AppColors.lightError,
-                          ),
-                        ),
-                        const SizedBox(width: AppTokens.space12),
-                        Expanded(
-                          child: _StatCard(
-                            label: 'Accuracy',
-                            value: '${(result.accuracy * 100).round()}%',
-                            icon: Icons.analytics_rounded,
-                            color: AppColors.reward,
-                          ),
+                        Column(
+                          children: [
+                            Text(
+                              'Time',
+                              style: textTheme.labelLarge?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: AppTokens.space4),
+                            Text(
+                              _formatDuration(result.timeTaken),
+                              style: textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppTokens.space12),
-                    _StatCard(
-                      label: 'Time',
-                      value: _formatDuration(result.durationSeconds),
-                      icon: Icons.timer_rounded,
-                      color: colorScheme.primary,
-                      fullWidth: true,
+                    const SizedBox(height: AppTokens.space32),
+
+                    // Action buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              _invalidateHomeProviders(ref);
+                              context.go('/home');
+                            },
+                            child: const Text('Home'),
+                          ),
+                        ),
+                        const SizedBox(width: AppTokens.space16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _invalidateHomeProviders(ref);
+                              context.go('/game/${result.gameType.name}');
+                            },
+                            child: const Text('Play Again'),
+                          ),
+                        ),
+                      ],
                     ),
 
                     // Mistakes section
                     if (result.mistakes.isNotEmpty) ...[
                       const SizedBox(height: AppTokens.space32),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Review Mistakes',
-                          style: textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      Text(
+                        'Mistakes',
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: AppTokens.space12),
-                      ...result.mistakes.map((m) => Padding(
-                            padding: const EdgeInsets.only(bottom: AppTokens.space12),
-                            child: _MistakeCard(mistake: m),
-                          )),
-                    ],
-
-                    const SizedBox(height: AppTokens.space32),
-
-                    // Actions
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          _invalidateHomeProviders(ref);
-                          context.go('/games/pre/${result.gameType.dbKey}');
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: result.mistakes.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: AppTokens.space12),
+                        itemBuilder: (context, index) {
+                          final mistake = result.mistakes[index];
+                          return MistakeItem(mistake: mistake);
                         },
-                        icon: const Icon(Icons.replay_rounded),
-                        label: const Text('Play Again'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 56),
-                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppTokens.space12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () { _invalidateHomeProviders(ref); context.go('/home'); },
-                        icon: const Icon(Icons.home_rounded),
-                        label: const Text('Go Home'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 56),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppTokens.space24),
+                    ],
+                    const SizedBox(height: AppTokens.space32),
                   ],
                 ),
               ),
@@ -303,20 +314,10 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final bool fullWidth;
+class MistakeItem extends StatelessWidget {
+  final Mistake mistake;
 
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-    this.fullWidth = false,
-  });
+  const MistakeItem({super.key, required this.mistake});
 
   @override
   Widget build(BuildContext context) {
@@ -326,117 +327,24 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTokens.space16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: fullWidth
-          ? Row(
-              children: [
-                Icon(icon, color: color, size: 22),
-                const SizedBox(width: AppTokens.space12),
-                Text(
-                  label,
-                  style: textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  value,
-                  style: textTheme.titleMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                Icon(icon, color: color, size: 22),
-                const SizedBox(height: AppTokens.space8),
-                Text(
-                  value,
-                  style: textTheme.titleLarge?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: AppTokens.space2),
-                Text(
-                  label,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class _MistakeCard extends StatelessWidget {
-  final MistakeItem mistake;
-
-  const _MistakeCard({required this.mistake});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.all(AppTokens.space16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            mistake.question.length > 80
-                ? '${mistake.question.substring(0, 80)}...'
-                : mistake.question,
-            style: textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+            'Correct Answer: ${mistake.correctAnswer}',
+            style: textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: AppTokens.space8),
-          Row(
-            children: [
-              const Icon(Icons.cancel_rounded, size: 14, color: AppColors.lightError),
-              const SizedBox(width: AppTokens.space4),
-              Expanded(
-                child: Text(
-                  'You: ${mistake.userAnswer}',
-                  style: textTheme.labelMedium?.copyWith(
-                    color: AppColors.lightError,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTokens.space4),
-          Row(
-            children: [
-              const Icon(Icons.check_circle_rounded,
-                  size: 14, color: AppColors.correctGreen),
-              const SizedBox(width: AppTokens.space4),
-              Expanded(
-                child: Text(
-                  'Correct: ${mistake.correctAnswer}',
-                  style: textTheme.labelMedium?.copyWith(
-                    color: AppColors.correctGreen,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          Text(
+            'Your Answer: ${mistake.userAnswer}',
+            style: textTheme.bodyLarge?.copyWith(
+              color: colorScheme.error,
+            ),
           ),
         ],
       ),

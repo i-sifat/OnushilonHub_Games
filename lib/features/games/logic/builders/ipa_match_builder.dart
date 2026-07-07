@@ -39,15 +39,24 @@ class IpaMatchBuilder extends McqQuestionBuilder {
 
     final difficulty = IpaDifficulty.fromLegacy(config.difficulty);
 
+    final sessionCorrects = <String>{}; // G-13: session-wide dedup set
     final out = <McqQuestion>[];
     for (final entry in selected) {
+      // G-13: Scrub already-used correct IPAs from the cross-word distractor
+      // pool so a word's IPA cannot appear as a distractor in a later question.
+      // Mirrors the MC4/DM4 dedup pattern applied to every other game.
+      final filteredPool = crossWordPool
+          .where((ipa) => !sessionCorrects.contains(ipa))
+          .toList();
+
       final optionSet = optionSetBuilder.build(
         correctIpa: entry.ipa,
         difficulty: difficulty,
-        crossWordPool: crossWordPool,
+        crossWordPool: filteredPool,
       );
       if (optionSet == null) continue;
 
+      sessionCorrects.add(entry.ipa); // track after successful question build
       out.add(McqQuestion(
         // IPA1: display word in UPPERCASE to match every other game in the
         // family. IPA entries are stored lowercase in the DB; .toUpperCase()
@@ -61,6 +70,7 @@ class IpaMatchBuilder extends McqQuestionBuilder {
         wordId: wordIdMap[entry.word.toLowerCase()],
       ));
     }
+
     return out;
   }
 }
