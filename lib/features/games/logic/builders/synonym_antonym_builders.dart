@@ -8,6 +8,7 @@ import 'mcq_question_builder.dart';
 class SynonymAntonymBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
   final bool isAntonym;
+
   const SynonymAntonymBuilder(this.repo, {required this.isAntonym});
 
   @override
@@ -16,10 +17,9 @@ class SynonymAntonymBuilder extends McqQuestionBuilder {
     final resolved = isAntonym
         ? await repo.getRandomAntonymQuestions(count: count)
         : await repo.getRandomSynonymQuestions(count: count);
-
     final rel = isAntonym ? 'antonym' : 'synonym';
-    final wordIdMap =
-        await repo.getWordIdsByLowercase(resolved.map((q) => q.word).toList());
+    final wordIdMap = await repo
+        .getWordIdsByLowercase(resolved.map((q) => q.word).toList());
 
     return resolved
         .map((q) => McqQuestion(
@@ -27,6 +27,7 @@ class SynonymAntonymBuilder extends McqQuestionBuilder {
               promptSubtitle: 'Choose the $rel',
               options: q.options,
               correctAnswer: q.correctAnswer,
+              allCorrectAnswers: q.allCorrect,
               questionText: 'What is a $rel of "${q.word}"?',
               wordId: wordIdMap[q.word.toLowerCase()],
             ))

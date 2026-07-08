@@ -196,15 +196,30 @@ class GameConfig {
   });
 }
 
+class MistakeItem {
+  final String question;
+  final String userAnswer;
+  final String correctAnswer;
+
+  /// All valid answers for this question (e.g. every synonym/antonym for a
+  /// word). Empty for question types that have a single correct answer.
+  final List<String> allCorrectAnswers;
+
+  const MistakeItem({
+    required this.question,
+    required this.userAnswer,
+    required this.correctAnswer,
+    this.allCorrectAnswers = const [],
+  });
+}
+
 class GameResult {
   final GameType gameType;
   final int score;
   final int correctCount;
   final int wrongCount;
-  final int durationSeconds;
-  /// Base XP from correct answers (correctCount x xpPerCorrect).
+  final int elapsedSeconds;
   final int baseXp;
-  /// Bonus XP from speed streaks; 0 for non-Speed-Racing games.
   final int bonusXp;
   final List<MistakeItem> mistakes;
 
@@ -213,30 +228,14 @@ class GameResult {
     required this.score,
     required this.correctCount,
     required this.wrongCount,
-    required this.durationSeconds,
+    required this.elapsedSeconds,
     required this.baseXp,
-    this.bonusXp = 0,
+    required this.bonusXp,
     required this.mistakes,
   });
 
-  /// Total XP earned (base + speed bonus).
-  int get xpEarned => baseXp + bonusXp;
-
-  double get accuracy {
-    final total = correctCount + wrongCount;
-    if (total == 0) return 0;
-    return correctCount / total;
-  }
-}
-
-class MistakeItem {
-  final String question;
-  final String userAnswer;
-  final String correctAnswer;
-
-  const MistakeItem({
-    required this.question,
-    required this.userAnswer,
-    required this.correctAnswer,
-  });
+  double get accuracy =>
+      (correctCount + wrongCount) == 0
+          ? 0
+          : correctCount / (correctCount + wrongCount);
 }

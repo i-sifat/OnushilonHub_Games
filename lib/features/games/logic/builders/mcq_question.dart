@@ -4,17 +4,21 @@ import '../game_rules.dart';
 
 /// Universal MCQ question that carries all data any game variant needs.
 ///
-/// [prompt]         — main display text (word, IPA symbol, quote body, …)
+/// [prompt] — main display text (word, IPA symbol, quote body, …)
 /// [promptSubtitle] — secondary hint below the prompt (optional)
-/// [options]        — the answer choices (typically 4)
-/// [correctAnswer]  — which option is correct
-/// [questionText]   — short label used in the mistakes log
-/// [wordId]         — DB row id, non-null for DB-backed games (mastery tracking)
+/// [options] — the answer choices (typically 4)
+/// [correctAnswer] — which option is correct
+/// [allCorrectAnswers] — all valid answers (e.g. every synonym for a word);
+///   used in mistake review to show the full picture. Empty for question types
+///   that have a single correct answer.
+/// [questionText] — short label used in the mistakes log
+/// [wordId] — DB row id, non-null for DB-backed games (mastery tracking)
 class McqQuestion {
   final String prompt;
   final String promptSubtitle;
   final List<String> options;
   final String correctAnswer;
+  final List<String> allCorrectAnswers;
   final String questionText;
   final int? wordId;
 
@@ -23,6 +27,7 @@ class McqQuestion {
     this.promptSubtitle = '',
     required this.options,
     required this.correctAnswer,
+    this.allCorrectAnswers = const [],
     required this.questionText,
     this.wordId,
   });
