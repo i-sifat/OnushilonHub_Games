@@ -1,0 +1,130 @@
+// UX-03: on-demand word-detail queries.
+//
+// These methods complement DatabaseService without modifying it.
+// They are used by WordDetailScreen and saved-words tap handlers.
+
+import 'database_service.dart';
+
+extension WordDetailQueries on DatabaseService {
+  // ── Single-word lookup ──────────────────────────────────────────────────
+
+  /// Fetch a complete [WordRow] by its primary key.
+  ///
+  /// Mirrors the logic in [_loadWordRows] but for a single word without
+  /// touching the private method.
+  Future<WordRow?> getWordById(int wordId) async {
+    // Word text
+    final wordTexts = await db.rawQuery(
+      'SELECT id, word FROM words WHERE id = ? LIMIT 1',
+      [wordId],
+    );
+    if (wordTexts.isEmpty) return null;
+
+    final id = wordTexts.first['id'] as int;
+    final word = wordTexts.first['word'] as String;
+
+    // Definition (first sense only) — consistent with _loadWordRows
+    final defRows = await db.rawQuery('''
+      SELECT pos, definition
+      FROM definitions
+      WHERE word_id = ? AND sense_order = 0
+      LIMIT 1
+    ''', [id]);
+
+    // Synonyms (up to 10, same cap as _loadWordRows)
+    final synRows = await db.rawQuery('''
+      SELECT GROUP_CONCAT(synonym, '|') AS syns
+      FROM (SELECT synonym FROM synonyms WHERE word_id = ? LIMIT 10)
+    ''', [id]);
+
+    // Antonyms (up to 10)
+    final antRows = await db.rawQuery('''
+      SELECT GROUP_CONCAT(antonym, '|') AS ants
+      FROM (SELECT antonym FROM antonyms WHERE word_id = ? LIMIT 10)
+    ''', [id]);
+
+    // Bengali meaning
+    final bnRows = await db.rawQuery(
+      'SELECT meaning FROM bengali_dictionary WHERE word = ? LIMIT 1',
+      [word.toLowerCase()],
+    );
+
+    final def = defRows.isEmpty ? null : defRows.first;
+    final synsRaw =
+        synRows.isEmpty ? '' : (synRows.first['syns'] as String? ?? '');
+    final antsRaw =
+        antRows.isEmpty ? '' : (antRows.first['ants'] as String? ?? '');
+    final syns =
+        synsRaw.split('|').where((s) => s.isNotEmpty).toList();
+    final ants =
+        antsRaw.split('|').where((s) => s.isNotEmpty).toList();
+    final rawBn = bnRows.isEmpty
+        ? ''
+        : (bnRows.first['meaning'] as String? ?? '');
+    final bn = rawBn.isEmpty ? '' : rawBn.split(',').first.trim();
+
+    return WordRow(
+      id: id,
+      word: word,
+      definition: def?['definition'] as String? ?? '',
+      pos: def?['pos'] as String? ?? '',
+      synonyms: syns,
+      antonyms: ants,
+      banglaMeaning: bn,
+    );
+  }
+
+  // ── On-demand usage example (DB-01 companion) ───────────────────────────
+
+  /// Fetch the first usage example for [wordId], or null if none exists.
+  ///
+  /// DB-01 removed the LEFT JOIN from [_loadWordRows] to cut game-start
+  /// overhead. This method restores access for the word-detail screen,
+  /// where the extra round-trip is acceptable.
+  Future<String?> getUsageExample(int wordId) async {
+    final rows = await db.rawQuery('''
+      SELECT ue.example
+      FROM usage_examples ue
+      JOIN definitions d ON d.id = ue.definition_id
+      WHERE d.word_id = ?
+      LIMIT 1
+    ''', [wordId]);
+    if (rows.isEmpty) return null;
+    return rows.first['example'] as String?;
+  }
+
+  // ── IPA lookup ──────────────────────────────────────────────────────────
+
+  /// Fetch the IPA pronunciation string for [wordId], or null if unavailable.
+  Future<String?> getIpaForWord(int wordId) async {
+    final rows = await db.rawQuery(
+      'SELECT ipa FROM ipa_pronunciations WHERE word_id = ? LIMIT 1',
+      [wordId],
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['ipa'] as String?;
+  }
+
+  // ── Reverse lookup (word text → id) ────────────────────────────────────
+
+  /// Resolve a word string (any case) to its internal [words.id].
+  ///
+  /// Used by [SavedWordsScreen] and [SavedWordTile] tap handlers where
+  /// only the word text is available (saved_words table stores text, not FK).
+  Future<int?> getWordIdByText(String word) async {
+    // Try exact match first (most words are stored UPPERCASE)
+    var rows = await db.rawQuery(
+      'SELECT id FROM words WHERE word = ? LIMIT 1',
+      [word.toUpperCase()],
+    );
+    if (rows.isNotEmpty) return rows.first['id'] as int?;
+
+    // Fallback: case-insensitive search
+    rows = await db.rawQuery(
+      'SELECT id FROM words WHERE UPPER(word) = UPPER(?) LIMIT 1',
+      [word],
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['id'] as int?;
+  }
+}
