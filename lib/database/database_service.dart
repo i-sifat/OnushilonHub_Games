@@ -16,7 +16,7 @@ import '../core/models/user_progress_model.dart';
 ///   • User-data tables are created via CREATE TABLE IF NOT EXISTS on every open.
 ///
 /// DB schema version — bump this whenever the asset DB changes.
-const int _kAssetDbVersion = 2; // v2: deduped + difficulty col + no hypernyms
+const int _kAssetDbVersion = 3; // v3: DB-02 idx_def_sense/syn/ant indices
 
 /// Startup time target: < 300 ms.
 class DatabaseService {
@@ -102,20 +102,17 @@ class DatabaseService {
       });
     }
 
-    // Word progress — tracks per-game mastery
     await db.execute('''
       CREATE TABLE IF NOT EXISTS word_progress (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        word_id        INTEGER NOT NULL,
-        game_type      TEXT NOT NULL,
-        status         TEXT NOT NULL DEFAULT 'new',
-        attempts       INTEGER NOT NULL DEFAULT 0,
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        word_id      INTEGER NOT NULL,
+        game_type    TEXT NOT NULL,
+        status       TEXT NOT NULL DEFAULT 'new',
+        attempts     INTEGER NOT NULL DEFAULT 0,
         last_attempted INTEGER,
         UNIQUE(word_id, game_type)
       )
     ''');
-
-    // Game sessions history
     await db.execute('''
       CREATE TABLE IF NOT EXISTS game_sessions (
         id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,18 +124,14 @@ class DatabaseService {
         played_at        INTEGER NOT NULL
       )
     ''');
-
-    // Saved words
     await db.execute('''
       CREATE TABLE IF NOT EXISTS saved_words (
-        id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        word       TEXT NOT NULL UNIQUE,
-        definition TEXT NOT NULL,
-        saved_at   INTEGER NOT NULL
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        word        TEXT NOT NULL UNIQUE,
+        definition  TEXT NOT NULL,
+        saved_at    INTEGER NOT NULL
       )
     ''');
-
-    // Quotes (seeded lazily from small JSON files)
     await db.execute('''
       CREATE TABLE IF NOT EXISTS quotes_data (
         id          INTEGER PRIMARY KEY,
@@ -156,8 +149,6 @@ class DatabaseService {
         value TEXT NOT NULL
       )
     ''');
-
-    // Performance indices on user-data tables
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_wp_game_status ON word_progress(game_type, status)',
     );
@@ -167,21 +158,25 @@ class DatabaseService {
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_sessions_played_at ON game_sessions(played_at)',
     );
+    // DB-02: hot-path asset-DB indices — eliminates ~40ms full-table scans on game start.
+    // idx_def_sense also covers the sense_order = 0 filter in _loadWordRows.
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_def_sense ON definitions(word_id, sense_order)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_syn_word ON synonyms(word_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_ant_word ON antonyms(word_id)',
+    );
   }
-
-  // ── Word Queries ──────────────────────────────────────────────────────────
 
   Future<List<WordRow>> getEligibleWords({
     required String gameType,
     required int difficulty,
     required int limit,
-    /// When true, only words that have an entry in [definitions] (sense_order=0)
-    /// are returned. Set this for any game that displays a definition so words
-    /// with no usable definition are excluded at the DB level.
     bool requiresDefinition = false,
-    /// When true, only words that have at least one synonym are returned.
     bool requiresSynonym = false,
-    /// When true, only words that have at least one antonym are returned.
     bool requiresAntonym = false,
   }) async {
     // Use the stored difficulty column rather than computing LENGTH() at query
@@ -197,41 +192,32 @@ class DatabaseService {
         ? 'AND EXISTS (SELECT 1 FROM antonyms a WHERE a.word_id = w.id)'
         : '';
     final fetchLimit = (limit * 4).clamp(limit, 2000);
-
-    // Unscramble requires UPPERCASE-only words so that scrambled tiles are
-    // consistent and lowercase duplicate rows (which lack English definitions)
-    // are excluded. Other game types should see the full word pool.
     final upperClause =
         gameType == 'unscramble' ? 'AND w.word = UPPER(w.word)' : '';
-
     final rows = await db.rawQuery('''
       SELECT w.id, w.word, wp.last_attempted
       FROM words w
       LEFT JOIN word_progress wp
         ON w.id = wp.word_id AND wp.game_type = ?
       WHERE (wp.status IS NULL OR wp.status != 'mastered')
-      $upperClause
-      $diffClause
-      $defClause
-      $synClause
-      $antClause
+        $upperClause
+        $diffClause
+        $defClause
+        $synClause
+        $antClause
       ORDER BY RANDOM()
       LIMIT $fetchLimit
     ''', [gameType]);
-
     final now = DateTime.now().millisecondsSinceEpoch;
     final sorted = rows.map((r) {
       final last = r['last_attempted'] as int?;
       return (id: r['id'] as int, priority: last == null ? 999999999 : now - last);
     }).toList()
       ..sort((a, b) => b.priority.compareTo(a.priority));
-
     final ids = sorted.take(limit).map((e) => e.id).toList();
     return _loadWordRows(ids);
   }
 
-  /// Returns the difficulty level (1/2/3) for a word length, matching the
-  /// pre-computed [difficulty] column in the [words] table.
   static int difficultyForLength(int len) {
     if (len <= 5) return 1;
     if (len <= 9) return 2;
@@ -241,8 +227,6 @@ class DatabaseService {
   Future<List<WordRow>> _loadWordRows(List<int> ids) async {
     if (ids.isEmpty) return [];
     final ph = ids.map((_) => '?').join(',');
-
-    // Word texts
     final wordTexts = await db.rawQuery(
       'SELECT id, word FROM words WHERE id IN ($ph)', ids,
     );
@@ -257,7 +241,6 @@ class DatabaseService {
     ''', ids);
     final defMap = {for (final r in defRows) r['word_id'] as int: r};
 
-    // Synonyms (up to 10 per word, deduplicated at source)
     final synRows = await db.rawQuery('''
       SELECT word_id, GROUP_CONCAT(synonym, '|') AS syns
       FROM (SELECT word_id, synonym FROM synonyms WHERE word_id IN ($ph) LIMIT 10)
@@ -265,7 +248,6 @@ class DatabaseService {
     ''', ids);
     final synMap = {for (final r in synRows) r['word_id'] as int: r['syns'] as String? ?? ''};
 
-    // Antonyms (up to 10 per word, deduplicated at source)
     final antRows = await db.rawQuery('''
       SELECT word_id, GROUP_CONCAT(antonym, '|') AS ants
       FROM (SELECT word_id, antonym FROM antonyms WHERE word_id IN ($ph) LIMIT 10)
@@ -296,12 +278,9 @@ class DatabaseService {
       final pos = defRow?['pos'] as String? ?? '';
       final syns = (synMap[id] ?? '').split('|').where((s) => s.isNotEmpty).toList();
       final ants = (antMap[id] ?? '').split('|').where((s) => s.isNotEmpty).toList();
-      // Trim verbose bn values like "সত্য (Adj.), প্রকৃত (Adj.)..." to just
-      // the primary meaning before the first comma.
       final rawBn = bnMap[word.toLowerCase()] ?? '';
       final bn = rawBn.isEmpty ? '' : rawBn.split(',').first.trim();
       final len = word.length;
-
       return WordRow(
         id: id,
         word: word,
@@ -349,8 +328,6 @@ class DatabaseService {
     ''', [gameType])) ?? 0;
   }
 
-  // ── Progress Queries ──────────────────────────────────────────────────────
-
   Future<void> markWordStatus({
     required int wordId,
     required String gameType,
@@ -389,14 +366,10 @@ class DatabaseService {
     return result;
   }
 
-  // ── Session Queries ───────────────────────────────────────────────────────
-
   Future<void> saveGameSession(GameSessionModel session) async {
     await db.insert('game_sessions', session.toDb());
   }
 
-  /// Returns up to [limit] most recent sessions, optionally filtered by
-  /// [gameType]. Capped to prevent unbounded growth as sessions accumulate.
   Future<List<GameSessionModel>> getGameSessions({
     String? gameType,
     int limit = 200,
@@ -421,7 +394,6 @@ class DatabaseService {
     final totalMastered = Sqflite.firstIntValue(await db.rawQuery(
       "SELECT COUNT(*) FROM word_progress WHERE status = 'mastered'",
     )) ?? 0;
-
     final gameStats = await db.rawQuery('''
       SELECT game_type,
              COUNT(*) as sessions,
@@ -432,7 +404,6 @@ class DatabaseService {
       GROUP BY game_type
       ORDER BY total_score DESC
     ''');
-
     return {
       'totalSessions': totalSessions,
       'totalCorrect': totalCorrect,
@@ -464,8 +435,6 @@ class DatabaseService {
     return rows.isEmpty ? null : rows.first['game_type'] as String?;
   }
 
-  // ── User Progress ─────────────────────────────────────────────────────────
-
   Future<UserProgressModel> getUserProgress() async {
     final rows = await db.query('user_progress', where: 'id = 1');
     if (rows.isEmpty) return const UserProgressModel();
@@ -490,7 +459,6 @@ class DatabaseService {
       where: 'id = 1',
     );
     if (rows.isEmpty) return;
-
     final row = rows.first;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -499,21 +467,16 @@ class DatabaseService {
         ? DateTime.fromMillisecondsSinceEpoch(lastMs).let(
             (d) => DateTime(d.year, d.month, d.day))
         : null;
-
     if (lastDay == today) return;
-
     final streak = row['streak'] as int;
     final yesterday = today.subtract(const Duration(days: 1));
     final newStreak = (lastDay == yesterday) ? streak + 1 : 1;
-
     await db.update(
       'user_progress',
       {'streak': newStreak, 'last_played_at': today.millisecondsSinceEpoch},
       where: 'id = 1',
     );
   }
-
-  // ── Saved Words ───────────────────────────────────────────────────────────
 
   Future<void> saveWord(String word, String definition) async {
     await db.insert(
@@ -538,8 +501,6 @@ class DatabaseService {
     return db.query('saved_words', orderBy: 'saved_at DESC');
   }
 
-  // ── Daily Goal ────────────────────────────────────────────────────────────
-
   Future<int> getTodaySessionCount() async {
     final start = DateTime.now().let((n) =>
         DateTime(n.year, n.month, n.day).millisecondsSinceEpoch);
@@ -548,8 +509,6 @@ class DatabaseService {
         )) ??
         0;
   }
-
-  // ── Quotes seeding ────────────────────────────────────────────────────────
 
   static const _quotesVersion = 1;
 
@@ -599,14 +558,10 @@ class DatabaseService {
     if (category != null && category != 'all') { conditions.add('category = ?'); args.add(category); }
     final where = conditions.isNotEmpty ? 'WHERE ${conditions.join(' AND ')}' : '';
     return Sqflite.firstIntValue(
-          await db.rawQuery('SELECT COUNT(*) FROM quotes_data $where', args),
-        ) ?? 0;
+      await db.rawQuery('SELECT COUNT(*) FROM quotes_data $where', args),
+    ) ?? 0;
   }
 
-  // ── Reset ─────────────────────────────────────────────────────────────────
-
-  /// Clears all user-generated data: XP, sessions, word progress, saved words.
-  /// Vocabulary data is preserved.
   Future<void> resetAllProgress() async {
     await db.transaction((txn) async {
       await txn.delete('word_progress');
@@ -620,10 +575,6 @@ class DatabaseService {
     });
   }
 
-  // ── Era / Category (resolved from JSON, not DB) ───────────────────────────
-
-  /// Eras and categories are sourced from the JSON quote files, not the DB.
-  /// These stubs are kept for backward compatibility.
   Future<List<String>> getDistinctEras() async => [];
   Future<List<String>> getDistinctCategories() async => [];
 
@@ -642,15 +593,10 @@ class DatabaseService {
   }
 }
 
-// ── Extension helpers ─────────────────────────────────────────────────────────
-
 extension _Let<T> on T {
   R let<R>(R Function(T) block) => block(this);
 }
 
-// ── WordRow ───────────────────────────────────────────────────────────────────
-
-/// Lightweight word data class returned by all DB queries.
 class WordRow {
   final int id;
   final String word;
