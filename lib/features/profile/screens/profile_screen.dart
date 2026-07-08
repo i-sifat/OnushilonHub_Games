@@ -42,7 +42,7 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App Bar ────────────────────────────────────────────
+            // ── App Bar ──────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTokens.screenPaddingH,
@@ -87,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
                     }),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Statistics ────────────────────────────────────────────
+                    // ── Statistics ────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -99,7 +99,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Game Breakdown ──────────────────────────────────────────
+                    // ── Game Breakdown ────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -118,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Saved Words ───────────────────────────────────────────
+                    // ── Saved Words ───────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
@@ -132,7 +132,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero Card ──────────────────────────────────────────────────────────────────────────────
+// ── Hero Card ────────────────────────────────────────────────────────────────
 
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
@@ -230,7 +230,7 @@ class _Divider extends StatelessWidget {
   }
 }
 
-// ── Overall Stats ────────────────────────────────────────────────────────────────────────
+// ── Overall Stats ────────────────────────────────────────────────────────────
 
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
@@ -338,7 +338,7 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-// ── Game Breakdown ───────────────────────────────────────────────────────────────────────
+// ── Game Breakdown ────────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
@@ -495,7 +495,7 @@ class _DonutPainter extends CustomPainter {
       old.total != total || old.gameStats != gameStats;
 }
 
-// ── Saved Words Entry ───────────────────────────────────────────────────────────────────────────────
+// ── Saved Words Entry ─────────────────────────────────────────────────────────
 
 class _SavedWordsEntry extends ConsumerWidget {
   @override

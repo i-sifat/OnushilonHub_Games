@@ -9,7 +9,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
   const MeaningChaseBuilder(this.repo);
 
-  // ── MC2: POS-suffix cleaner ──────────────────────────────────────────────────────────
+  // ── MC2: POS-suffix cleaner ───────────────────────────────────────────────
   //
   // Raw Bengali meanings from the DB often carry part-of-speech annotations:
   //   "কম্পন (N)"        → "কম্পন"
@@ -25,7 +25,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
     // Step 2: strip trailing POS annotation like "(N)", "(Adj.)", "(v.)".
     // Pattern: optional space, open paren, letters/dots/spaces, close paren, end.
     return firstOnly
-        .replaceAll(RegExp(r'\s*\([A-Za-z./\s]+\)\s*$'), '')
+        .replaceAll(RegExp(r"\s*\([A-Za-z./\s]+\)\s*$"), '')
         .trim();
   }
 
@@ -34,7 +34,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
     final rng = Random();
     final count = resolveQuestionCount(config);
 
-    // ── Word fetch ───────────────────────────────────────────────────────────────────────
+    // ── Word fetch ────────────────────────────────────────────────────────
     final words = await repo.getEligibleWords(
       gameType: config.gameType.dbKey,
       difficulty: config.difficulty,
@@ -49,7 +49,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
     final banglaWords =
         words.where((w) => w.banglaMeaning.isNotEmpty).toList();
 
-    // ── Distractor pool ───────────────────────────────────────────────────────────────────────
+    // ── Distractor pool ───────────────────────────────────────────────────
     final pool = await repo.getEligibleWords(
       gameType: 'meaning_chase',
       difficulty: 0,
@@ -57,7 +57,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
       requiresDefinition: true,
     );
 
-    // ── Build word questions ──────────────────────────────────────────────────────────────────
+    // ── Build word questions ──────────────────────────────────────────────
     final built = <McqQuestion>[];
 
     for (final word in banglaWords) {
@@ -88,7 +88,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
       ));
     }
 
-    // ── MC4: session-wide distractor dedup ───────────────────────────────────────────
+    // ── MC4: session-wide distractor dedup ───────────────────────────────
     //
     // If meaning X is the correct answer for Q3 it should never appear as a
     // distractor for Q7 — the player who just learned X would be penalised
@@ -115,7 +115,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
       );
     }).toList();
 
-    // ── Phrase fallback (MC5) ─────────────────────────────────────────────────────────────
+    // ── Phrase fallback (MC5) ─────────────────────────────────────────────
     //
     // If the word pass produced fewer questions than requested, top up with
     // phrase questions from bengali_dictionary (is_phrase = 1).
