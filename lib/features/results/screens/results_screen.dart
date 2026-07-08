@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/home/providers/home_provider.dart';
-import '../../../features/profile/screens/profile_screen.dart'
-    show profileRefreshCounterProvider;
+import '../../../features/profile/screens/profile_screen.dart' show profileRefreshCounterProvider;
 import '../../../core/models/game_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -140,6 +139,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                       ),
                     ),
                     const SizedBox(height: AppTokens.space32),
+
                     // Score card
                     Container(
                       width: double.infinity,
@@ -257,8 +257,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                       ),
                       const SizedBox(height: AppTokens.space12),
                       ...result.mistakes.map((m) => Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: AppTokens.space12),
+                            padding: const EdgeInsets.only(bottom: AppTokens.space12),
                             child: _MistakeCard(mistake: m),
                           )),
                     ],
@@ -271,7 +270,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                       child: FilledButton.icon(
                         onPressed: () {
                           _invalidateHomeProviders(ref);
-                          context.go('/game/${result.gameType.name}');
+                          context.go('/games/pre/${result.gameType.dbKey}');
                         },
                         icon: const Icon(Icons.replay_rounded),
                         label: const Text('Play Again'),
@@ -284,10 +283,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: () {
-                          _invalidateHomeProviders(ref);
-                          context.go('/home');
-                        },
+                        onPressed: () { _invalidateHomeProviders(ref); context.go('/home'); },
                         icon: const Icon(Icons.home_rounded),
                         label: const Text('Go Home'),
                         style: OutlinedButton.styleFrom(
@@ -380,7 +376,7 @@ class _StatCard extends StatelessWidget {
 }
 
 class _MistakeCard extends StatelessWidget {
-  final Mistake mistake;
+  final MistakeItem mistake;
 
   const _MistakeCard({required this.mistake});
 
@@ -394,16 +390,25 @@ class _MistakeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            mistake.question.length > 80
+                ? '${mistake.question.substring(0, 80)}...'
+                : mistake.question,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: AppTokens.space8),
           Row(
             children: [
-              const Icon(Icons.cancel_rounded,
-                  size: 14, color: AppColors.lightError),
+              const Icon(Icons.cancel_rounded, size: 14, color: AppColors.lightError),
               const SizedBox(width: AppTokens.space4),
               Expanded(
                 child: Text(

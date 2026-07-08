@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' show pi;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/game_config.dart';
 import '../../../core/models/user_progress_model.dart';
@@ -13,25 +14,9 @@ import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
 
-/// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
-/// Notifier. The counter increment pattern maps to a one-line [increment]
-/// method — semantics are identical, legacy import is removed.
-/// Backward-compatible [update] shim retained for existing call sites.
-class ProfileRefreshCounterNotifier extends Notifier<int> {
-  @override
-  int build() => 0;
-  void increment() => state++;
-  // Backward-compatible shim — matches the StateProvider.notifier.update()
-  // call pattern used in ResultsScreen.
-  void update(int Function(int) fn) => state = fn(state);
-}
-
 /// Incrementing counter used to force-refresh profile data after a game.
 /// Replacing the old StreamController pattern (which leaked listeners).
-final profileRefreshCounterProvider =
-    NotifierProvider<ProfileRefreshCounterNotifier, int>(
-  ProfileRefreshCounterNotifier.new,
-);
+final profileRefreshCounterProvider = StateProvider<int>((ref) => 0);
 
 final _profileStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   ref.watch(profileRefreshCounterProvider);
@@ -57,7 +42,7 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App Bar ──────────────────────────────────────────────────
+            // ── App Bar ────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTokens.screenPaddingH,
@@ -102,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
                     }),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Statistics ────────────────────────────────────────
+                    // ── Statistics ────────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -114,14 +99,15 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Game Breakdown ────────────────────────────────────
+                    // ── Game Breakdown ──────────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: AppTokens.space16),
                     statsAsync.when(
                       data: (stats) {
-                        final gameStats = stats['gameStats'] as List;
+                        final gameStats =
+                            stats['gameStats'] as List<Map<String, dynamic>>;
                         if (gameStats.isEmpty) {
                           return _EmptyBreakdown();
                         }
@@ -132,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Saved Words ───────────────────────────────────────
+                    // ── Saved Words ───────────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
@@ -146,7 +132,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero Card ────────────────────────────────────────────────────────────────
+// ── Hero Card ──────────────────────────────────────────────────────────────────────────────
 
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
@@ -244,7 +230,7 @@ class _Divider extends StatelessWidget {
   }
 }
 
-// ── Overall Stats ────────────────────────────────────────────────────────────
+// ── Overall Stats ────────────────────────────────────────────────────────────────────────
 
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
@@ -352,7 +338,7 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-// ── Game Breakdown ────────────────────────────────────────────────────────────
+// ── Game Breakdown ───────────────────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
@@ -509,7 +495,7 @@ class _DonutPainter extends CustomPainter {
       old.total != total || old.gameStats != gameStats;
 }
 
-// ── Saved Words Entry ─────────────────────────────────────────────────────────
+// ── Saved Words Entry ───────────────────────────────────────────────────────────────────────────────
 
 class _SavedWordsEntry extends ConsumerWidget {
   @override
