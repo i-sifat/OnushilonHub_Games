@@ -23,10 +23,11 @@ class TrueFalseGameScreen extends ConsumerStatefulWidget {
   const TrueFalseGameScreen({super.key, required this.config});
 
   @override
-  ConsumerState createState() => _TrueFalseGameScreenState();
+  ConsumerState<TrueFalseGameScreen> createState() =>
+      _TrueFalseGameScreenState();
 }
 
-class _TrueFalseGameScreenState extends ConsumerState
+class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
     with GameScreenLifecycleMixin {
   String? _selectedAnswer;
   int _lastIndex = -1;
@@ -131,7 +132,7 @@ class _TrueFalseGameScreenState extends ConsumerState
                                     AppTokens.radiusLarge),
                                 border: Border.all(
                                   color: colorScheme.outlineVariant
-                                      .withAlpha(0.5),
+                                      .withOpacity(0.5),
                                 ),
                               ),
                               child: Column(
@@ -144,9 +145,11 @@ class _TrueFalseGameScreenState extends ConsumerState
                                       vertical: AppTokens.space4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: colorScheme.primaryContainer,
-                                      borderRadius: BorderRadius.circular(
-                                          AppTokens.radiusPill),
+                                      color:
+                                          colorScheme.primaryContainer,
+                                      borderRadius:
+                                          BorderRadius.circular(
+                                              AppTokens.radiusPill),
                                     ),
                                     child: Text(
                                       q.prompt,
@@ -199,7 +202,7 @@ class _TrueFalseGameScreenState extends ConsumerState
                               children: [
                                 Expanded(
                                   child: _TFButton(
-                                    label: 'True ✓',
+                                    label: 'True \u2713',
                                     color: Colors.green,
                                     onTap: () => _answer('True'),
                                   ),
@@ -208,7 +211,7 @@ class _TrueFalseGameScreenState extends ConsumerState
                                     width: AppTokens.space16),
                                 Expanded(
                                   child: _TFButton(
-                                    label: 'False ✗',
+                                    label: 'False \u2717',
                                     color: Colors.red,
                                     onTap: () => _answer('False'),
                                   ),
@@ -224,9 +227,9 @@ class _TrueFalseGameScreenState extends ConsumerState
                               ),
                               const SizedBox(height: AppTokens.space16),
                             ],
-                            AppButton(
+                            AppPrimaryButton(
                               label: 'Next',
-                              onTap: () => ref
+                              onPressed: () => ref
                                   .read(provider.notifier)
                                   .nextQuestion(),
                             ),
@@ -253,10 +256,34 @@ class _TFButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppButton(
-      label: label,
-      color: color,
-      onTap: onTap,
+    return Material(
+      color: color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        child: Container(
+          height: 64,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+            border: Border.all(
+              color: color.withOpacity(0.5),
+              width: 1.5,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ),
+      ),
     );
   }
 }

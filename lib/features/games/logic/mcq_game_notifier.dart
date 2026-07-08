@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
 import '../../../core/models/game_config.dart';
 import '../../../core/models/user_progress_model.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -38,7 +37,6 @@ class McqGameNotifier extends StateNotifier<McqGameState>
   final GameConfig config;
   final IGameRepository repo;
   final McqQuestionBuilderFactory builderFactory;
-
   late final GameTimerController _sessionTimer;
   CountdownEngine? _countdown;
 
@@ -88,13 +86,15 @@ class McqGameNotifier extends StateNotifier<McqGameState>
   }
 
   void _startCountdown() {
+    _countdown?.dispose();
+    state = state.copyWith(timer: freshTimerState());
     _countdown = CountdownEngine(
-      duration: GameRules.speedRacingQuestionDuration,
+      duration: GameRules.speedRacingTimerSeconds.toDouble(),
       onTick: (remaining) {
         state =
             state.copyWith(timer: state.timer?.copyWith(timeLeft: remaining));
       },
-      onFinish: () {
+      onComplete: () {
         handleAnswer('');
       },
     )..start();
@@ -187,13 +187,21 @@ class McqGameNotifier extends StateNotifier<McqGameState>
       score: state.score,
       correctCount: state.correctCount,
       wrongCount: state.wrongCount,
-      duration: elapsed,
-      mistakes: state.mistakes,
+      durationSeconds: elapsed,
+      playedAt: DateTime.now(),
     );
-    await repo.saveSession(session);
+    try {
+      await repo.persistSession(session: session, xpEarned: state.score);
+    } catch (e, stack) {
+      state = state.copyWith(saveError: 'Failed to save your progress.');
+      assert(() {
+        debugPrint('Session persist failed: $e\n$stack');
+        return true;
+      }());
+    }
   }
 
-  GameResult toResult() {
+  GameResult buildResult() {
     return GameResult(
       gameType: config.gameType,
       score: state.score,
@@ -207,13 +215,13 @@ class McqGameNotifier extends StateNotifier<McqGameState>
   }
 
   @override
-  void pause() {
+  void pauseTimer() {
     _sessionTimer.pause();
     _countdown?.pause();
   }
 
   @override
-  void resume() {
+  void resumeTimer() {
     _sessionTimer.resume();
     _countdown?.resume();
   }

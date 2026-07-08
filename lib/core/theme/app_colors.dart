@@ -42,4 +42,8 @@ class AppColors {
   // Word card gradient
   static const wordCardStart = Color(0xFF1A6B45);
   static const wordCardEnd = Color(0xFF0F4228);
+
+  // Semantic aliases — used in results_screen & MistakeItemWidget
+  static const success = correctGreen;
+  static const error = errorRed;
 }

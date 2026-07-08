@@ -223,16 +223,21 @@ class GameResult {
   final int bonusXp;
   final List<MistakeItem> mistakes;
 
-  const GameResult({
+  /// [elapsedSeconds] is the canonical field name.
+  /// [durationSeconds] is a backward-compat alias accepted by the constructor
+  /// for callers not yet migrated (e.g. unscramble_notifier).
+  /// If both are supplied, [elapsedSeconds] takes priority.
+  GameResult({
     required this.gameType,
     required this.score,
     required this.correctCount,
     required this.wrongCount,
-    required this.elapsedSeconds,
+    int? elapsedSeconds,
+    int? durationSeconds,
     required this.baseXp,
-    required this.bonusXp,
+    this.bonusXp = 0,
     required this.mistakes,
-  });
+  }) : elapsedSeconds = elapsedSeconds ?? durationSeconds ?? 0;
 
   double get accuracy =>
       (correctCount + wrongCount) == 0
