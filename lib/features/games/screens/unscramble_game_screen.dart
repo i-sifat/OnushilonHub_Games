@@ -258,6 +258,19 @@ class _UnscrambleGameScreenState extends ConsumerState<UnscrambleGameScreen>
                           );
                         }),
                       ],
+                    ] else ...[
+                      // G-03: instead of hiding the button when there's no
+                      // Bengali meaning, show a greyed-out label so the player
+                      // knows the absence is intentional — not a bug.
+                      const SizedBox(height: AppTokens.space12),
+                      Center(
+                        child: Text(
+                          'No meaning available',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
                     ],
                     const SizedBox(height: AppTokens.space20),
                     SizedBox(
