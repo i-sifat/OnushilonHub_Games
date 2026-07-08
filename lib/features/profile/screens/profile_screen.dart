@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' show pi;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/game_config.dart';
 import '../../../core/models/user_progress_model.dart';
@@ -14,9 +13,25 @@ import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
 
+/// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
+/// Notifier. The counter increment pattern maps to a one-line [increment]
+/// method — semantics are identical, legacy import is removed.
+/// Backward-compatible [update] shim retained for existing call sites.
+class ProfileRefreshCounterNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+  void increment() => state++;
+  // Backward-compatible shim — matches the StateProvider.notifier.update()
+  // call pattern used in ResultsScreen.
+  void update(int Function(int) fn) => state = fn(state);
+}
+
 /// Incrementing counter used to force-refresh profile data after a game.
 /// Replacing the old StreamController pattern (which leaked listeners).
-final profileRefreshCounterProvider = StateProvider<int>((ref) => 0);
+final profileRefreshCounterProvider =
+    NotifierProvider<ProfileRefreshCounterNotifier, int>(
+  ProfileRefreshCounterNotifier.new,
+);
 
 final _profileStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   ref.watch(profileRefreshCounterProvider);
@@ -28,6 +43,26 @@ final _profileProgressProvider = FutureProvider<UserProgressModel>((ref) async {
   return DatabaseService.instance.getUserProgress();
 });
 
+// UX-06: per-game mastery progress (mastered / total words seen per game type)
+final _profileGameProgressProvider =
+    FutureProvider<Map<String, Map<String, int>>>((ref) async {
+  ref.watch(profileRefreshCounterProvider);
+  final rows = await DatabaseService.instance.db.rawQuery('''
+    SELECT game_type, status, COUNT(*) AS cnt
+    FROM word_progress
+    GROUP BY game_type, status
+  ''');
+  final result = <String, Map<String, int>>{};
+  for (final row in rows) {
+    final gt = row['game_type'] as String;
+    final st = row['status'] as String;
+    final ct = row['cnt'] as int;
+    result.putIfAbsent(gt, () => {});
+    result[gt]![st] = ct;
+  }
+  return result;
+});
+
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -35,6 +70,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(_profileStatsProvider);
     final progressAsync = ref.watch(_profileProgressProvider);
+    final gameProgressAsync = ref.watch(_profileGameProgressProvider);
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -42,7 +78,7 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App Bar ──────────────────────────────────────────────────
+            // ── App Bar ────────────────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTokens.screenPaddingH,
@@ -71,7 +107,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Hero Card ─────────────────────────────────────────
+                    // ── Hero Card ───────────────────────────────────────────────────
                     Builder(builder: (context) {
                       final sessions = statsAsync.when(
                         data: (s) => s['totalSessions'] as int,
@@ -87,7 +123,7 @@ class ProfileScreen extends ConsumerWidget {
                     }),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Statistics ────────────────────────────────────────
+                    // ── Statistics ────────────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -99,7 +135,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Game Breakdown ────────────────────────────────────
+                    // ── Game Breakdown ────────────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -111,14 +147,26 @@ class ProfileScreen extends ConsumerWidget {
                         if (gameStats.isEmpty) {
                           return _EmptyBreakdown();
                         }
-                        return _GameBreakdownChart(gameStats: gameStats);
+                        return Column(
+                          children: [
+                            _GameBreakdownChart(gameStats: gameStats),
+                            const SizedBox(height: AppTokens.space16),
+                            gameProgressAsync.when(
+                              data: (counts) =>
+                                  _GameProgressBars(progressCounts: counts),
+                              loading: () =>
+                                  const SkeletonCard(height: 220),
+                              error: (_, __) => const SizedBox(),
+                            ),
+                          ],
+                        );
                       },
                       loading: () => const SkeletonCard(height: 180),
                       error: (_, __) => const SizedBox(),
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Saved Words ───────────────────────────────────────
+                    // ── Saved Words ───────────────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
@@ -132,7 +180,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero Card ────────────────────────────────────────────────────────────────
+// ── Hero Card ──────────────────────────────────────────────────────────────────────────
 
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
@@ -230,7 +278,7 @@ class _Divider extends StatelessWidget {
   }
 }
 
-// ── Overall Stats ────────────────────────────────────────────────────────────
+// ── Overall Stats ────────────────────────────────────────────────────────────────────
 
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
@@ -338,7 +386,7 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-// ── Game Breakdown ────────────────────────────────────────────────────────────
+// ── Game Breakdown ────────────────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
@@ -495,7 +543,91 @@ class _DonutPainter extends CustomPainter {
       old.total != total || old.gameStats != gameStats;
 }
 
-// ── Saved Words Entry ─────────────────────────────────────────────────────────
+// ── Game Progress Bars (UX-06) ─────────────────────────────────────────────────
+
+class _GameProgressBars extends StatelessWidget {
+  final Map<String, Map<String, int>> progressCounts;
+
+  const _GameProgressBars({required this.progressCounts});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final types = GameType.values
+        .where((t) => progressCounts.containsKey(t.dbKey))
+        .toList();
+
+    if (types.isEmpty) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.all(AppTokens.space16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Mastery Progress',
+              style:
+                  textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: AppTokens.space12),
+          ...types.map((type) {
+            final statusMap = progressCounts[type.dbKey] ?? {};
+            final mastered = statusMap['mastered'] ?? 0;
+            final total =
+                statusMap.values.fold(0, (s, v) => s + v);
+            final fraction =
+                total > 0 ? (mastered / total).clamp(0.0, 1.0) : 0.0;
+
+            return Padding(
+              padding:
+                  const EdgeInsets.only(bottom: AppTokens.space12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(type.label,
+                            style: textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      Text(
+                        '$mastered / $total',
+                        style: textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppTokens.space4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: fraction,
+                      minHeight: 6,
+                      backgroundColor: type.iconBg,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(type.iconColor),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Saved Words Entry ─────────────────────────────────────────────────────────────────
 
 class _SavedWordsEntry extends ConsumerWidget {
   @override

@@ -1,1763 +1,312 @@
 [
-  {
-    "id": 1,
-    "text": "To be, or not to be, that is the question.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "existence",
-      "famous",
-      "soliloquy",
-      "mortality",
-      "drama",
-      "elizabethan"
-    ]
-  },
-  {
-    "id": 2,
-    "text": "All the world's a stage, and all the men and women merely players.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "as-you-like-it",
-      "stage",
-      "life",
-      "players",
-      "famous",
-      "comedy",
-      "elizabethan"
-    ]
-  },
-  {
-    "id": 3,
-    "text": "No man is an island, entire of itself.",
-    "author_id": 18,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      5
-    ],
-    "tags": [
-      "donne",
-      "metaphysical",
-      "humanity",
-      "connected",
-      "sermon",
-      "devotion",
-      "17th-century",
-      "famous"
-    ]
-  },
-  {
-    "id": 4,
-    "text": "Beauty is truth, truth beauty — that is all ye know on earth, and all ye need to know.",
-    "author_id": 41,
-    "work_id": 31,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "ode",
-      "beauty",
-      "truth",
-      "romantic",
-      "aesthetic",
-      "grecian-urn",
-      "famous"
-    ]
-  },
-  {
-    "id": 5,
-    "text": "April is the cruellest month, breeding lilacs out of the dead land.",
-    "author_id": 55,
-    "work_id": 41,
-    "era_id": 7,
-    "movement_ids": [
-      14
-    ],
-    "tags": [
-      "eliot",
-      "waste-land",
-      "april",
-      "modernism",
-      "opening",
-      "spring",
-      "famous",
-      "20th-century"
-    ]
-  },
-  {
-    "id": 6,
-    "text": "The past is a foreign country: they do things differently there.",
-    "author_id": 188,
-    "work_id": 70,
-    "era_id": 8,
-    "movement_ids": [],
-    "tags": [
-      "hartley",
-      "go-between",
-      "memory",
-      "past",
-      "famous",
-      "nostalgia",
-      "postwar",
-      "opening"
-    ]
-  },
-  {
-    "id": 7,
-    "text": "I am no bird; and no net ensnares me.",
-    "author_id": 45,
-    "work_id": 36,
-    "era_id": 6,
-    "movement_ids": [
-      11
-    ],
-    "tags": [
-      "charlotte-bronte",
-      "jane-eyre",
-      "freedom",
-      "female",
-      "independence",
-      "victorian",
-      "defiance",
-      "famous"
-    ]
-  },
-  {
-    "id": 8,
-    "text": "It was the best of times, it was the worst of times.",
-    "author_id": 42,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      11
-    ],
-    "tags": [
-      "dickens",
-      "tale-two-cities",
-      "famous",
-      "opening",
-      "paradox",
-      "victorian",
-      "revolution",
-      "contrast"
-    ]
-  },
-  {
-    "id": 10,
-    "text": "What's in a name? That which we call a rose by any other name would smell as sweet.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "romeo-juliet",
-      "name",
-      "language",
-      "famous",
-      "elizabethan",
-      "romance",
-      "drama"
-    ]
-  },
-  {
-    "id": 11,
-    "text": "All animals are equal, but some animals are more equal than others.",
-    "author_id": 111,
-    "work_id": 47,
-    "era_id": 7,
-    "movement_ids": [],
-    "tags": [
-      "orwell",
-      "animal-farm",
-      "equality",
-      "satire",
-      "totalitarianism",
-      "famous",
-      "political",
-      "irony"
-    ]
-  },
-  {
-    "id": 12,
-    "text": "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-    "author_id": 39,
-    "work_id": 27,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "austen",
-      "pride-prejudice",
-      "irony",
-      "famous",
-      "opening",
-      "marriage",
-      "regency",
-      "social"
-    ]
-  },
-  {
-    "id": 13,
-    "text": "We are all of us the worse for too much solitude.",
-    "author_id": 43,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      11
-    ],
-    "tags": [
-      "eliot",
-      "community",
-      "isolation",
-      "victorian",
-      "moral",
-      "wisdom",
-      "fellowship",
-      "prose"
-    ]
-  },
-  {
-    "id": 16,
-    "text": "Do not go gentle into that good night. Rage, rage against the dying of the light.",
-    "author_id": 110,
-    "work_id": null,
-    "era_id": 7,
-    "movement_ids": [],
-    "tags": [
-      "dylan-thomas",
-      "death",
-      "defiance",
-      "villanelle",
-      "welsh",
-      "famous",
-      "rage",
-      "father"
-    ]
-  },
-  {
-    "id": 17,
-    "text": "Vanity of vanities, all is vanity.",
-    "author_id": 174,
-    "work_id": 63,
-    "era_id": 6,
-    "movement_ids": [
-      11
-    ],
-    "tags": [
-      "thackeray",
-      "vanity-fair",
-      "ecclesiastes",
-      "opening",
-      "vanity",
-      "satirical",
-      "victorian",
-      "biblical-allusion"
-    ]
-  },
-  {
-    "id": 18,
-    "text": "Whatever our souls are made of, his and mine are the same.",
-    "author_id": 46,
-    "work_id": 37,
-    "era_id": 6,
-    "movement_ids": [
-      11
-    ],
-    "tags": [
-      "emily-bronte",
-      "wuthering-heights",
-      "heathcliff",
-      "catherine",
-      "love",
-      "soul",
-      "gothic",
-      "passionate"
-    ]
-  },
-  {
-    "id": 19,
-    "text": "There is nothing either good or bad, but thinking makes it so.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "moral-relativism",
-      "thought",
-      "elizabethan",
-      "philosophy",
-      "drama",
-      "perception"
-    ]
-  },
-  {
-    "id": 20,
-    "text": "The lady doth protest too much, methinks.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "famous-misquote",
-      "protest",
-      "lady",
-      "elizabethan",
-      "irony",
-      "drama"
-    ]
-  },
-  {
-    "id": 21,
-    "text": "I have measured out my life with coffee spoons.",
-    "author_id": 55,
-    "work_id": null,
-    "era_id": 7,
-    "movement_ids": [
-      14
-    ],
-    "tags": [
-      "eliot",
-      "prufrock",
-      "modernism",
-      "measurement",
-      "life",
-      "famous",
-      "irony",
-      "coffee"
-    ]
-  },
-  {
-    "id": 22,
-    "text": "In my beginning is my end.",
-    "author_id": 55,
-    "work_id": 45,
-    "era_id": 7,
-    "movement_ids": [
-      14
-    ],
-    "tags": [
-      "eliot",
-      "four-quartets",
-      "east-coker",
-      "cyclical",
-      "time",
-      "modernism",
-      "meditation",
-      "spiritual"
-    ]
-  },
-  {
-    "id": 23,
-    "text": "If you prick us, do we not bleed?",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "merchant-venice",
-      "shylock",
-      "humanity",
-      "equality",
-      "elizabethan",
-      "famous",
-      "jewish"
-    ]
-  },
-  {
-    "id": 24,
-    "text": "Give me my robe, put on my crown; I have immortal longings in me.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "antony-cleopatra",
-      "cleopatra",
-      "death",
-      "immortality",
-      "elizabethan",
-      "noble",
-      "tragedy"
-    ]
-  },
-  {
-    "id": 25,
-    "text": "Conscience doth make cowards of us all.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "conscience",
-      "cowardice",
-      "elizabethan",
-      "moral",
-      "psychology",
-      "famous"
-    ]
-  },
-  {
-    "id": 26,
-    "text": "A good book is the precious lifeblood of a master spirit.",
-    "author_id": 22,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      6
-    ],
-    "tags": [
-      "milton",
-      "areopagitica",
-      "books",
-      "censorship",
-      "17th-century",
-      "prose",
-      "freedom-of-press",
-      "learning"
-    ]
-  },
-  {
-    "id": 27,
-    "text": "The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.",
-    "author_id": 22,
-    "work_id": 16,
-    "era_id": 3,
-    "movement_ids": [
-      6
-    ],
-    "tags": [
-      "milton",
-      "paradise-lost",
-      "satan",
-      "mind",
-      "hell",
-      "heaven",
-      "famous",
-      "puritan"
-    ]
-  },
-  {
-    "id": 28,
-    "text": "To strive, to seek, to find, and not to yield.",
-    "author_id": 47,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      12
-    ],
-    "tags": [
-      "tennyson",
-      "ulysses",
-      "striving",
-      "heroic",
-      "victorian",
-      "determination",
-      "poem",
-      "famous"
-    ]
-  },
-  {
-    "id": 29,
-    "text": "Tis better to have loved and lost than never to have loved at all.",
-    "author_id": 47,
-    "work_id": 58,
-    "era_id": 6,
-    "movement_ids": [
-      12
-    ],
-    "tags": [
-      "tennyson",
-      "in-memoriam",
-      "love",
-      "loss",
-      "grief",
-      "victorian",
-      "famous",
-      "consolation"
-    ]
-  },
-  {
-    "id": 30,
-    "text": "I am part of all that I have met.",
-    "author_id": 47,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      12
-    ],
-    "tags": [
-      "tennyson",
-      "ulysses",
-      "identity",
-      "experience",
-      "victorian",
-      "poem",
-      "self",
-      "travel"
-    ]
-  },
-  {
-    "id": 31,
-    "text": "Yet each man kills the thing he loves.",
-    "author_id": 52,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "ballad-reading-gaol",
-      "paradox",
-      "love",
-      "destruction",
-      "prison",
-      "aestheticism",
-      "famous"
-    ]
-  },
-  {
-    "id": 32,
-    "text": "The only way to get rid of a temptation is to yield to it.",
-    "author_id": 52,
-    "work_id": 39,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "dorian-gray",
-      "temptation",
-      "pleasure",
-      "epigram",
-      "aestheticism",
-      "wit",
-      "famous"
-    ]
-  },
-  {
-    "id": 33,
-    "text": "We are all in the gutter, but some of us are looking at the stars.",
-    "author_id": 52,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "lady-windermere",
-      "hope",
-      "pessimism",
-      "optimism",
-      "epigram",
-      "wit",
-      "famous"
-    ]
-  },
-  {
-    "id": 34,
-    "text": "I can resist everything except temptation.",
-    "author_id": 52,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "lady-windermere",
-      "temptation",
-      "epigram",
-      "wit",
-      "comedy",
-      "aestheticism",
-      "famous"
-    ]
-  },
-  {
-    "id": 35,
-    "text": "The truth is rarely pure and never simple.",
-    "author_id": 52,
-    "work_id": 40,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "importance-of-earnest",
-      "truth",
-      "complexity",
-      "wit",
-      "comedy",
-      "epigram",
-      "famous"
-    ]
-  },
-  {
-    "id": 36,
-    "text": "If you want to tell people the truth, make them laugh, otherwise they'll kill you.",
-    "author_id": 52,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "attributed",
-      "truth",
-      "comedy",
-      "laughter",
-      "epigram",
-      "wit",
-      "satire"
-    ]
-  },
-  {
-    "id": 37,
-    "text": "We shall not cease from exploration.",
-    "author_id": 55,
-    "work_id": 45,
-    "era_id": 7,
-    "movement_ids": [
-      14
-    ],
-    "tags": [
-      "eliot",
-      "four-quartets",
-      "exploration",
-      "journey",
-      "spiritual",
-      "modernism",
-      "famous",
-      "little-gidding"
-    ]
-  },
-  {
-    "id": 38,
-    "text": "Wouldst thou have that which thou esteem'st the ornament of life, and live a coward in thine own esteem?",
-    "author_id": 13,
-    "work_id": 12,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "macbeth",
-      "lady-macbeth",
-      "courage",
-      "cowardice",
-      "ambition",
-      "elizabethan",
-      "famous"
-    ]
-  },
-  {
-    "id": 39,
-    "text": "Ripeness is all.",
-    "author_id": 13,
-    "work_id": 11,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "king-lear",
-      "edgar",
-      "maturity",
-      "acceptance",
-      "elizabethan",
-      "brief",
-      "tragic"
-    ]
-  },
-  {
-    "id": 40,
-    "text": "Out, out, brief candle! Life's but a walking shadow.",
-    "author_id": 13,
-    "work_id": 12,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "macbeth",
-      "nihilism",
-      "life",
-      "mortality",
-      "elizabethan",
-      "famous",
-      "soliloquy"
-    ]
-  },
-  {
-    "id": 41,
-    "text": "Come, thick night, and pall thee in the dunnest smoke of hell.",
-    "author_id": 13,
-    "work_id": 12,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "macbeth",
-      "lady-macbeth",
-      "darkness",
-      "night",
-      "elizabethan",
-      "incantation",
-      "tragedy"
-    ]
-  },
-  {
-    "id": 43,
-    "text": "O, she doth teach the torches to burn bright!",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "romeo-juliet",
-      "juliet",
-      "beauty",
-      "love",
-      "elizabethan",
-      "first-sight",
-      "famous"
-    ]
-  },
-  {
-    "id": 44,
-    "text": "The quality of mercy is not strained.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "merchant-venice",
-      "mercy",
-      "portia",
-      "famous",
-      "elizabethan",
-      "justice",
-      "speech"
-    ]
-  },
-  {
-    "id": 45,
-    "text": "Remember I am an ass; though it be not written down, yet forget not that I am an ass.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "much-ado",
-      "dogberry",
-      "comedy",
-      "elizabethan",
-      "self-deprecating",
-      "humor",
-      "constable"
-    ]
-  },
-  {
-    "id": 46,
-    "text": "I could be bounded in a nutshell, and count myself a king of infinite space.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "imagination",
-      "space",
-      "mind",
-      "elizabethan",
-      "famous",
-      "philosophy"
-    ]
-  },
-  {
-    "id": 47,
-    "text": "We know what we are, but know not what we may be.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "ophelia",
-      "identity",
-      "potential",
-      "elizabethan",
-      "famous",
-      "psychology"
-    ]
-  },
-  {
-    "id": 48,
-    "text": "O, what a tangled web we weave, when first we practise to deceive!",
-    "author_id": 156,
-    "work_id": null,
-    "era_id": 4,
-    "movement_ids": [],
-    "tags": [
-      "scott",
-      "marmion",
-      "deception",
-      "lies",
-      "famous",
-      "web",
-      "attributed",
-      "scottish"
-    ]
-  },
-  {
-    "id": 49,
-    "text": "Water, water, every where, nor any drop to drink.",
-    "author_id": 38,
-    "work_id": 26,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "coleridge",
-      "ancient-mariner",
-      "thirst",
-      "sea",
-      "curse",
-      "famous",
-      "misquoted",
-      "romantic"
-    ]
-  },
-  {
-    "id": 51,
-    "text": "I have nothing to declare except my genius.",
-    "author_id": 52,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [
-      13
-    ],
-    "tags": [
-      "wilde",
-      "attributed",
-      "customs",
-      "epigram",
-      "wit",
-      "genius",
-      "famous",
-      "america"
-    ]
-  },
-  {
-    "id": 52,
-    "text": "Words are, of course, the most powerful drug used by mankind.",
-    "author_id": 92,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [],
-    "tags": [
-      "kipling",
-      "words",
-      "language",
-      "power",
-      "famous",
-      "attributed",
-      "imperial",
-      "writing"
-    ]
-  },
-  {
-    "id": 53,
-    "text": "Beware the Jabberwock, my son! The jaws that bite, the claws that catch!",
-    "author_id": 97,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [],
-    "tags": [
-      "carroll",
-      "jabberwocky",
-      "nonsense",
-      "monster",
-      "warning",
-      "victorian",
-      "children",
-      "famous"
-    ]
-  },
-  {
-    "id": 54,
-    "text": "Curiouser and curiouser!",
-    "author_id": 97,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [],
-    "tags": [
-      "carroll",
-      "alice",
-      "wonder",
-      "curiosity",
-      "famous",
-      "victorian",
-      "children",
-      "nonsense"
-    ]
-  },
-  {
-    "id": 55,
-    "text": "If you don't know where you are going, any road will get you there.",
-    "author_id": 97,
-    "work_id": null,
-    "era_id": 6,
-    "movement_ids": [],
-    "tags": [
-      "carroll",
-      "attributed",
-      "direction",
-      "advice",
-      "famous",
-      "children",
-      "wisdom",
-      "cheshire-cat"
-    ]
-  },
-  {
-    "id": 57,
-    "text": "They also serve who only stand and wait.",
-    "author_id": 22,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      6
-    ],
-    "tags": [
-      "milton",
-      "sonnet",
-      "blindness",
-      "service",
-      "waiting",
-      "puritan",
-      "patience",
-      "17th-century"
-    ]
-  },
-  {
-    "id": 58,
-    "text": "Tyger Tyger, burning bright, in the forests of the night.",
-    "author_id": 36,
-    "work_id": 24,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "blake",
-      "tyger",
-      "innocence",
-      "experience",
-      "romantic",
-      "illuminated",
-      "famous",
-      "creation"
-    ]
-  },
-  {
-    "id": 60,
-    "text": "If music be the food of love, play on.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "twelfth-night",
-      "music",
-      "love",
-      "opening",
-      "elizabethan",
-      "famous",
-      "orsino"
-    ]
-  },
-  {
-    "id": 61,
-    "text": "Men of few words are the best men.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "henry-v",
-      "brevity",
-      "men",
-      "silence",
-      "elizabethan",
-      "drama",
-      "words"
-    ]
-  },
-  {
-    "id": 62,
-    "text": "Brevity is the soul of wit.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "polonius",
-      "brevity",
-      "wit",
-      "irony",
-      "elizabethan",
-      "famous"
-    ]
-  },
-  {
-    "id": 63,
-    "text": "Cowards die many times before their deaths; the valiant never taste of death but once.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "julius-caesar",
-      "courage",
-      "death",
-      "caesar",
-      "elizabethan",
-      "famous",
-      "stoicism"
-    ]
-  },
-  {
-    "id": 64,
-    "text": "There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "wonder",
-      "supernatural",
-      "philosophy",
-      "elizabethan",
-      "famous",
-      "ghost"
-    ]
-  },
-  {
-    "id": 65,
-    "text": "Thou still unravished bride of quietness.",
-    "author_id": 41,
-    "work_id": 31,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "grecian-urn",
-      "ode",
-      "beauty",
-      "silence",
-      "romantic",
-      "famous",
-      "art"
-    ]
-  },
-  {
-    "id": 66,
-    "text": "Season of mists and mellow fruitfulness.",
-    "author_id": 41,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "to-autumn",
-      "ode",
-      "season",
-      "opening",
-      "romantic",
-      "famous",
-      "nature"
-    ]
-  },
-  {
-    "id": 67,
-    "text": "A thing of beauty is a joy for ever.",
-    "author_id": 41,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "endymion",
-      "beauty",
-      "joy",
-      "romantic",
-      "famous",
-      "opening",
-      "permanence"
-    ]
-  },
-  {
-    "id": 68,
-    "text": "Much have I travell'd in the realms of gold.",
-    "author_id": 41,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "chapman-homer",
-      "reading",
-      "exploration",
-      "romantic",
-      "sonnet",
-      "famous",
-      "literature"
-    ]
-  },
-  {
-    "id": 69,
-    "text": "My heart aches, and a drowsy numbness pains my sense.",
-    "author_id": 41,
-    "work_id": 30,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "nightingale",
-      "ode",
-      "feeling",
-      "romantic",
-      "opening",
-      "famous",
-      "sensory"
-    ]
-  },
-  {
-    "id": 70,
-    "text": "I wandered lonely as a cloud.",
-    "author_id": 37,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "wordsworth",
-      "daffodils",
-      "romantic",
-      "famous",
-      "opening",
-      "nature",
-      "solitude",
-      "clouds"
-    ]
-  },
-  {
-    "id": 71,
-    "text": "Bliss was it in that dawn to be alive, but to be young was very heaven.",
-    "author_id": 37,
-    "work_id": 57,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "wordsworth",
-      "prelude",
-      "french-revolution",
-      "youth",
-      "joy",
-      "romantic",
-      "famous",
-      "political"
-    ]
-  },
-  {
-    "id": 72,
-    "text": "We murder to dissect.",
-    "author_id": 37,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "wordsworth",
-      "tables-turned",
-      "analysis",
-      "nature",
-      "romantic",
-      "famous",
-      "critique",
-      "dissection"
-    ]
-  },
-  {
-    "id": 73,
-    "text": "Poetry is the spontaneous overflow of powerful feelings.",
-    "author_id": 37,
-    "work_id": 25,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "wordsworth",
-      "lyrical-ballads",
-      "poetry-theory",
-      "feeling",
-      "romantic",
-      "famous",
-      "definition",
-      "manifesto"
-    ]
-  },
-  {
-    "id": 74,
-    "text": "She walks in beauty, like the night.",
-    "author_id": 40,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "byron",
-      "hebrew-melodies",
-      "beauty",
-      "night",
-      "woman",
-      "romantic",
-      "famous",
-      "lyric"
-    ]
-  },
-  {
-    "id": 76,
-    "text": "Roll on, thou deep and dark blue Ocean — roll!",
-    "author_id": 40,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "byron",
-      "childe-harold",
-      "ocean",
-      "sublime",
-      "romantic",
-      "famous",
-      "nature",
-      "lyric"
-    ]
-  },
-  {
-    "id": 78,
-    "text": "Fear no more the heat o' the sun.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "cymbeline",
-      "death",
-      "consolation",
-      "song",
-      "elizabethan",
-      "peace",
-      "lyric"
-    ]
-  },
-  {
-    "id": 81,
-    "text": "The best lack all conviction, while the worst are full of passionate intensity.",
-    "author_id": 83,
-    "work_id": null,
-    "era_id": 7,
-    "movement_ids": [],
-    "tags": [
-      "yeats",
-      "second-coming",
-      "anarchy",
-      "modern",
-      "famous",
-      "political",
-      "irish",
-      "poem"
-    ]
-  },
-  {
-    "id": 82,
-    "text": "Things fall apart; the centre cannot hold.",
-    "author_id": 83,
-    "work_id": null,
-    "era_id": 7,
-    "movement_ids": [],
-    "tags": [
-      "yeats",
-      "second-coming",
-      "chaos",
-      "modern",
-      "famous",
-      "political",
-      "irish",
-      "achebe-title"
-    ]
-  },
-  {
-    "id": 83,
-    "text": "I have measured out my life with coffee spoons.",
-    "author_id": 55,
-    "work_id": null,
-    "era_id": 7,
-    "movement_ids": [
-      14
-    ],
-    "tags": [
-      "eliot",
-      "prufrock",
-      "life",
-      "measurement",
-      "irony",
-      "famous",
-      "modernism",
-      "monotony"
-    ]
-  },
-  {
-    "id": 84,
-    "text": "Methinks I see my father's ghost.",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "father",
-      "ghost",
-      "vision",
-      "elizabethan",
-      "tragedy",
-      "famous"
-    ]
-  },
-  {
-    "id": 85,
-    "text": "What a piece of work is man!",
-    "author_id": 13,
-    "work_id": 10,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "hamlet",
-      "humanity",
-      "famous",
-      "elizabethan",
-      "wonder",
-      "cynicism",
-      "ambiguous"
-    ]
-  },
-  {
-    "id": 86,
-    "text": "My name is Ozymandias, King of Kings; Look on my works, ye Mighty, and despair!",
-    "author_id": 159,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "shelley",
-      "ozymandias",
-      "hubris",
-      "ruin",
-      "famous",
-      "sonnet",
-      "romantic",
-      "time"
-    ]
-  },
-  {
-    "id": 87,
-    "text": "If Winter comes, can Spring be far behind?",
-    "author_id": 159,
-    "work_id": 60,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "shelley",
-      "ode-west-wind",
-      "hope",
-      "season",
-      "famous",
-      "romantic",
-      "spring",
-      "regeneration"
-    ]
-  },
-  {
-    "id": 88,
-    "text": "Hail to thee, blithe spirit! Bird thou never wert.",
-    "author_id": 159,
-    "work_id": null,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "shelley",
-      "to-a-skylark",
-      "bird",
-      "spirit",
-      "joy",
-      "romantic",
-      "famous",
-      "ode"
-    ]
-  },
-  {
-    "id": 89,
-    "text": "I fall upon the thorns of life! I bleed!",
-    "author_id": 159,
-    "work_id": 60,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "shelley",
-      "ode-west-wind",
-      "pain",
-      "life",
-      "romantic",
-      "famous",
-      "self-pity",
-      "thorns"
-    ]
-  },
-  {
-    "id": 90,
-    "text": "Thou still unravished bride of quietness, thou foster-child of silence.",
-    "author_id": 41,
-    "work_id": 31,
-    "era_id": 5,
-    "movement_ids": [
-      10
-    ],
-    "tags": [
-      "keats",
-      "grecian-urn",
-      "silence",
-      "beauty",
-      "romantic",
-      "ode",
-      "famous",
-      "art"
-    ]
-  },
-  {
-    "id": 91,
-    "text": "Tomorrow, and tomorrow, and tomorrow creeps in this petty pace from day to day.",
-    "author_id": 13,
-    "work_id": 12,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "macbeth",
-      "nihilism",
-      "time",
-      "famous",
-      "soliloquy",
-      "despair",
-      "elizabethan"
-    ]
-  },
-  {
-    "id": 92,
-    "text": "Our doubts are traitors, and make us lose the good we oft might win, by fearing to attempt.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "measure-for-measure",
-      "doubt",
-      "fear",
-      "elizabethan",
-      "famous",
-      "courage",
-      "attempt"
-    ]
-  },
-  {
-    "id": 93,
-    "text": "What light through yonder window breaks? It is the east, and Juliet is the sun.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "romeo-juliet",
-      "juliet",
-      "light",
-      "sun",
-      "famous",
-      "elizabethan",
-      "love",
-      "balcony"
-    ]
-  },
-  {
-    "id": 94,
-    "text": "Parting is such sweet sorrow.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "romeo-juliet",
-      "parting",
-      "sorrow",
-      "famous",
-      "elizabethan",
-      "love",
-      "oxymoron"
-    ]
-  },
-  {
-    "id": 95,
-    "text": "Good night, good night! Parting is such sweet sorrow, that I shall say good night till it be morrow.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "romeo-juliet",
-      "night",
-      "parting",
-      "famous",
-      "elizabethan",
-      "love",
-      "full-quote"
-    ]
-  },
-  {
-    "id": 96,
-    "text": "The fault, dear Brutus, is not in our stars, but in ourselves.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "julius-caesar",
-      "fate",
-      "responsibility",
-      "famous",
-      "elizabethan",
-      "stars",
-      "cassius"
-    ]
-  },
-  {
-    "id": 97,
-    "text": "Et tu, Brute?",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "julius-caesar",
-      "betrayal",
-      "caesar",
-      "famous",
-      "elizabethan",
-      "latin",
-      "death"
-    ]
-  },
-  {
-    "id": 98,
-    "text": "The evil that men do lives after them; the good is oft interred with their bones.",
-    "author_id": 13,
-    "work_id": null,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "julius-caesar",
-      "mark-antony",
-      "evil",
-      "legacy",
-      "elizabethan",
-      "famous",
-      "funeral"
-    ]
-  },
-  {
-    "id": 99,
-    "text": "I am a man more sinned against than sinning.",
-    "author_id": 13,
-    "work_id": 11,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "king-lear",
-      "victim",
-      "lear",
-      "self-pity",
-      "elizabethan",
-      "famous",
-      "tragedy"
-    ]
-  },
-  {
-    "id": 100,
-    "text": "Nothing will come of nothing.",
-    "author_id": 13,
-    "work_id": 11,
-    "era_id": 3,
-    "movement_ids": [
-      4
-    ],
-    "tags": [
-      "shakespeare",
-      "king-lear",
-      "nihilism",
-      "nothing",
-      "elizabethan",
-      "famous",
-      "lear",
-      "tragic"
-    ]
-  }
+{"id":1,"text":"To be, or not to be, that is the question.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","existence","famous","soliloquy"]},
+{"id":2,"text":"All the world's a stage, and all the men and women merely players.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","as-you-like-it","stage","life","famous"]},
+{"id":3,"text":"No man is an island, entire of itself.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","metaphysical","humanity","famous"]},
+{"id":4,"text":"Beauty is truth, truth beauty \u2014 that is all ye know on earth, and all ye need to know.","author_id":41,"work_id":31,"era_id":5,"movement_ids":[10],"tags":["keats","ode","beauty","truth","famous"]},
+{"id":5,"text":"April is the cruellest month, breeding lilacs out of the dead land.","author_id":55,"work_id":41,"era_id":7,"movement_ids":[14],"tags":["eliot","waste-land","modernism","famous"]},
+{"id":6,"text":"The past is a foreign country: they do things differently there.","author_id":188,"work_id":70,"era_id":8,"movement_ids":[],"tags":["hartley","memory","past","famous"]},
+{"id":7,"text":"I am no bird; and no net ensnares me.","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","freedom","famous"]},
+{"id":8,"text":"It was the best of times, it was the worst of times.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","tale-two-cities","famous","opening"]},
+{"id":10,"text":"What's in a name? That which we call a rose by any other name would smell as sweet.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","romeo-juliet","famous"]},
+{"id":11,"text":"All animals are equal, but some animals are more equal than others.","author_id":111,"work_id":47,"era_id":7,"movement_ids":[],"tags":["orwell","animal-farm","equality","famous"]},
+{"id":12,"text":"It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.","author_id":39,"work_id":27,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","marriage","famous"]},
+{"id":13,"text":"We are all of us the worse for too much solitude.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","solitude","community"]},
+{"id":16,"text":"Do not go gentle into that good night. Rage, rage against the dying of the light.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","death","defiance","famous"]},
+{"id":17,"text":"Vanity of vanities, all is vanity.","author_id":174,"work_id":63,"era_id":6,"movement_ids":[11],"tags":["thackeray","vanity-fair","famous"]},
+{"id":18,"text":"Whatever our souls are made of, his and mine are the same.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","love","famous"]},
+{"id":19,"text":"There is nothing either good or bad, but thinking makes it so.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","philosophy"]},
+{"id":20,"text":"The lady doth protest too much, methinks.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","famous"]},
+{"id":21,"text":"I have measured out my life with coffee spoons.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","prufrock","modernism","famous"]},
+{"id":22,"text":"In my beginning is my end.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","time","modernism"]},
+{"id":23,"text":"I am become Death, the destroyer of worlds.","author_id":200,"work_id":null,"era_id":8,"movement_ids":[],"tags":["oppenheimer","atomic","famous"]},
+{"id":24,"text":"It is a far, far better thing that I do, than I have ever done.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","tale-two-cities","sacrifice","famous"]},
+{"id":25,"text":"I have always depended on the kindness of strangers.","author_id":112,"work_id":48,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","streetcar","famous"]},
+{"id":26,"text":"The horror! The horror!","author_id":113,"work_id":49,"era_id":7,"movement_ids":[],"tags":["conrad","heart-darkness","famous"]},
+{"id":27,"text":"I think, therefore I am.","author_id":201,"work_id":null,"era_id":4,"movement_ids":[6],"tags":["descartes","philosophy","famous"]},
+{"id":28,"text":"Hell is other people.","author_id":202,"work_id":71,"era_id":8,"movement_ids":[],"tags":["sartre","existentialism","famous"]},
+{"id":29,"text":"To thine own self be true.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","polonius","advice","famous"]},
+{"id":30,"text":"A thing of beauty is a joy forever.","author_id":41,"work_id":31,"era_id":5,"movement_ids":[10],"tags":["keats","endymion","beauty","famous"]},
+{"id":31,"text":"Time is but a stream I go a-fishing in.","author_id":203,"work_id":72,"era_id":7,"movement_ids":[],"tags":["thoreau","walden","nature","famous"]},
+{"id":32,"text":"I have nothing to offer but blood, toil, tears, and sweat.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","wwii","famous"]},
+{"id":33,"text":"Give me liberty, or give me death!","author_id":205,"work_id":null,"era_id":4,"movement_ids":[6],"tags":["patrick-henry","revolution","famous"]},
+{"id":34,"text":"That's one small step for man, one giant leap for mankind.","author_id":206,"work_id":null,"era_id":8,"movement_ids":[],"tags":["armstrong","moon-landing","famous"]},
+{"id":35,"text":"Injustice anywhere is a threat to justice everywhere.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","civil-rights","justice","famous"]},
+{"id":36,"text":"The quality of mercy is not strained; it droppeth as the gentle rain from heaven.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","merchant-venice","mercy","famous"]},
+{"id":37,"text":"We know what we are, but know not what we may be.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","identity"]},
+{"id":38,"text":"Brevity is the soul of wit.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","wit","famous"]},
+{"id":39,"text":"The course of true love never did run smooth.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","midsummer","love","famous"]},
+{"id":40,"text":"Cowards die many times before their deaths; the valiant never taste of death but once.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","julius-caesar","courage","famous"]},
+{"id":41,"text":"Good night, good night! Parting is such sweet sorrow.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","romeo-juliet","parting","famous"]},
+{"id":42,"text":"Out, out, brief candle! Life's but a walking shadow, a poor player.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","macbeth","life","famous"]},
+{"id":43,"text":"Friends, Romans, countrymen, lend me your ears.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","julius-caesar","speech","famous"]},
+{"id":44,"text":"Uneasy lies the head that wears a crown.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","henry-iv","power","famous"]},
+{"id":45,"text":"Some are born great, some achieve greatness, and some have greatness thrust upon them.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","twelfth-night","greatness","famous"]},
+{"id":46,"text":"O Romeo, Romeo, wherefore art thou Romeo?","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","romeo-juliet","love","famous"]},
+{"id":47,"text":"Tomorrow, and tomorrow, and tomorrow, creeps in this petty pace from day to day.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","macbeth","time","famous"]},
+{"id":48,"text":"We are such stuff as dreams are made on, and our little life is rounded with a sleep.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","tempest","dreams","famous"]},
+{"id":49,"text":"To sleep, perchance to dream.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","sleep","famous"]},
+{"id":50,"text":"Conscience doth make cowards of us all.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","conscience"]},
+{"id":51,"text":"Shall I compare thee to a summer's day? Thou art more lovely and more temperate.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","sonnet-18","love","famous"]},
+{"id":52,"text":"If you prick us, do we not bleed? If you tickle us, do we not laugh?","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","merchant-venice","equality","famous"]},
+{"id":53,"text":"All that glitters is not gold.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","merchant-venice","appearances","famous"]},
+{"id":54,"text":"How sharper than a serpent's tooth it is to have a thankless child!","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","king-lear","ingratitude","famous"]},
+{"id":55,"text":"O, beware, my lord, of jealousy! It is the green-eyed monster which doth mock the meat it feeds on.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","othello","jealousy","famous"]},
+{"id":56,"text":"The fault, dear Brutus, is not in our stars, but in ourselves.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","julius-caesar","fate","famous"]},
+{"id":57,"text":"What a piece of work is a man!","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","humanity","famous"]},
+{"id":58,"text":"If music be the food of love, play on.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","twelfth-night","love","music","famous"]},
+{"id":59,"text":"Love looks not with the eyes, but with the mind; and therefore is winged Cupid painted blind.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","midsummer","love","famous"]},
+{"id":60,"text":"My bounty is as boundless as the sea, my love as deep.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","romeo-juliet","love","famous"]},
+{"id":61,"text":"Neither a borrower nor a lender be; for loan oft loses both itself and friend.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","advice","famous"]},
+{"id":62,"text":"What's done cannot be undone.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","macbeth","regret","famous"]},
+{"id":63,"text":"Once more unto the breach, dear friends, once more.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","henry-v","battle","famous"]},
+{"id":64,"text":"Lord, what fools these mortals be!","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","midsummer","folly","famous"]},
+{"id":65,"text":"There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","mystery","famous"]},
+{"id":66,"text":"Our doubts are traitors and make us lose the good we oft might win, by fearing to attempt.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","measure-for-measure","doubt","courage"]},
+{"id":67,"text":"Sweet are the uses of adversity.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","as-you-like-it","adversity","famous"]},
+{"id":68,"text":"The lunatic, the lover and the poet are of imagination all compact.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","midsummer","imagination","famous"]},
+{"id":69,"text":"The play's the thing wherein I'll catch the conscience of the king.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","theatre","famous"]},
+{"id":70,"text":"Give every man thine ear, but few thy voice.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","advice","wisdom"]},
+{"id":71,"text":"The miserable have no other medicine but only hope.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","measure-for-measure","hope","despair"]},
+{"id":72,"text":"Rich gifts wax poor when givers prove unkind.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","generosity","kindness"]},
+{"id":73,"text":"All's well that ends well.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","famous","ending"]},
+{"id":74,"text":"The better part of valour is discretion.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","henry-iv","courage","wisdom","famous"]},
+{"id":75,"text":"Words without thoughts never to heaven go.","author_id":13,"work_id":10,"era_id":3,"movement_ids":[4],"tags":["shakespeare","hamlet","prayer","sincerity"]},
+{"id":76,"text":"I declare after all there is no enjoyment like reading!","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","reading","famous"]},
+{"id":77,"text":"There is no charm equal to tenderness of heart.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","kindness"]},
+{"id":78,"text":"A lady's imagination is very rapid; it jumps from admiration to love, from love to matrimony in a moment.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","imagination","famous"]},
+{"id":79,"text":"To be fond of dancing was a certain step towards falling in love.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","northanger","dancing","love"]},
+{"id":80,"text":"Happiness in marriage is entirely a matter of chance.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","marriage","irony"]},
+{"id":81,"text":"The more I see of the world, the more I am dissatisfied with it.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","world","discontent"]},
+{"id":82,"text":"Think only of the past as its remembrance gives you pleasure.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","past","wisdom"]},
+{"id":83,"text":"I do not want people to be very agreeable, as it saves me the trouble of liking them a great deal.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","letters","wit","famous"]},
+{"id":84,"text":"Seldom, very seldom, does complete truth belong to any human disclosure.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","truth"]},
+{"id":85,"text":"One half of the world cannot understand the pleasures of the other.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","empathy"]},
+{"id":86,"text":"If I loved you less, I might be able to talk about it more.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","love","famous"]},
+{"id":87,"text":"How quick come the reasons for approving what we like!","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","persuasion","reason","wit"]},
+{"id":88,"text":"Friendship is certainly the finest balm for the pangs of disappointed love.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","northanger","friendship","love"]},
+{"id":89,"text":"I may have lost my heart, but not my self-command.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","self-control"]},
+{"id":90,"text":"Vanity and pride are different things, though the words are often used synonymously.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","pride","vanity"]},
+{"id":91,"text":"Nothing is more deceitful than the appearance of humility.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","humility","deceit"]},
+{"id":92,"text":"I have not yet learned to talk of nothing.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","northanger","wit"]},
+{"id":93,"text":"There is nothing I would not do for those who are really my friends.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","northanger","friendship"]},
+{"id":94,"text":"The distance is nothing when one has a motive.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","motivation"]},
+{"id":95,"text":"I have been a selfish being all my life, in practice, though not in principle.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","self-awareness"]},
+{"id":96,"text":"Where shall we see a better daughter, or a kinder sister, or a truer friend?","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","emma","friendship","family"]},
+{"id":97,"text":"She was a woman of mean understanding, little information, and uncertain temper.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","characterisation","irony"]},
+{"id":98,"text":"There is a stubbornness about me that never can bear to be frightened at the will of others.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","stubbornness","famous"]},
+{"id":99,"text":"To be ignorant of one's ignorance is the malady of the ignorant.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","wisdom","ignorance"]},
+{"id":100,"text":"Next to being married, a girl likes to be crossed a little now and then.","author_id":39,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["austen","pride-prejudice","wit","marriage"]},
+{"id":101,"text":"Annual income twenty pounds, annual expenditure nineteen nineteen six, result happiness.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","david-copperfield","money","wisdom","famous"]},
+{"id":102,"text":"No one is useless in this world who lightens the burdens of another.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","kindness","famous"]},
+{"id":103,"text":"We need never be ashamed of our tears.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","great-expectations","emotion","famous"]},
+{"id":104,"text":"A loving heart is the truest wisdom.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","wisdom","love"]},
+{"id":105,"text":"Have a heart that never hardens, and a temper that never tires.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","virtue","kindness","famous"]},
+{"id":106,"text":"Please, sir, I want some more.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","oliver-twist","famous"]},
+{"id":107,"text":"God bless us, every one!","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","christmas-carol","famous"]},
+{"id":108,"text":"Whether I shall turn out to be the hero of my own life, or whether that station will be held by anybody else, these pages must show.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","david-copperfield","opening","famous"]},
+{"id":109,"text":"Trifles make the sum of life.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","david-copperfield","wisdom"]},
+{"id":110,"text":"The pain of parting is nothing to the joy of meeting again.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","nicholas-nickleby","reunion","famous"]},
+{"id":111,"text":"Charity begins at home, and justice begins next door.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","charity","justice","famous"]},
+{"id":112,"text":"I hope that real love and truth are stronger in the end than any evil or misfortune in the world.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","hope","love","truth"]},
+{"id":113,"text":"It is a far, far better rest that I go to than I have ever known.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","tale-two-cities","sacrifice","famous"]},
+{"id":114,"text":"Bah! Humbug!","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","christmas-carol","scrooge","famous"]},
+{"id":115,"text":"Never close your lips to those whom you have already opened your heart.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","sincerity","friendship"]},
+{"id":116,"text":"A wonderful fact to reflect upon, that every human creature is constituted to be that profound secret and mystery to every other.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","tale-two-cities","mystery","humanity"]},
+{"id":117,"text":"Reflect upon your present blessings, of which every man has many, not on your past misfortunes.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","gratitude","wisdom"]},
+{"id":118,"text":"There are books of which the backs and covers are by far the best parts.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","oliver-twist","books","wit"]},
+{"id":119,"text":"Fan the sinking flame of hilarity with the wing of friendship.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","friendship","joy"]},
+{"id":120,"text":"Electric communication will never be a substitute for the face of a man with his soul in it.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","communication","humanity"]},
+{"id":121,"text":"There is nothing better than a fine old English mansion; I like to see one weatherbeaten.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","victorian","england"]},
+{"id":122,"text":"A day wasted on others is not wasted on oneself.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","generosity","time"]},
+{"id":123,"text":"It is the best of times, it is the worst of times, it is the age of wisdom, it is the age of foolishness.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","tale-two-cities","paradox","famous"]},
+{"id":124,"text":"The wisdom of our ancestors is in the simile.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","pickwick","wisdom","language"]},
+{"id":125,"text":"I am always a better man after a walk among the trees.","author_id":42,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["dickens","nature","wellbeing"]},
+{"id":126,"text":"It is never too late to be what you might have been.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","potential","famous"]},
+{"id":127,"text":"Animals are such agreeable friends \u2014 they ask no questions; they pass no criticisms.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","animals","famous"]},
+{"id":128,"text":"What do we live for, if it is not to make life less difficult to each other?","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","compassion","famous"]},
+{"id":129,"text":"The growing good of the world is partly dependent on unhistoric acts.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","middlemarch","goodness","famous"]},
+{"id":130,"text":"Our deeds still travel with us from afar, and what we have been makes us what we are.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","middlemarch","consequence"]},
+{"id":131,"text":"The strongest principle of growth lies in human choice.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","choice","growth"]},
+{"id":132,"text":"People are almost always better than their neighbors think they are.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","humanity","compassion"]},
+{"id":133,"text":"There is only one failure in life possible, and that is not to be true to the best one knows.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","integrity","failure"]},
+{"id":134,"text":"One must be poor to know the luxury of giving.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","giving","generosity"]},
+{"id":135,"text":"Blessed is the person who, having nothing to say, abstains from giving wordy evidence of the fact.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","silence","wit","famous"]},
+{"id":136,"text":"It seems to me we can never give up longing and wishing while we are thoroughly alive.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","mill-floss","desire","life"]},
+{"id":137,"text":"Nothing is so good as it seems beforehand.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","silas-marner","expectation"]},
+{"id":138,"text":"Wear a smile and have friends; wear a scowl and have wrinkles.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","happiness","wit"]},
+{"id":139,"text":"Cruelty, like every other vice, requires no motive outside itself; it only requires opportunity.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","cruelty","wisdom"]},
+{"id":140,"text":"What loneliness is more lonely than distrust?","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","middlemarch","loneliness","trust"]},
+{"id":141,"text":"No evil dooms us hopelessly except the evil we love, and desire to continue in.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","daniel-deronda","evil","choice"]},
+{"id":142,"text":"What greater thing is there for two human souls than to feel that they are joined for life.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","adam-bede","love","union"]},
+{"id":143,"text":"Keep true, never be ashamed of doing right; decide on what you think is right and stick to it.","author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","integrity","virtue"]},
+{"id":144,"text":"I would always rather be happy than dignified.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","happiness","famous"]},
+{"id":145,"text":"Do you think, because I am poor, obscure, plain, and little, I am soulless and heartless?","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","pride","equality","famous"]},
+{"id":146,"text":"I care for myself. The more solitary, the more friendless, the more unsustained I am, the more I will respect myself.","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","self-respect","famous"]},
+{"id":147,"text":"Happiness quite unshared can scarcely be called happiness; it has no taste.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","happiness","connection"]},
+{"id":148,"text":"Life is so constructed that the event does not, cannot, will not, match the expectation.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","shirley","expectation"]},
+{"id":149,"text":"Better to be without logic than without feeling.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","feeling","reason"]},
+{"id":150,"text":"Conventionality is not morality.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","morality","famous"]},
+{"id":151,"text":"It is in vain to say human beings ought to be satisfied with tranquillity: they must have action.","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","action","restlessness"]},
+{"id":152,"text":"I am not an angel, and I will not be one till I die: I will be myself.","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","identity","independence","famous"]},
+{"id":153,"text":"The human heart has hidden treasures, in secret kept, in silence sealed.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","poetry","heart"]},
+{"id":154,"text":"Men judge us by the success of our efforts. God looks at the efforts themselves.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","effort","virtue"]},
+{"id":155,"text":"A ruffled mind makes a restless pillow.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","mind","peace"]},
+{"id":156,"text":"Prejudices, it is well known, are most difficult to eradicate from the heart whose soil has never been loosened or fertilised by education.","author_id":45,"work_id":36,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","jane-eyre","education","prejudice"]},
+{"id":157,"text":"I would rather be a poor woman than a rich man's wife.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","independence","gender"]},
+{"id":158,"text":"No mockery in this world ever sounds to me so hollow as that of being told to cultivate happiness.","author_id":45,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["charlotte-bronte","happiness","irony"]},
+{"id":159,"text":"I have not broken your heart \u2014 you have broken it; and in breaking it, you have broken mine.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","heartbreak","famous"]},
+{"id":160,"text":"Be with me always \u2014 take any form \u2014 drive me mad!","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","love","obsession","famous"]},
+{"id":161,"text":"No coward soul is mine, no trembler in the world's storm-troubled sphere.","author_id":46,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","poetry","courage","famous"]},
+{"id":162,"text":"Terror made me cruel.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","darkness","gothic"]},
+{"id":163,"text":"If all else perished, and he remained, I should still continue to be.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","love","famous"]},
+{"id":164,"text":"Treachery and violence are spears pointed at both ends; they wound those who resort to them worse than their enemies.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","violence","wisdom"]},
+{"id":165,"text":"I cannot express it; but surely you and everybody have a notion that there is or should be an existence of yours beyond you.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","existence","soul"]},
+{"id":166,"text":"I lingered round them, under that benign sky: watched the moths fluttering among the heath and harebells.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","nature","closing"]},
+{"id":167,"text":"I'm so happy to be near you, even if the nearness kills me.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","love","suffering"]},
+{"id":168,"text":"Let me alone. Let me alone. I have done with you.","author_id":46,"work_id":37,"era_id":6,"movement_ids":[11],"tags":["emily-bronte","wuthering-heights","defiance","gothic"]},
+{"id":169,"text":"We shall not cease from exploration, and the end of all our exploring will be to arrive where we started.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","exploration","famous"]},
+{"id":170,"text":"This is the way the world ends. Not with a bang but a whimper.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","hollow-men","end","famous"]},
+{"id":171,"text":"Immature poets imitate; mature poets steal.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","poetry","creativity","famous"]},
+{"id":172,"text":"Human kind cannot bear very much reality.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","reality","famous"]},
+{"id":173,"text":"Old men ought to be explorers.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","age","exploration"]},
+{"id":174,"text":"Time present and time past are both perhaps present in time future.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","time","famous"]},
+{"id":175,"text":"Do I dare disturb the universe?","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","prufrock","courage","famous"]},
+{"id":176,"text":"In the room the women come and go, talking of Michelangelo.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","prufrock","famous"]},
+{"id":177,"text":"The evening is spread out against the sky like a patient etherised upon a table.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","prufrock","imagery","modernism"]},
+{"id":178,"text":"Between the idea and the reality, between the motion and the act, falls the Shadow.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","hollow-men","reality","famous"]},
+{"id":179,"text":"The awful daring of a moment's surrender.","author_id":55,"work_id":41,"era_id":7,"movement_ids":[14],"tags":["eliot","waste-land","surrender","courage"]},
+{"id":180,"text":"What we call the beginning is often the end.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","endings","famous"]},
+{"id":181,"text":"Only those who will risk going too far can possibly find out how far one is possible to go.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","risk","exploration","famous"]},
+{"id":182,"text":"I had not thought death had undone so many.","author_id":55,"work_id":41,"era_id":7,"movement_ids":[14],"tags":["eliot","waste-land","death","famous"]},
+{"id":183,"text":"Where is the Life we have lost in living? Where is the wisdom we have lost in knowledge?","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","choruses","wisdom","life","famous"]},
+{"id":184,"text":"Birth, and copulation, and death. That's all the facts when you come to brass tacks.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","sweeney","life","famous"]},
+{"id":185,"text":"The dove descending breaks the air with flame of incandescent terror.","author_id":55,"work_id":45,"era_id":7,"movement_ids":[14],"tags":["eliot","four-quartets","imagery","war"]},
+{"id":186,"text":"I grow old... I grow old... I shall wear the bottoms of my trousers rolled.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","prufrock","aging","famous"]},
+{"id":187,"text":"Teach us to care and not to care. Teach us to sit still.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","ash-wednesday","serenity"]},
+{"id":188,"text":"We are all damned fools who have not yet learned to talk less.","author_id":55,"work_id":null,"era_id":7,"movement_ids":[14],"tags":["eliot","wit","humility"]},
+{"id":189,"text":"Big Brother is watching you.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","surveillance","famous"]},
+{"id":190,"text":"In a time of deceit, telling the truth is a revolutionary act.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","truth","freedom","famous"]},
+{"id":191,"text":"Who controls the past controls the future. Who controls the present controls the past.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","history","power","famous"]},
+{"id":192,"text":"War is peace. Freedom is slavery. Ignorance is strength.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","doublespeak","famous"]},
+{"id":193,"text":"Four legs good, two legs bad.","author_id":111,"work_id":47,"era_id":7,"movement_ids":[],"tags":["orwell","animal-farm","propaganda","famous"]},
+{"id":194,"text":"Power is not a means; it is an end.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","power"]},
+{"id":195,"text":"Freedom is the freedom to say that two plus two make four.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","freedom","truth","famous"]},
+{"id":196,"text":"If you want a picture of the future, imagine a boot stamping on a human face \u2014 forever.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","totalitarianism","famous"]},
+{"id":197,"text":"Doublethink means the power of holding two contradictory beliefs in one's mind simultaneously.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","doublethink","famous"]},
+{"id":198,"text":"Political language is designed to make lies sound truthful.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","politics","language","famous"]},
+{"id":199,"text":"The most effective way to destroy people is to deny and obliterate their own understanding of their history.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","history","oppression","famous"]},
+{"id":200,"text":"If liberty means anything at all, it means the right to tell people what they do not want to hear.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","liberty","truth","famous"]},
+{"id":201,"text":"At fifty, everyone has the face he deserves.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","age","character","famous"]},
+{"id":202,"text":"On the whole, human beings want to be good, but not too good, and not quite all the time.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","human-nature","morality","famous"]},
+{"id":203,"text":"All the war-propaganda, all the screaming and lies and hatred, comes invariably from people who are not fighting.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","war","propaganda"]},
+{"id":204,"text":"The quickest way of ending a war is to lose it.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","war","irony"]},
+{"id":205,"text":"It was a bright cold day in April, and the clocks were striking thirteen.","author_id":111,"work_id":null,"era_id":7,"movement_ids":[],"tags":["orwell","1984","opening","famous"]},
+{"id":206,"text":"We shall fight on the beaches, we shall fight on the landing grounds, we shall fight in the fields and in the streets, we shall never surrender.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","wwii","speech","famous"]},
+{"id":207,"text":"Success is not final, failure is not fatal: it is the courage to continue that counts.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","courage","success","famous"]},
+{"id":208,"text":"History will be kind to me for I intend to write it.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","history","wit","famous"]},
+{"id":209,"text":"The hand that signed the paper felled a city.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","power"]},
+{"id":210,"text":"After the first death, there is no other.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","death","famous"]},
+{"id":211,"text":"Light breaks where no sun shines.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","light"]},
+{"id":212,"text":"And death shall have no dominion.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","death","famous"]},
+{"id":213,"text":"I sing in my chains like the sea.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","freedom"]},
+{"id":214,"text":"The force that through the green fuse drives the flower drives my green age.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","nature","famous"]},
+{"id":215,"text":"Though lovers be lost, love shall not; and death shall have no dominion.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","love","death","famous"]},
+{"id":216,"text":"A good poem is a contribution to reality.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","reality"]},
+{"id":217,"text":"Time passes. Listen. Time passes.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","under-milk-wood","time","famous"]},
+{"id":218,"text":"I have longed to move away from the hissing of the spent lie.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","truth"]},
+{"id":219,"text":"We are not wholly bad or good who live our lives under Milk Wood.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","under-milk-wood","humanity"]},
+{"id":220,"text":"I, in my intricate image, stride on two levels.","author_id":110,"work_id":null,"era_id":7,"movement_ids":[],"tags":["dylan-thomas","poetry","duality"]},
+{"id":221,"text":"Ask not for whom the bell tolls; it tolls for thee.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","bell","mortality","famous"]},
+{"id":222,"text":"Death be not proud, though some have called thee mighty and dreadful, for thou art not so.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","holy-sonnets","death","defiance","famous"]},
+{"id":223,"text":"Batter my heart, three-person'd God, for you as yet but knock, breathe, shine, and seek to mend.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","holy-sonnets","religion","famous"]},
+{"id":224,"text":"I wonder, by my troth, what thou and I did, till we loved?","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","good-morrow","love","famous"]},
+{"id":225,"text":"Go and catch a falling star, get with child a mandrake root.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","song","impossible","famous"]},
+{"id":226,"text":"For God's sake hold your tongue, and let me love.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","canonization","love","famous"]},
+{"id":227,"text":"She is all states, and all princes, I.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","sun-rising","love"]},
+{"id":228,"text":"Twice or thrice had I loved thee, before I knew thy face or name.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","air-angels","love","spiritual"]},
+{"id":229,"text":"Licence my roving hands, and let them go, before, behind, between, above, below.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","elegy","sensuality","famous"]},
+{"id":230,"text":"One short sleep past, we wake eternally, and death shall be no more; Death, thou shalt die.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","holy-sonnets","death","resurrection","famous"]},
+{"id":231,"text":"Any man's death diminishes me, because I am involved in mankind.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","humanity","mortality","famous"]},
+{"id":232,"text":"Love all alike, no season knows nor clime, nor hours, days, months, which are the rags of time.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","sun-rising","love","time"]},
+{"id":233,"text":"Reason is our soul's left hand, Faith her right.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","reason","faith","theology"]},
+{"id":234,"text":"Mark but this flea, and mark in this, how little that which thou deniest me is.","author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","flea","wit","famous"]},
+{"id":235,"text":"Come live with me and be my love, and we will some new pleasures prove." ,"author_id":18,"work_id":null,"era_id":3,"movement_ids":[5],"tags":["donne","bait","invitation","love"]},
+{"id":236,"text":"Heard melodies are sweet, but those unheard are sweeter.","author_id":41,"work_id":31,"era_id":5,"movement_ids":[10],"tags":["keats","grecian-urn","music","imagination","famous"]},
+{"id":237,"text":"I am certain of nothing but the holiness of the heart's affections and the truth of imagination.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","letters","imagination","famous"]},
+{"id":238,"text":"Season of mists and mellow fruitfulness.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","to-autumn","famous","imagery"]},
+{"id":239,"text":"My heart aches, and a drowsy numbness pains my sense.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","nightingale","famous","melancholy"]},
+{"id":240,"text":"When I have fears that I may cease to be before my pen has glean'd my teeming brain.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","sonnet","mortality","famous"]},
+{"id":241,"text":"The poetry of earth is never dead.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","cricket","nature","famous"]},
+{"id":242,"text":"Was it a vision, or a waking dream? Fled is that music \u2014 do I wake or sleep?","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","nightingale","dream","famous"]},
+{"id":243,"text":"I would sooner fail than not be among the greatest.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","ambition","famous"]},
+{"id":244,"text":"The excellence of every art is its intensity.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","letters","art","intensity"]},
+{"id":245,"text":"I feel more and more every day, as my imagination strengthens, that I do not live in this world alone.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","letters","imagination","world"]},
+{"id":246,"text":"Thou still unravish'd bride of quietness, thou foster-child of silence and slow time.","author_id":41,"work_id":31,"era_id":5,"movement_ids":[10],"tags":["keats","grecian-urn","art","silence","famous"]},
+{"id":247,"text":"Charm'd magic casements, opening on the foam of perilous seas, in faery lands forlorn.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","nightingale","imagination","famous"]},
+{"id":248,"text":"O soft embalmer of the still midnight, shutting with careful fingers and benign our gloom-pleased eyes.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","sleep","night","sonnet"]},
+{"id":249,"text":"Bright star, would I were steadfast as thou art.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","sonnet","star","steadfastness","famous"]},
+{"id":250,"text":"A thing of beauty is a joy for ever: its loveliness increases; it will never pass into nothingness.","author_id":41,"work_id":null,"era_id":5,"movement_ids":[10],"tags":["keats","endymion","beauty","permanence"]},
+{"id":251,"text":"A good laugh is sunshine in a house.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","laughter","joy","famous"]},
+{"id":252,"text":"Good humor is one of the best articles of dress one can wear in society.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","humor","society","famous"]},
+{"id":253,"text":"Mother is the name for God in the lips and hearts of little children.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","motherhood","famous"]},
+{"id":254,"text":"To endure is greater than to dare; to tire out hostile fortune; to be daunted by no difficulty.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","courage","endurance","famous"]},
+{"id":255,"text":"Ah! Vanitas Vanitatum! Which of us is happy in this world? Which of us has his desire? or, having it, is satisfied?","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","vanity-fair","happiness","famous"]},
+{"id":256,"text":"The wicked are wicked, no doubt, and they go astray and they fall; but who can tell the mischief which the very virtuous do?","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","virtue","satire","famous"]},
+{"id":257,"text":"There are a thousand thoughts lying within a man that he does not know till he takes up the pen to write.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","writing","thought","famous"]},
+{"id":258,"text":"The world is a looking-glass, and gives back to every man the reflection of his own face.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","vanity-fair","reflection","famous"]},
+{"id":259,"text":"A clever, ugly man every now and then is successful with the ladies, but a handsome fool is irresistible.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","wit","society","irony"]},
+{"id":260,"text":"He who meanly admires mean things is a Snob.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","snobbery","wit","famous"]},
+{"id":261,"text":"Sow a thought and you reap an action; sow an act and you reap a habit; sow a habit and you reap a character.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","character","habit","famous"]},
+{"id":262,"text":"A woman with fair opportunities and without a positive hump may marry whom she likes.","author_id":174,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["thackeray","vanity-fair","marriage","wit","irony"]},
+{"id":263,"text":"Nothing dates so quickly as the future.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","future","time"]},
+{"id":264,"text":"When we are young, we are so sure we know what we want.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","youth","desire"]},
+{"id":265,"text":"Most of the things in life that are worth doing are hard to do.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","effort","worth"]},
+{"id":266,"text":"I have seen too much of life to have illusions about it.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","life","realism"]},
+{"id":267,"text":"One cannot be a perfect son, or a perfect father, or a perfect friend; but one can always try.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","perfection","effort","relationships"]},
+{"id":268,"text":"To know what people really think, pay regard to what they do, rather than what they say.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","human-nature","observation"]},
+{"id":269,"text":"Looking back on the past can sometimes hurt.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","past","memory"]},
+{"id":270,"text":"Affection and goodwill are more to be relied upon than any legal promise.","author_id":188,"work_id":null,"era_id":8,"movement_ids":[],"tags":["hartley","affection","trust"]},
+{"id":271,"text":"I don't want realism. I want magic!","author_id":112,"work_id":48,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","streetcar","blanche","famous"]},
+{"id":272,"text":"The only thing worse than being talked about is not being talked about.","author_id":112,"work_id":null,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","wit","famous"]},
+{"id":273,"text":"I don't understand it. I don't understand how anybody can be so cruel.","author_id":112,"work_id":null,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","cruelty","drama"]},
+{"id":274,"text":"What is straight? A line can be straight, or a street, but the human heart, oh, no.","author_id":112,"work_id":null,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","heart","complexity","famous"]},
+{"id":275,"text":"I don't know anything except what I know in my heart.","author_id":112,"work_id":null,"era_id":7,"movement_ids":[],"tags":["tennessee-williams","heart","intuition"]},
+{"id":276,"text":"I don't like work \u2014 no man does \u2014 but I like what is in the work \u2014 the chance to find yourself.","author_id":113,"work_id":49,"era_id":7,"movement_ids":[],"tags":["conrad","heart-darkness","work","self-discovery","famous"]},
+{"id":277,"text":"A man that is born falls into a dream like a man who falls into the sea.","author_id":113,"work_id":null,"era_id":7,"movement_ids":[],"tags":["conrad","lord-jim","dream","famous"]},
+{"id":278,"text":"The mind of man is capable of anything \u2014 because everything is in it, all the past as well as all the future.","author_id":113,"work_id":49,"era_id":7,"movement_ids":[],"tags":["conrad","heart-darkness","mind","humanity","famous"]},
+{"id":279,"text":"It is not the clear-sighted who rule the world, but those who have the power of an overmastering faith.","author_id":113,"work_id":null,"era_id":7,"movement_ids":[],"tags":["conrad","faith","power"]},
+{"id":280,"text":"We live, as we dream \u2014 alone.","author_id":113,"work_id":49,"era_id":7,"movement_ids":[],"tags":["conrad","heart-darkness","solitude","famous"]},
+{"id":281,"text":"Our remedies oft in ourselves do lie.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","all's-well","self-reliance"]},
+{"id":282,"text":"I hold the world but as the world, Gratiano; a stage where every man must play a part.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","merchant-venice","life","stage"]},
+{"id":283,"text":"How poor are they that have not patience! What wound did ever heal but by degrees?","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","othello","patience","wisdom"]},
+{"id":284,"text":"Wisely and slow; they stumble that run fast.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","romeo-juliet","wisdom","haste"]},
+{"id":285,"text":"Expectation is the root of all heartache.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","expectation","heartache","wisdom"]},
+{"id":286,"text":"O, it is excellent to have a giant's strength; but it is tyrannous to use it like a giant.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","measure-for-measure","power","tyranny"]},
+{"id":287,"text":"Life every man holds dear; but the dear man holds honor far more precious dear than life.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","troilus","honor","life"]},
+{"id":288,"text":"The robbed that smiles, steals something from the thief.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","othello","stoicism"]},
+{"id":289,"text":"No legacy is so rich as honesty.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","all's-well","honesty","legacy"]},
+{"id":290,"text":"To do a great right do a little wrong.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","merchant-venice","ethics"]},
+{"id":291,"text":"The lunatic, the lover and the poet are of imagination all compact." ,"author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","midsummer","imagination","famous"]},
+{"id":292,"text":"Good counselors lack no clients.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","measure-for-measure","wisdom","counsel"]},
+{"id":293,"text":"Nothing will come of nothing.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","king-lear","nihilism","famous"]},
+{"id":294,"text":"Present fears are less than horrible imaginings.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","macbeth","fear","imagination"]},
+{"id":295,"text":"A fool thinks himself to be wise, but a wise man knows himself to be a fool.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","as-you-like-it","wisdom","folly","famous"]},
+{"id":296,"text":"Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","civil-rights","love","famous"]},
+{"id":297,"text":"If you can't fly then run, if you can't run then walk, if you can't walk then crawl, but whatever you do keep moving.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","determination","civil-rights","famous"]},
+{"id":298,"text":"We must learn to live together as brothers or perish together as fools.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","unity","civil-rights","famous"]},
+{"id":299,"text":"The time is always right to do what is right.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","justice","morality","famous"]},
+{"id":300,"text":"Everybody can be great because anybody can serve.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","service","greatness","famous"]},
+{"id":301,"text":"I have a dream that my four little children will one day live in a nation where they will not be judged by the color of their skin but by the content of their character.","author_id":207,"work_id":null,"era_id":8,"movement_ids":[],"tags":["mlk","i-have-a-dream","equality","famous"]},
+{"id":302,"text":"You have enemies? Good. That means you've stood up for something, sometime in your life.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","wit","courage","famous"]},
+{"id":303,"text":"Never, never, never give up.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","perseverance","famous"]},
+{"id":304,"text":"Courage is what it takes to stand up and speak; courage is also what it takes to sit down and listen.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","courage","wisdom","famous"]},
+{"id":305,"text":"We make a living by what we get, but we make a life by what we give.","author_id":204,"work_id":null,"era_id":8,"movement_ids":[],"tags":["churchill","generosity","wisdom","famous"]},
+{"id":306,"text":"To be wise and love exceeds man's might.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","troilus","wisdom","love"]},
+{"id":307,"text":"All's well that ends well; still the fine's the crown. Whate'er the course, the end is the renown.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","all's-well","endings","wisdom"]},
+{"id":308,"text":"I am a man more sinned against than sinning.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","king-lear","injustice","famous"]},
+{"id":309,"text":"A kind overflow of kindness: there are no faces truer than those that are so washed.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","much-ado","kindness","tears"]},
+{"id":310,"text":"We are all of us the worse for too much solitude." ,"author_id":43,"work_id":null,"era_id":6,"movement_ids":[11],"tags":["george-eliot","community","isolation","famous"]},
+{"id":311,"text":"Men's vows are women's traitors!","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","cymbeline","betrayal","vows"]},
+{"id":312,"text":"How sharper than a serpent's tooth it is to have a thankless child!" ,"author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","king-lear","ingratitude","parenthood"]},
+{"id":313,"text":"Thou art the ruins of the noblest man that ever lived in the tide of times.","author_id":13,"work_id":null,"era_id":3,"movement_ids":[4],"tags":["shakespeare","julius-caesar","elegy","nobility"]}
 ]
