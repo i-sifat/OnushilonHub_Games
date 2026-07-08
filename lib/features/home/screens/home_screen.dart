@@ -129,7 +129,7 @@ class _HomeAppBar extends ConsumerWidget {
   }
 }
 
-// ── Stats Row ─────────────────────────────────────────────────────────────────
+// ── Stats Row ──────────────────────────────────────────────────────────────────
 
 class _StatsRow extends ConsumerWidget {
   const _StatsRow();
@@ -214,7 +214,7 @@ class _StatPill extends StatelessWidget {
   }
 }
 
-// ── Daily Word Card ───────────────────────────────────────────────────────────
+// ── Daily Word Card ───────────────────────────────────────────────────────────────────
 
 class _DailyWordCard extends ConsumerWidget {
   const _DailyWordCard();
@@ -235,88 +235,92 @@ class _DailyWordCard extends ConsumerWidget {
 
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: AppTokens.durationSlow),
-          child: Container(
-            key: ValueKey(word.word),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppTokens.space20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Word of the Day',
-                        style: textTheme.labelSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                      const Spacer(),
-                      const _CardIconBtn(icon: Icons.volume_up_outlined),
-                      const SizedBox(width: AppTokens.space8),
-                      GestureDetector(
-                        onTap: () async {
-                          final notifier =
-                              ref.read(savedWordsProvider.notifier);
-                          if (isSaved) {
-                            await notifier.remove(word.word);
-                          } else {
-                            await notifier.save(word.word, word.definition);
-                          }
-                        },
-                        child: AnimatedSwitcher(
-                          duration: const Duration(
-                              milliseconds: AppTokens.durationFast),
-                          child: _CardIconBtn(
-                            key: ValueKey(isSaved),
-                            icon: isSaved
-                                ? Icons.bookmark_rounded
-                                : Icons.bookmark_border_rounded,
+          // UX-03: tap the card to open word detail screen
+          child: GestureDetector(
+            onTap: () => context.push('/word/${word.id}'),
+            child: Container(
+              key: ValueKey(word.word),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppTokens.space20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Word of the Day',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            letterSpacing: 0.2,
                           ),
                         ),
+                        const Spacer(),
+                        const _CardIconBtn(icon: Icons.volume_up_outlined),
+                        const SizedBox(width: AppTokens.space8),
+                        GestureDetector(
+                          onTap: () async {
+                            final notifier =
+                                ref.read(savedWordsProvider.notifier);
+                            if (isSaved) {
+                              await notifier.remove(word.word);
+                            } else {
+                              await notifier.save(word.word, word.definition);
+                            }
+                          },
+                          child: AnimatedSwitcher(
+                            duration: const Duration(
+                                milliseconds: AppTokens.durationFast),
+                            child: _CardIconBtn(
+                              key: ValueKey(isSaved),
+                              icon: isSaved
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppTokens.space12),
+                    Text(
+                      word.word,
+                      style: textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        height: 1.1,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: AppTokens.space12),
-                  Text(
-                    word.word,
-                    style: textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
-                      height: 1.1,
                     ),
-                  ),
-                  const SizedBox(height: AppTokens.space4),
-                  Text(
-                    word.synonyms.isNotEmpty ? '/${word.synonyms.first}/' : '',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.65),
-                      fontStyle: FontStyle.italic,
+                    const SizedBox(height: AppTokens.space4),
+                    Text(
+                      word.synonyms.isNotEmpty ? '/${word.synonyms.first}/' : '',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.65),
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppTokens.space12),
-                  Text(
-                    word.definition,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      height: 1.5,
+                    const SizedBox(height: AppTokens.space12),
+                    Text(
+                      word.definition,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppTokens.space12),
-                  Text(
-                    '"${word.example}"',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontStyle: FontStyle.italic,
-                      height: 1.5,
+                    const SizedBox(height: AppTokens.space12),
+                    Text(
+                      '"${word.example}"',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontStyle: FontStyle.italic,
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -346,7 +350,7 @@ class _CardIconBtn extends StatelessWidget {
   }
 }
 
-// ── Your Progress Section ─────────────────────────────────────────────────────
+// ── Your Progress Section ─────────────────────────────────────────────────────────
 
 class _YourProgressSection extends ConsumerWidget {
   const _YourProgressSection();
@@ -404,7 +408,7 @@ class _YourProgressSection extends ConsumerWidget {
   }
 }
 
-// ── Your Games Section ────────────────────────────────────────────────────────
+// ── Your Games Section ───────────────────────────────────────────────────────────────
 
 class _YourGamesSection extends ConsumerWidget {
   const _YourGamesSection();

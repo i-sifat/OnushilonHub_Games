@@ -71,6 +71,9 @@ extension WordDetailQueries on DatabaseService {
       synonyms: syns,
       antonyms: ants,
       banglaMeaning: bn,
+      // DB-01 removed the example JOIN from _loadWordRows.
+      // Use getUsageExample(wordId) for on-demand access.
+      example: '',
     );
   }
 
