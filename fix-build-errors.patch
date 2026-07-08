@@ -1,0 +1,57 @@
+From: Patch Piper <patchpiper@clickup>
+Subject: [PATCH] fix: resolve 3 Dart compile errors causing APK build failure
+
+Bug 1 (results_screen.dart): Type 'Mistake' not found.
+  Fix: rename field type to MistakeItem (the real model class in game_config.dart).
+
+Bug 2 (profile_screen.dart): List<dynamic> cannot be assigned to
+  List<Map<String,dynamic>>. Fix: add .cast<Map<String,dynamic>>().
+
+Bug 3 (meaning_chase_builder.dart): Single-quoted string with phrase['en']
+  closes the outer string at the apostrophe before 'en'. Fix: use
+  double-quoted key phrase["en"] inside string interpolation.
+
+Apply with:
+  git apply --ignore-whitespace fix-build-errors.patch
+  git commit -m "fix: resolve 3 Dart compile errors causing release APK failure"
+  git push
+  rm fix-build-errors.patch
+---
+ lib/features/games/logic/builders/meaning_chase_builder.dart | 2 +-
+ lib/features/profile/screens/profile_screen.dart             | 2 +-
+ lib/features/results/screens/results_screen.dart             | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/features/games/logic/builders/meaning_chase_builder.dart b/lib/features/games/logic/builders/meaning_chase_builder.dart
+index ee55aa7..0000000 100644
+--- a/lib/features/games/logic/builders/meaning_chase_builder.dart
++++ b/lib/features/games/logic/builders/meaning_chase_builder.dart
+@@ -158,7 +158,7 @@ class MeaningChaseBuilder extends McqQuestionBuilder {
+           correctAnswer: correct,
+-          questionText: '"${phrase['en']}" বাক্যাংশটির বাংলা অর্থ কী?',
++          questionText: '"${phrase["en"]}" বাক্যাংশটির বাংলা অর্থ কী?',
+           wordId: phrase['id'] as int,
+         ));
+ 
+diff --git a/lib/features/profile/screens/profile_screen.dart b/lib/features/profile/screens/profile_screen.dart
+index 8e93591..0000000 100644
+--- a/lib/features/profile/screens/profile_screen.dart
++++ b/lib/features/profile/screens/profile_screen.dart
+@@ -120,7 +120,8 @@ class ProfileScreen extends ConsumerWidget {
+                       data: (stats) {
+-                        final gameStats = stats['gameStats'] as List;
++                        final gameStats = (stats['gameStats'] as List)
++                            .cast<Map<String, dynamic>>();
+                         if (gameStats.isEmpty) {
+                           return _EmptyBreakdown();
+ 
+diff --git a/lib/features/results/screens/results_screen.dart b/lib/features/results/screens/results_screen.dart
+index 5fa8593..0000000 100644
+--- a/lib/features/results/screens/results_screen.dart
++++ b/lib/features/results/screens/results_screen.dart
+@@ -388,7 +388,7 @@ class _StatCard extends StatelessWidget {
+ class _MistakeCard extends StatelessWidget {
+-  final Mistake mistake;
++  final MistakeItem mistake;
+ 
+   const _MistakeCard({required this.mistake});
