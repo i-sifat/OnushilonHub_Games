@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/models/game_config.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../shared/widgets/app_button.dart';
@@ -18,14 +19,14 @@ import '../logic/state/mcq_game_state.dart';
 /// two-button UI is the only thing that lives here.
 class TrueFalseGameScreen extends ConsumerStatefulWidget {
   final GameConfig config;
+
   const TrueFalseGameScreen({super.key, required this.config});
 
   @override
-  ConsumerState<TrueFalseGameScreen> createState() =>
-      _TrueFalseGameScreenState();
+  ConsumerState createState() => _TrueFalseGameScreenState();
 }
 
-class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
+class _TrueFalseGameScreenState extends ConsumerState
     with GameScreenLifecycleMixin {
   String? _selectedAnswer;
   int _lastIndex = -1;
@@ -34,7 +35,7 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
   PausableGameController get pausableController =>
       ref.read(mcqGameNotifierProvider(widget.config).notifier);
 
-  Future<void> _answer(String choice) async {
+  Future _answer(String choice) async {
     final state = ref.read(mcqGameNotifierProvider(widget.config));
     if (state.isAnswered) return;
     setState(() => _selectedAnswer = choice);
@@ -43,7 +44,7 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
         .handleAnswer(choice);
   }
 
-  Future<void> _handleExit() async {
+  Future _handleExit() async {
     final shouldExit = await handleGameExitAttempt();
     if (shouldExit && mounted) context.go('/games');
   }
@@ -58,7 +59,7 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
       _selectedAnswer = null;
     }
 
-    ref.listen<McqGameState>(provider, (prev, next) {
+    ref.listen(provider, (prev, next) {
       if (!(prev?.isFinished ?? false) && next.isFinished) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -99,8 +100,8 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                         milliseconds: AppTokens.durationMedium),
                     child: Padding(
                       key: ValueKey(state.currentIndex),
-                      padding:
-                          const EdgeInsets.all(AppTokens.screenPaddingH),
+                      padding: const EdgeInsets.all(
+                          AppTokens.screenPaddingH),
                       child: Column(
                         children: [
                           const SizedBox(height: AppTokens.space8),
@@ -122,19 +123,20 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                           Expanded(
                             child: Container(
                               width: double.infinity,
-                              padding:
-                                  const EdgeInsets.all(AppTokens.space28),
+                              padding: const EdgeInsets.all(
+                                  AppTokens.space28),
                               decoration: BoxDecoration(
                                 color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(
                                     AppTokens.radiusLarge),
                                 border: Border.all(
                                   color: colorScheme.outlineVariant
-                                      .withValues(alpha: 0.5),
+                                      .withAlpha(0.5),
                                 ),
                               ),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -148,23 +150,27 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                                     ),
                                     child: Text(
                                       q.prompt,
-                                      style:
-                                          textTheme.titleMedium?.copyWith(
-                                        color:
-                                            colorScheme.onPrimaryContainer,
+                                      style: textTheme.titleMedium
+                                          ?.copyWith(
+                                        color: colorScheme
+                                            .onPrimaryContainer,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: AppTokens.space24),
+                                  const SizedBox(
+                                      height: AppTokens.space24),
                                   Text(
                                     'Read the definition below carefully:',
-                                    style: textTheme.labelMedium?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
+                                    style: textTheme.labelMedium
+                                        ?.copyWith(
+                                      color: colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: AppTokens.space16),
+                                  const SizedBox(
+                                      height: AppTokens.space16),
                                   Text(
                                     '"${q.promptSubtitle}"',
                                     style: textTheme.bodyLarge?.copyWith(
@@ -173,10 +179,12 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: AppTokens.space24),
+                                  const SizedBox(
+                                      height: AppTokens.space24),
                                   Text(
                                     'Is this definition correct?',
-                                    style: textTheme.titleMedium?.copyWith(
+                                    style: textTheme.titleMedium
+                                        ?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                     textAlign: TextAlign.center,
@@ -196,7 +204,8 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                                     onTap: () => _answer('True'),
                                   ),
                                 ),
-                                const SizedBox(width: AppTokens.space12),
+                                const SizedBox(
+                                    width: AppTokens.space16),
                                 Expanded(
                                   child: _TFButton(
                                     label: 'False ✗',
@@ -205,29 +214,23 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                                   ),
                                 ),
                               ],
-                            )
-                          else ...[
-                            _ResultBanner(
-                              isCorrect:
-                                  _selectedAnswer == q.correctAnswer,
-                              correctAnswer: q.correctAnswer,
                             ),
-                            const SizedBox(height: AppTokens.space16),
-                            AppPrimaryButton(
-                              label: state.currentIndex <
-                                      state.totalQuestions - 1
-                                  ? 'Next Question'
-                                  : 'See Results',
-                              icon: Icons.arrow_forward_rounded,
-                              onPressed: () async {
-                                _selectedAnswer = null;
-                                await ref
-                                    .read(provider.notifier)
-                                    .nextQuestion();
-                              },
+                          if (state.isAnswered) ...[
+                            if (q.correctDefinition != null &&
+                                q.correctDefinition!.isNotEmpty) ...[
+                              _CorrectDefinitionReveal(
+                                word: q.prompt,
+                                definition: q.correctDefinition!,
+                              ),
+                              const SizedBox(height: AppTokens.space16),
+                            ],
+                            AppButton(
+                              label: 'Next',
+                              onTap: () => ref
+                                  .read(provider.notifier)
+                                  .nextQuestion(),
                             ),
                           ],
-                          const SizedBox(height: AppTokens.space24),
                         ],
                       ),
                     ),
@@ -241,72 +244,74 @@ class _TFButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-  const _TFButton(
-      {required this.label, required this.color, required this.onTap});
+
+  const _TFButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        child: Container(
-          height: 64,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-            border:
-                Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ),
-      ),
+    return AppButton(
+      label: label,
+      color: color,
+      onTap: onTap,
     );
   }
 }
 
-class _ResultBanner extends StatelessWidget {
-  final bool isCorrect;
-  final String correctAnswer;
-  const _ResultBanner({required this.isCorrect, required this.correctAnswer});
+/// Feedback panel shown after the player answers a False question.
+/// Reveals the actual correct definition of the word so the player
+/// always walks away knowing what the word really means.
+class _CorrectDefinitionReveal extends StatelessWidget {
+  final String word;
+  final String definition;
+
+  const _CorrectDefinitionReveal({
+    required this.word,
+    required this.definition,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = isCorrect ? Colors.green : Colors.red;
-    final icon = isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded;
-    final msg =
-        isCorrect ? 'Correct! 🎉' : 'Wrong! Correct answer: $correctAnswer';
+    final textTheme = Theme.of(context).textTheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTokens.space16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
+        border: Border.all(
+          color: Colors.green.withOpacity(0.4),
+        ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color),
-          const SizedBox(width: AppTokens.space12),
-          Expanded(
-            child: Text(
-              msg,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: color,
+          Row(
+            children: [
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+                size: 16,
+              ),
+              const SizedBox(width: AppTokens.space8),
+              Expanded(
+                child: Text(
+                  'Correct definition of "$word"',
+                  style: textTheme.labelMedium?.copyWith(
+                    color: Colors.green.shade700,
                     fontWeight: FontWeight.w600,
                   ),
-            ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTokens.space8),
+          Text(
+            definition,
+            style: textTheme.bodyMedium?.copyWith(height: 1.5),
           ),
         ],
       ),

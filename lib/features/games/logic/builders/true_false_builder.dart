@@ -17,54 +17,50 @@ import 'mcq_question_builder.dart';
 ///   the question as true, and never make up bogus content.
 /// * TF1: Each decoy definition is used at most ONCE per session so the
 ///   player cannot learn patterns ("I saw this fake def already in Q2").
-/// * TF2: Definitions exceeding [GameRules.maxDefinitionLength] chars are
-///   excluded to prevent tile overflow.
-/// * G-09: Exactly count~/2 True questions and count~/2 False questions
-///   per session — pre-allocated slots prevent pattern-winning strategies.
+/// * TF2: Definitions >120 chars are excluded to prevent tile overflow.
 class TrueFalseBuilder extends McqQuestionBuilder {
   final GameDataRepository repo;
 
   const TrueFalseBuilder(this.repo);
 
+  static const int _maxDefLength = 120;
+
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
     final rng = Random();
+
     final words = await repo.getEligibleWords(
       gameType: config.gameType.dbKey,
       difficulty: config.difficulty,
-      limit: count * GameRules.trueFalseWordOverfetch,
+      limit: count * 2,
       requiresDefinition: true,
     );
+
     final pool = await repo.getEligibleWords(
       gameType: 'true_false',
       difficulty: 0,
-      limit: (count * GameRules.distractorOverfetchFactor)
-          .clamp(GameRules.distractorPoolMin, GameRules.distractorPoolMax),
+      limit: (count * GameRules.distractorOverfetchFactor).clamp(60, 300),
       requiresDefinition: true,
     );
-    if (words.isEmpty) return [];
 
-    // G-09: Pre-allocate exactly count~/2 True slots, shuffled.
-    // Guarantees a 50/50 split regardless of rng luck.
-    final trueSlots = List.generate(count, (i) => i < count ~/ 2)
-      ..shuffle(rng);
+    if (words.isEmpty) return [];
 
     // TF1: track which decoy definitions have already been used this session
     // so the same fake definition never appears twice as a False prompt.
     final usedDecoys = <String>{};
+
     final out = <McqQuestion>[];
 
     for (final word in words) {
       if (out.length >= count) break;
 
       // TF2: skip words with definitions too long for the UI tile.
-      if (word.definition.isEmpty ||
-          word.definition.length > GameRules.maxDefinitionLength) {
+      if (word.definition.isEmpty || word.definition.length > _maxDefLength) {
         continue;
       }
 
-      final presentTrue = trueSlots[out.length];
+      final presentTrue = rng.nextBool();
       String presentedDefinition;
       String correctAnswer;
 
@@ -79,12 +75,13 @@ class TrueFalseBuilder extends McqQuestionBuilder {
                 w.id != word.id &&
                 w.definition.isNotEmpty &&
                 w.definition != word.definition &&
-                w.definition.length <= GameRules.maxDefinitionLength &&
-                // TF2
+                w.definition.length <= _maxDefLength && // TF2
                 !usedDecoys.contains(w.definition)) // TF1
             .toList()
           ..shuffle(rng);
+
         if (decoys.isEmpty) continue;
+
         presentedDefinition = decoys.first.definition;
         correctAnswer = 'False';
         usedDecoys.add(presentedDefinition); // TF1: mark as used
@@ -95,8 +92,11 @@ class TrueFalseBuilder extends McqQuestionBuilder {
         promptSubtitle: presentedDefinition,
         options: const ['True', 'False'],
         correctAnswer: correctAnswer,
-        questionText: '"\${word.word}" — "$presentedDefinition"',
+        questionText: '"${word.word}" — "$presentedDefinition"',
         wordId: word.id,
+        // Only populate for False questions so the screen can reveal the
+        // real definition after the player answers (G-10).
+        correctDefinition: presentTrue ? null : word.definition,
       ));
     }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' show Color, ValueNotifier;
+
 import '../../../../core/theme/app_colors.dart';
 import '../game_rules.dart';
 
@@ -13,6 +14,10 @@ import '../game_rules.dart';
 ///   that have a single correct answer.
 /// [questionText] — short label used in the mistakes log
 /// [wordId] — DB row id, non-null for DB-backed games (mastery tracking)
+/// [correctDefinition] — for True/False games: the actual correct definition
+///   of the word. Populated only when a decoy definition is presented
+///   ([correctAnswer] == 'False'). Shown in the feedback panel after the
+///   player answers so they always learn the real meaning.
 class McqQuestion {
   final String prompt;
   final String promptSubtitle;
@@ -21,6 +26,7 @@ class McqQuestion {
   final List<String> allCorrectAnswers;
   final String questionText;
   final int? wordId;
+  final String? correctDefinition;
 
   const McqQuestion({
     required this.prompt,
@@ -30,6 +36,7 @@ class McqQuestion {
     this.allCorrectAnswers = const [],
     required this.questionText,
     this.wordId,
+    this.correctDefinition,
   });
 }
 
