@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/providers/daily_goal_provider.dart';
 import '../../../core/providers/font_size_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../database/daily_goal_extensions.dart';
 import '../../../database/database_service.dart';
 import '../../../shared/widgets/app_dialogs.dart';
 
@@ -12,8 +15,7 @@ const _kFeedbackEmail = 'murshedalam850@gmail.com';
 const _kGithubUrl = 'https://github.com/i-sifat';
 const _kRepoUrl = 'https://github.com/i-sifat/onushilonhub';
 const _kAppVersion = '1.0.2';
-const _kAvatarUrl =
-    'https://avatars.githubusercontent.com/u/142529114?v=4';
+const _kAvatarUrl = 'https://avatars.githubusercontent.com/u/142529114?v=4';
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -51,7 +53,7 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: _modeLabel(currentMode),
               onTap: () => _showThemeDialog(context, ref, currentMode),
             ),
-            _Divider(),
+            const _Divider(),
             _RowTile(
               icon: Icons.format_size_rounded,
               label: 'Font size',
@@ -60,7 +62,12 @@ class SettingsScreen extends ConsumerWidget {
                   _showFontSizeSheet(context, ref, currentFontSize),
             ),
           ]),
-
+          // ── LEARNING ────────────────────────────────────────────────────
+          const _SectionLabel(label: 'Learning'),
+          _GroupCard(children: const [
+            _DailyGoalTile(),
+          ]),
+          // ── PRIVACY ─────────────────────────────────────────────────────
           const _SectionLabel(label: 'Privacy'),
           _GroupCard(children: [
             _RowTile(
@@ -70,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _showManageDataSheet(context),
             ),
           ]),
-
+          // ── SUPPORT ─────────────────────────────────────────────────────
           const _SectionLabel(label: 'Support'),
           _GroupCard(children: [
             _RowTile(
@@ -80,7 +87,7 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _openEmail(context),
             ),
           ]),
-
+          // ── ABOUT ───────────────────────────────────────────────────────
           const _SectionLabel(label: 'About'),
           _GroupCard(children: [
             _RowTile(
@@ -89,10 +96,9 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Learn more about the app',
               onTap: () => _showAboutSheet(context),
             ),
-            _Divider(),
-            _VersionTile(),
+            const _Divider(),
+            const _VersionTile(),
           ]),
-
           const SizedBox(height: AppTokens.space40),
         ],
       ),
@@ -101,9 +107,12 @@ class SettingsScreen extends ConsumerWidget {
 
   String _modeLabel(ThemeMode mode) {
     switch (mode) {
-      case ThemeMode.light: return 'Light';
-      case ThemeMode.dark: return 'Dark';
-      case ThemeMode.system: return 'System default';
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+      case ThemeMode.system:
+        return 'System default';
     }
   }
 
@@ -113,7 +122,8 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppTokens.radiusLarge)),
+          top: Radius.circular(AppTokens.radiusLarge),
+        ),
       ),
       builder: (_) => _FontSizeSheet(current: current, ref: ref),
     );
@@ -125,7 +135,8 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppTokens.radiusLarge)),
+          top: Radius.circular(AppTokens.radiusLarge),
+        ),
       ),
       builder: (_) => _ThemeSheet(currentMode: current, ref: ref),
     );
@@ -137,7 +148,8 @@ class SettingsScreen extends ConsumerWidget {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppTokens.radiusLarge)),
+          top: Radius.circular(AppTokens.radiusLarge),
+        ),
       ),
       builder: (_) => const _AboutSheet(),
     );
@@ -149,7 +161,8 @@ class SettingsScreen extends ConsumerWidget {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppTokens.radiusLarge)),
+          top: Radius.circular(AppTokens.radiusLarge),
+        ),
       ),
       builder: (_) => const _ManageDataSheet(),
     );
@@ -159,8 +172,73 @@ class SettingsScreen extends ConsumerWidget {
     await Clipboard.setData(const ClipboardData(text: _kFeedbackEmail));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email address copied to clipboard')));
+          const SnackBar(
+              content: Text('Email address copied to clipboard')));
     }
+  }
+}
+
+// ── Daily Goal tile ──────────────────────────────────────────────────────────
+
+class _DailyGoalTile extends ConsumerWidget {
+  const _DailyGoalTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goalAsync = ref.watch(dailyGoalTargetProvider);
+
+    return goalAsync.when(
+      loading: () => const ListTile(
+        leading: Icon(Icons.flag_rounded),
+        title: Text('Daily goal'),
+        trailing: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      error: (_, __) => const ListTile(
+        leading: Icon(Icons.flag_rounded),
+        title: Text('Daily goal'),
+        subtitle: Text('Could not load'),
+      ),
+      data: (goal) => ListTile(
+        leading: const Icon(Icons.flag_rounded),
+        title: const Text('Daily goal'),
+        subtitle: Text('$goal session${goal == 1 ? '' : 's'} per day'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.remove_rounded),
+              onPressed: goal <= 1 ? null : () => _setGoal(ref, goal - 1),
+              tooltip: 'Decrease',
+            ),
+            SizedBox(
+              width: 28,
+              child: Text(
+                '$goal',
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_rounded),
+              onPressed: goal >= 20 ? null : () => _setGoal(ref, goal + 1),
+              tooltip: 'Increase',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _setGoal(WidgetRef ref, int newGoal) async {
+    await DatabaseService.instance.updateDailyGoal(newGoal);
+    ref.invalidate(dailyGoalTargetProvider);
   }
 }
 
@@ -169,11 +247,13 @@ class SettingsScreen extends ConsumerWidget {
 class _ThemeSheet extends StatelessWidget {
   final ThemeMode currentMode;
   final WidgetRef ref;
+
   const _ThemeSheet({required this.currentMode, required this.ref});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.all(AppTokens.space24),
       child: Column(
@@ -182,36 +262,113 @@ class _ThemeSheet extends StatelessWidget {
         children: [
           Text('Theme',
               style: textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: AppTokens.space20),
-          for (final entry in {
-            ThemeMode.light: ('Light', Icons.light_mode_rounded),
-            ThemeMode.dark: ('Dark', Icons.dark_mode_rounded),
-            ThemeMode.system: ('System default', Icons.settings_brightness_rounded),
-          }.entries)
-            _ThemeOption(
-              icon: entry.value.$2,
-              label: entry.value.$1,
-              isSelected: currentMode == entry.key,
-              onTap: () {
-                ref.read(themeModeProvider.notifier).setThemeMode(entry.key);
-                Navigator.pop(context);
-              },
-            ),
-          const SizedBox(height: AppTokens.space8),
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: AppTokens.space16),
+          _ThemeOption(
+            label: 'Light',
+            icon: Icons.light_mode_rounded,
+            isSelected: currentMode == ThemeMode.light,
+            onTap: () => _setThemeMode(context, ThemeMode.light),
+          ),
+          _ThemeOption(
+            label: 'Dark',
+            icon: Icons.dark_mode_rounded,
+            isSelected: currentMode == ThemeMode.dark,
+            onTap: () => _setThemeMode(context, ThemeMode.dark),
+          ),
+          _ThemeOption(
+            label: 'System default',
+            icon: Icons.settings_rounded,
+            isSelected: currentMode == ThemeMode.system,
+            onTap: () => _setThemeMode(context, ThemeMode.system),
+          ),
         ],
       ),
     );
   }
+
+  void _setThemeMode(BuildContext context, ThemeMode mode) {
+    ref.read(themeModeProvider.notifier).state = mode;
+    Navigator.of(context).pop();
+  }
 }
 
+// ── Theme option ──────────────────────────────────────────────────────────────
+
 class _ThemeOption extends StatelessWidget {
+  final String label;
   final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ThemeOption({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? colorScheme.primary : null),
+      title: Text(label),
+      trailing: isSelected
+          ? Icon(Icons.check_rounded, color: colorScheme.primary)
+          : null,
+      onTap: onTap,
+    );
+  }
+}
+
+// ── Font size modal bottom sheet ──────────────────────────────────────────────
+
+class _FontSizeSheet extends StatelessWidget {
+  final AppFontSize current;
+  final WidgetRef ref;
+
+  const _FontSizeSheet({required this.current, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(AppTokens.space24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Font size',
+              style: textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: AppTokens.space16),
+          for (final size in AppFontSize.values)
+            _FontSizeOption(
+              label: size.label,
+              isSelected: current == size,
+              onTap: () => _setFontSize(context, size),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _setFontSize(BuildContext context, AppFontSize size) {
+    ref.read(fontSizeProvider.notifier).state = size;
+    Navigator.of(context).pop();
+  }
+}
+
+// ── Font size option ──────────────────────────────────────────────────────────
+
+class _FontSizeOption extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  const _ThemeOption({
-    required this.icon,
+
+  const _FontSizeOption({
     required this.label,
     required this.isSelected,
     required this.onTap,
@@ -220,153 +377,130 @@ class _ThemeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
     return ListTile(
-      leading: Icon(icon,
-          color: isSelected ? AppColors.primary : colorScheme.onSurfaceVariant),
-      title: Text(label, style: textTheme.bodyLarge),
+      title: Text(label),
       trailing: isSelected
-          ? const Icon(Icons.check_rounded, color: AppColors.primary)
+          ? Icon(Icons.check_rounded, color: colorScheme.primary)
           : null,
       onTap: onTap,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTokens.radiusMedium)),
     );
   }
 }
 
-// ── About bottom sheet ────────────────────────────────────────────────────────
+// ── Version tile ──────────────────────────────────────────────────────────────
+
+class _VersionTile extends StatelessWidget {
+  const _VersionTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ListTile(
+      leading: Icon(Icons.tag_rounded),
+      title: Text('Version'),
+      subtitle: Text(_kAppVersion),
+    );
+  }
+}
+
+// ── About sheet ───────────────────────────────────────────────────────────────
 
 class _AboutSheet extends StatelessWidget {
   const _AboutSheet();
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.9,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
-      expand: false,
-      builder: (_, controller) => SingleChildScrollView(
-        controller: controller,
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: AppTokens.space12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(AppTokens.radiusPill),
+    return Padding(
+      padding: const EdgeInsets.all(AppTokens.space24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('About OnushilonHub',
+              style: textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: AppTokens.space16),
+          Row(
+            children: [
+              const CircleAvatar(
+                backgroundImage: NetworkImage(_kAvatarUrl),
+                radius: 24,
               ),
-            ),
-            // Back row
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppTokens.space16,
-                  vertical: AppTokens.space8),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 18),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Text('About OnushionHub',
-                      style: textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700)),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            // Logo + name
-            const SizedBox(height: AppTokens.space32),
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2), width: 2),
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/icon-192.png',
-                  width: 96,
-                  height: 96,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(height: AppTokens.space16),
-            Text('OnushiionHub',
-                style: textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: AppTokens.space4),
-            Text('Version $_kAppVersion',
-                style: textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant)),
-            const SizedBox(height: AppTokens.space12),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppTokens.space32),
-              child: Text(
-                'Learn English, Master vocabulary.\nBuilt to help you grow every day.',
-                style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant, height: 1.6),
-                textAlign: TextAlign.center,
-              ),
-            ),
-
-            // ── Developer ────────────────────────────────────────────────
-            const SizedBox(height: AppTokens.space32),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppTokens.screenPaddingH),
-              child: Column(
+              const SizedBox(width: AppTokens.space12),
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('DEVELOPER',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.4,
-                      )),
-                  const SizedBox(height: AppTokens.space10),
-                  _DeveloperRow(),
-
-                  // ── Open Source ─────────────────────────────────────────
-                  const SizedBox(height: AppTokens.space24),
-                  Text('OPEN SOURCE',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.4,
-                      )),
-                  const SizedBox(height: AppTokens.space10),
-                  _GroupCard(children: [
-                    const _OpenSourceTile(
-                      icon: Icons.code_rounded,
-                      label: 'App is open source',
-                      subtitle: 'View source on GitHub',
-                      url: _kRepoUrl,
-                    ),
-                    _Divider(),
-                    const _OpenSourceTile(
-                      icon: Icons.account_tree_rounded,
-                      label: 'GitHub project',
-                      subtitle: 'Star us on GitHub',
-                      url: _kGithubUrl,
-                    ),
-                  ]),
+                  Text('Developed by', style: textTheme.bodySmall),
+                  Text(
+                    'Murshed Alam Sifat',
+                    style: textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
+            ],
+          ),
+          const SizedBox(height: AppTokens.space24),
+          _AboutLinkRow(
+            icon: Icons.code_rounded,
+            label: 'GitHub',
+            url: _kGithubUrl,
+          ),
+          const SizedBox(height: AppTokens.space4),
+          _AboutLinkRow(
+            icon: Icons.folder_open_rounded,
+            label: 'Repository',
+            url: _kRepoUrl,
+          ),
+          const SizedBox(height: AppTokens.space16),
+          Text('Version $_kAppVersion', style: textTheme.bodySmall),
+          const SizedBox(height: AppTokens.space8),
+        ],
+      ),
+    );
+  }
+}
+
+// ── About link row ────────────────────────────────────────────────────────────
+
+class _AboutLinkRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String url;
+
+  const _AboutLinkRow({
+    required this.icon,
+    required this.label,
+    required this.url,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTokens.radiusSmall),
+      onTap: () async {
+        await Clipboard.setData(ClipboardData(text: url));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$label URL copied to clipboard')),
+          );
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppTokens.space8),
+        child: Row(
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: AppTokens.space8),
+            Flexible(
+              child: Text(
+                url,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
             ),
-            const SizedBox(height: AppTokens.space40),
           ],
         ),
       ),
@@ -374,89 +508,62 @@ class _AboutSheet extends StatelessWidget {
   }
 }
 
-class _DeveloperRow extends StatelessWidget {
+// ── Manage data sheet ─────────────────────────────────────────────────────────
+
+class _ManageDataSheet extends StatelessWidget {
+  const _ManageDataSheet();
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: const EdgeInsets.all(AppTokens.space14),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.all(AppTokens.space24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: Image.network(
-              _kAvatarUrl,
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 44,
-                height: 44,
-                color: AppColors.primary.withValues(alpha: 0.1),
-                child: const Icon(Icons.person_rounded,
-                    color: AppColors.primary, size: 24),
+          Text('Manage your data',
+              style: textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: AppTokens.space12),
+          Text(
+            'Reset all progress, XP, streaks, and game history. '
+            'This cannot be undone.',
+            style: textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppTokens.space24),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => _resetAllProgress(context),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
               ),
+              child: const Text('Reset all progress'),
             ),
           ),
-          const SizedBox(width: AppTokens.space12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Sifat',
-                    style: textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-                Text('Flutter & Android Developer',
-                    style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant)),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () async {
-              await Clipboard.setData(const ClipboardData(text: _kGithubUrl));
-            },
-            icon: const Icon(Icons.open_in_new_rounded,
-                size: 18, color: AppColors.primary),
-          ),
+          const SizedBox(height: AppTokens.space8),
         ],
       ),
     );
   }
-}
 
-class _OpenSourceTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final String url;
-  const _OpenSourceTile({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.url,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _RowTile(
-      icon: icon,
-      label: label,
-      subtitle: subtitle,
-      onTap: () async {
-        await Clipboard.setData(ClipboardData(text: url));
-      },
-    );
+  Future<void> _resetAllProgress(BuildContext context) async {
+    final confirmed = await AppDialogs.showResetData(context);
+    if (confirmed && context.mounted) {
+      await DatabaseService.instance.resetAllProgress();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All progress has been reset')),
+        );
+      }
+    }
   }
 }
 
-// ── Settings row components ───────────────────────────────────────────────────
+// ── Reusable widgets ──────────────────────────────────────────────────────────
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -466,14 +573,16 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-          top: AppTokens.space20, bottom: AppTokens.space8, left: 4),
+        top: AppTokens.space16,
+        bottom: AppTokens.space8,
+        left: AppTokens.space4,
+      ),
       child: Text(
         label.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.4,
-        ),
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }
@@ -485,26 +594,10 @@ class _GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTokens.space8),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
-    );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      indent: 54,
-      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.35),
     );
   }
 }
@@ -514,56 +607,22 @@ class _RowTile extends StatelessWidget {
   final String label;
   final String? subtitle;
   final VoidCallback? onTap;
-  final Color? iconColor;
-  final Color? labelColor;
 
   const _RowTile({
     required this.icon,
     required this.label,
     this.subtitle,
     this.onTap,
-    this.iconColor,
-    this.labelColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final ic = iconColor ?? colorScheme.onSurfaceVariant;
-
-    return InkWell(
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: subtitle != null ? Text(subtitle!) : null,
+      trailing: const Icon(Icons.chevron_right_rounded, size: 20),
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppTokens.space16, vertical: AppTokens.space14),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: ic),
-            const SizedBox(width: AppTokens.space18),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: labelColor ?? colorScheme.onSurface,
-                    ),
-                  ),
-                  if (subtitle != null)
-                    Text(subtitle!,
-                        style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded,
-                size: 18, color: colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -571,267 +630,33 @@ class _RowTile extends StatelessWidget {
 class _ThemeTile extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String? subtitle;
-  final VoidCallback? onTap;
+  final String subtitle;
+  final VoidCallback onTap;
 
   const _ThemeTile({
     required this.icon,
     required this.label,
-    this.subtitle,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _RowTile(
-        icon: icon, label: label, subtitle: subtitle, onTap: onTap);
-  }
-}
-
-class _VersionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppTokens.space16, vertical: AppTokens.space14),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline_rounded,
-              size: 20, color: colorScheme.onSurfaceVariant),
-          const SizedBox(width: AppTokens.space18),
-          Expanded(
-            child: Text('Version',
-                style: textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500)),
-          ),
-          Text(_kAppVersion,
-              style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Manage Data bottom sheet ──────────────────────────────────────────────────
-
-class _ManageDataSheet extends StatelessWidget {
-  const _ManageDataSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppTokens.space24,
-        right: AppTokens.space24,
-        top: AppTokens.space12,
-        bottom: AppTokens.space24 +
-            MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.outlineVariant,
-                borderRadius:
-                    BorderRadius.circular(AppTokens.radiusPill),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppTokens.space20),
-          Text(
-            'Manage Your Data',
-            style: textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: AppTokens.space8),
-          Text(
-            'Control your personal data and app progress stored on this device.',
-            style: textTheme.bodySmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant, height: 1.5),
-          ),
-          const SizedBox(height: AppTokens.space24),
-
-          // Data stored info card
-          Container(
-            padding: const EdgeInsets.all(AppTokens.space16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest
-                  .withValues(alpha: 0.4),
-              borderRadius:
-                  BorderRadius.circular(AppTokens.radiusMedium),
-              border: Border.all(
-                  color: colorScheme.outlineVariant
-                      .withValues(alpha: 0.5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Data stored on device',
-                    style: textTheme.labelMedium
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(height: AppTokens.space8),
-                const _DataInfoRow(
-                    icon: Icons.bolt_rounded,
-                    label: 'XP & streak progress'),
-                const _DataInfoRow(
-                    icon: Icons.games_rounded,
-                    label: 'Game sessions & scores'),
-                const _DataInfoRow(
-                    icon: Icons.spellcheck_rounded,
-                    label: 'Word mastery records'),
-                const _DataInfoRow(
-                    icon: Icons.person_rounded,
-                    label: 'Profile name & preferences'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: AppTokens.space24),
-
-          // Reset Progress button
-          _GroupCard(children: [
-            _RowTile(
-              icon: Icons.delete_sweep_rounded,
-              label: 'Reset Progress',
-              subtitle: 'Clear all XP, sessions and word progress',
-              iconColor: colorScheme.error,
-              labelColor: colorScheme.error,
-              onTap: () => _confirmReset(context),
-            ),
-          ]),
-
-          const SizedBox(height: AppTokens.space8),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _confirmReset(BuildContext context) async {
-    final confirmed = await AppDialogs.showResetProgress(context);
-    if (confirmed == true && context.mounted) {
-      await DatabaseService.instance.resetAllProgress();
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Progress reset successfully')),
-        );
-      }
-    }
-  }
-}
-
-class _DataInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _DataInfoRow({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: AppTokens.space6),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
-          const SizedBox(width: AppTokens.space8),
-          Text(label,
-              style: textTheme.bodySmall
-                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Font size modal bottom sheet ─────────────────────────────────────────────
-
-class _FontSizeSheet extends StatelessWidget {
-  final AppFontSize current;
-  final WidgetRef ref;
-  const _FontSizeSheet({required this.current, required this.ref});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.all(AppTokens.space24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Font size',
-              style: textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: AppTokens.space8),
-          Text(
-            'Affects every text element across the app. Changes apply instantly.',
-            style: textTheme.bodySmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant, height: 1.5),
-          ),
-          const SizedBox(height: AppTokens.space20),
-          for (final size in AppFontSize.values)
-            _FontSizeOption(
-              size: size,
-              isSelected: current == size,
-              onTap: () {
-                ref.read(fontSizeProvider.notifier).setFontSize(size);
-                Navigator.pop(context);
-              },
-            ),
-          const SizedBox(height: AppTokens.space8),
-        ],
-      ),
-    );
-  }
-}
-
-class _FontSizeOption extends StatelessWidget {
-  final AppFontSize size;
-  final bool isSelected;
-  final VoidCallback onTap;
-  const _FontSizeOption({
-    required this.size,
-    required this.isSelected,
+    required this.subtitle,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    // Live preview: scale the option label by its own factor so users see
-    // the relative sizes before committing.
-    final previewStyle = textTheme.bodyLarge?.copyWith(
-      fontSize: (textTheme.bodyLarge?.fontSize ?? 16) * size.scaleFactor,
-      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-    );
     return ListTile(
-      leading: Icon(
-        Icons.format_size_rounded,
-        color: isSelected ? AppColors.primary : colorScheme.onSurfaceVariant,
-      ),
-      title: Text(size.label, style: previewStyle),
-      trailing: isSelected
-          ? const Icon(Icons.check_rounded, color: AppColors.primary)
-          : null,
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right_rounded, size: 20),
       onTap: onTap,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTokens.radiusMedium)),
     );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(height: 1, thickness: 0.5, indent: 56);
   }
 }

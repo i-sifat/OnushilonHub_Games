@@ -4,6 +4,7 @@ class UserProgressModel {
   final int streak;
   final String themeMode;
   final DateTime? lastPlayedAt;
+  final int dailyGoal;
 
   const UserProgressModel({
     this.id = 1,
@@ -11,9 +12,10 @@ class UserProgressModel {
     this.streak = 0,
     this.themeMode = 'system',
     this.lastPlayedAt,
+    this.dailyGoal = 5,
   });
 
-  factory UserProgressModel.fromDb(Map<String, dynamic> map) {
+  factory UserProgressModel.fromDb(Map map) {
     return UserProgressModel(
       id: map['id'] as int,
       totalXp: map['total_xp'] as int,
@@ -22,6 +24,7 @@ class UserProgressModel {
       lastPlayedAt: map['last_played_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['last_played_at'] as int)
           : null,
+      dailyGoal: (map['daily_goal'] as int?) ?? 5,
     );
   }
 
@@ -32,6 +35,7 @@ class UserProgressModel {
       'streak': streak,
       'theme_mode': themeMode,
       'last_played_at': lastPlayedAt?.millisecondsSinceEpoch,
+      'daily_goal': dailyGoal,
     };
   }
 
@@ -41,14 +45,17 @@ class UserProgressModel {
     String? themeMode,
     DateTime? lastPlayedAt,
     bool clearLastPlayedAt = false,
+    int? dailyGoal,
   }) {
     return UserProgressModel(
       id: id,
       totalXp: totalXp ?? this.totalXp,
       streak: streak ?? this.streak,
       themeMode: themeMode ?? this.themeMode,
-      lastPlayedAt:
-          clearLastPlayedAt ? null : (lastPlayedAt ?? this.lastPlayedAt),
+      lastPlayedAt: clearLastPlayedAt
+          ? null
+          : (lastPlayedAt ?? this.lastPlayedAt),
+      dailyGoal: dailyGoal ?? this.dailyGoal,
     );
   }
 }
@@ -72,7 +79,7 @@ class GameSessionModel {
     required this.playedAt,
   });
 
-  factory GameSessionModel.fromDb(Map<String, dynamic> map) {
+  factory GameSessionModel.fromDb(Map map) {
     return GameSessionModel(
       id: map['id'] as int?,
       gameType: map['game_type'] as String,
@@ -80,7 +87,8 @@ class GameSessionModel {
       correctCount: map['correct_count'] as int,
       wrongCount: map['wrong_count'] as int,
       durationSeconds: map['duration_seconds'] as int,
-      playedAt: DateTime.fromMillisecondsSinceEpoch(map['played_at'] as int),
+      playedAt:
+          DateTime.fromMillisecondsSinceEpoch(map['played_at'] as int),
     );
   }
 
@@ -114,7 +122,7 @@ class WordProgressModel {
     this.lastAttempted,
   });
 
-  factory WordProgressModel.fromDb(Map<String, dynamic> map) {
+  factory WordProgressModel.fromDb(Map map) {
     return WordProgressModel(
       id: map['id'] as int?,
       wordId: map['word_id'] as int,
