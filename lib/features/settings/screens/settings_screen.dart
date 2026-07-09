@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/daily_goal_provider.dart';
 import '../../../core/providers/font_size_provider.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../database/daily_goal_extensions.dart';
@@ -17,7 +18,7 @@ const _kRepoUrl = 'https://github.com/i-sifat/onushilonhub';
 const _kAppVersion = '1.0.2';
 const _kAvatarUrl = 'https://avatars.githubusercontent.com/u/142529114?v=4';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────────
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -44,7 +45,7 @@ class SettingsScreen extends ConsumerWidget {
           vertical: AppTokens.space12,
         ),
         children: [
-          // ── APPEARANCE ──────────────────────────────────────────────────
+          // ── APPEARANCE ──────────────────────────────────────────────
           const _SectionLabel(label: 'Appearance'),
           _GroupCard(children: [
             _ThemeTile(
@@ -62,12 +63,15 @@ class SettingsScreen extends ConsumerWidget {
                   _showFontSizeSheet(context, ref, currentFontSize),
             ),
           ]),
-          // ── LEARNING ────────────────────────────────────────────────────
+          // ── LEARNING ──────────────────────────────────────────────
           const _SectionLabel(label: 'Learning'),
-          _GroupCard(children: const [
-            _DailyGoalTile(),
+          _GroupCard(children: [
+            const _DailyGoalTile(),
+            const _Divider(),
+            // F-03: daily practice reminder
+            const _NotificationTile(),
           ]),
-          // ── PRIVACY ─────────────────────────────────────────────────────
+          // ── PRIVACY ───────────────────────────────────────────────
           const _SectionLabel(label: 'Privacy'),
           _GroupCard(children: [
             _RowTile(
@@ -77,7 +81,7 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _showManageDataSheet(context),
             ),
           ]),
-          // ── SUPPORT ─────────────────────────────────────────────────────
+          // ── SUPPORT ───────────────────────────────────────────────
           const _SectionLabel(label: 'Support'),
           _GroupCard(children: [
             _RowTile(
@@ -87,7 +91,7 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _openEmail(context),
             ),
           ]),
-          // ── ABOUT ───────────────────────────────────────────────────────
+          // ── ABOUT ────────────────────────────────────────────────
           const _SectionLabel(label: 'About'),
           _GroupCard(children: [
             _RowTile(
@@ -105,7 +109,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  String _modeLabel(ThemeMode mode) {
+  static String _modeLabel(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
         return 'Light';
@@ -178,7 +182,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-// ── Daily Goal tile ──────────────────────────────────────────────────────────
+// ── Daily Goal tile ────────────────────────────────────────────────────
 
 class _DailyGoalTile extends ConsumerWidget {
   const _DailyGoalTile();
@@ -242,7 +246,107 @@ class _DailyGoalTile extends ConsumerWidget {
   }
 }
 
-// ── Theme modal bottom sheet ──────────────────────────────────────────────────
+// ── Notification tile (F-03) ───────────────────────────────────────────────
+
+class _NotificationTile extends StatefulWidget {
+  const _NotificationTile();
+
+  @override
+  State<_NotificationTile> createState() => _NotificationTileState();
+}
+
+class _NotificationTileState extends State<_NotificationTile> {
+  ({int hour, int minute})? _reminderTime;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReminderTime();
+  }
+
+  Future<void> _loadReminderTime() async {
+    final time = await NotificationService.instance.getReminderTime();
+    if (mounted) {
+      setState(() {
+        _reminderTime = time;
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (_loading) {
+      return const ListTile(
+        leading: Icon(Icons.notifications_rounded),
+        title: Text('Daily reminder'),
+        trailing: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    final enabled = _reminderTime != null;
+    final timeStr = enabled
+        ? TimeOfDay(
+                hour: _reminderTime!.hour,
+                minute: _reminderTime!.minute)
+            .format(context)
+        : 'Off';
+
+    return ListTile(
+      leading: Icon(
+        Icons.notifications_rounded,
+        color: enabled ? colorScheme.primary : null,
+      ),
+      title: const Text('Daily reminder'),
+      subtitle: Text(timeStr),
+      trailing: Switch(
+        value: enabled,
+        onChanged: (val) async {
+          if (val) {
+            await _pickTime();
+          } else {
+            await _disableReminder();
+          }
+        },
+      ),
+      onTap: enabled ? _pickTime : null,
+    );
+  }
+
+  Future<void> _pickTime() async {
+    final current = _reminderTime != null
+        ? TimeOfDay(
+            hour: _reminderTime!.hour,
+            minute: _reminderTime!.minute,
+          )
+        : const TimeOfDay(hour: 9, minute: 0);
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: current,
+    );
+    if (picked == null || !mounted) return;
+    await NotificationService.instance
+        .scheduleDailyReminder(picked.hour, picked.minute);
+    if (mounted) {
+      setState(
+          () => _reminderTime = (hour: picked.hour, minute: picked.minute));
+    }
+  }
+
+  Future<void> _disableReminder() async {
+    await NotificationService.instance.cancelDailyReminder();
+    if (mounted) setState(() => _reminderTime = null);
+  }
+}
+
+// ── Theme sheet ──────────────────────────────────────────────────────────
 
 class _ThemeSheet extends StatelessWidget {
   final ThemeMode currentMode;
@@ -293,7 +397,7 @@ class _ThemeSheet extends StatelessWidget {
   }
 }
 
-// ── Theme option ──────────────────────────────────────────────────────────────
+// ── Theme option ─────────────────────────────────────────────────────────
 
 class _ThemeOption extends StatelessWidget {
   final String label;
@@ -322,7 +426,7 @@ class _ThemeOption extends StatelessWidget {
   }
 }
 
-// ── Font size modal bottom sheet ──────────────────────────────────────────────
+// ── Font size sheet ──────────────────────────────────────────────────────
 
 class _FontSizeSheet extends StatelessWidget {
   final AppFontSize current;
@@ -361,7 +465,7 @@ class _FontSizeSheet extends StatelessWidget {
   }
 }
 
-// ── Font size option ──────────────────────────────────────────────────────────
+// ── Font size option ────────────────────────────────────────────────────
 
 class _FontSizeOption extends StatelessWidget {
   final String label;
@@ -387,7 +491,7 @@ class _FontSizeOption extends StatelessWidget {
   }
 }
 
-// ── Version tile ──────────────────────────────────────────────────────────────
+// ── Version tile ────────────────────────────────────────────────────────
 
 class _VersionTile extends StatelessWidget {
   const _VersionTile();
@@ -402,7 +506,7 @@ class _VersionTile extends StatelessWidget {
   }
 }
 
-// ── About sheet ───────────────────────────────────────────────────────────────
+// ── About sheet ────────────────────────────────────────────────────────
 
 class _AboutSheet extends StatelessWidget {
   const _AboutSheet();
@@ -462,7 +566,7 @@ class _AboutSheet extends StatelessWidget {
   }
 }
 
-// ── About link row ────────────────────────────────────────────────────────────
+// ── About link row ─────────────────────────────────────────────────────
 
 class _AboutLinkRow extends StatelessWidget {
   final IconData icon;
@@ -508,7 +612,7 @@ class _AboutLinkRow extends StatelessWidget {
   }
 }
 
-// ── Manage data sheet ─────────────────────────────────────────────────────────
+// ── Manage data sheet ──────────────────────────────────────────────────
 
 class _ManageDataSheet extends StatelessWidget {
   const _ManageDataSheet();
@@ -563,7 +667,7 @@ class _ManageDataSheet extends StatelessWidget {
   }
 }
 
-// ── Reusable widgets ──────────────────────────────────────────────────────────
+// ── Reusable widgets ─────────────────────────────────────────────────────
 
 class _SectionLabel extends StatelessWidget {
   final String label;

@@ -20,7 +20,7 @@ void main() async {
   // DB init intentionally removed from here — SplashScreen awaits it so the
   // UI is visible (with a progress indicator) while the first-install seed runs.
 
-  // F-03: initialise notification service and re-schedule any saved reminder.
+  // F-03: initialise notification service (also sets up timezone tables).
   await NotificationService.instance.initialize();
 
   runApp(const ProviderScope(child: OnushilonHubApp()));
@@ -31,14 +31,8 @@ class OnushilonHubApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Theme + font size are both stored preferences; watching them rebuilds
-    // MaterialApp.router so the entire widget tree reflows from the single
-    // ThemeData source of truth.
     final themeMode = ref.watch(themeModeProvider);
     final fontSize = ref.watch(fontSizeProvider);
-
-    // Router is read (not watched) because appRouterProvider is keepAlive and
-    // immutable — watching it would recreate the GoRouter on every rebuild.
     final router = ref.read(appRouterProvider);
 
     return MaterialApp.router(

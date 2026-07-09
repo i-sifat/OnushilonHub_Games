@@ -10,7 +10,10 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 const _kPrefEnabled = 'notification_enabled';
 const _kPrefHour = 'notification_hour';
@@ -33,6 +36,9 @@ class NotificationService {
     if (_initialised) return;
     _initialised = true;
 
+    // Initialise timezone database so zonedSchedule works correctly.
+    await _initTimeZone();
+
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -49,14 +55,23 @@ class NotificationService {
     );
 
     // Re-schedule the reminder on every cold start so it survives OS reboots.
-    // The AndroidBootReceiver in the manifest handles this for boot events, but
-    // re-scheduling here is a cheap belt-and-suspenders approach.
     final prefs = await SharedPreferences.getInstance();
     final enabled = prefs.getBool(_kPrefEnabled) ?? false;
     if (enabled) {
       final hour = prefs.getInt(_kPrefHour) ?? 9;
       final minute = prefs.getInt(_kPrefMinute) ?? 0;
       await _scheduleImpl(hour, minute);
+    }
+  }
+
+  Future<void> _initTimeZone() async {
+    tz_data.initializeTimeZones();
+    try {
+      final String localTzName = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(localTzName));
+    } catch (e) {
+      // Fall back to UTC if timezone detection fails.
+      debugPrint('NotificationService: timezone detection failed ($e), using UTC');
     }
   }
 
@@ -67,7 +82,7 @@ class NotificationService {
   Future<bool> requestPermission() async {
     final androidImpl = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
-    if (androidImpl == null) return true; // iOS or other platform
+    if (androidImpl == null) return true;
     final granted = await androidImpl.requestNotificationsPermission();
     return granted ?? false;
   }
@@ -75,20 +90,14 @@ class NotificationService {
   // ── Public API ─────────────────────────────────────────────────────────────
 
   /// Schedule a daily reminder at [hour]:[minute].
-  ///
-  /// Persists the time in SharedPreferences. Cancels any existing reminder
-  /// before scheduling the new one so there is always at most one pending
-  /// notification.
   Future<void> scheduleDailyReminder(int hour, int minute) async {
     final hasPermission = await requestPermission();
     if (!hasPermission) {
       debugPrint('NotificationService: permission denied, skipping schedule');
       return;
     }
-
     await _plugin.cancel(_kNotificationId);
     await _scheduleImpl(hour, minute);
-
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kPrefEnabled, true);
     await prefs.setInt(_kPrefHour, hour);
@@ -124,12 +133,11 @@ class NotificationService {
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
     );
-
     const details = NotificationDetails(android: androidDetails);
 
     await _plugin.zonedSchedule(
       _kNotificationId,
-      'Time to practice! 📚',
+      'Time to practice! \uD83D\uDCDA',
       'Your daily vocabulary session is waiting.',
       _nextInstanceOf(hour, minute),
       details,
@@ -138,7 +146,6 @@ class NotificationService {
     );
   }
 
-  /// Returns the next occurrence of [hour]:[minute] from now.
   tz.TZDateTime _nextInstanceOf(int hour, int minute) {
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
