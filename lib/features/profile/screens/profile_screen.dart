@@ -1,6 +1,7 @@
 //home/claude/OnushilonHub/lib/features/profile/screens/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:math' show pi;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/game_config.dart';
@@ -12,6 +13,7 @@ import '../../../database/database_service.dart';
 import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
+import '../../../core/providers/game_session_stats_provider.dart';
 
 /// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
 /// Notifier. The counter increment pattern maps to a one-line [increment]
@@ -78,11 +80,11 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App Bar ────────────────────────────────────────────────────────────────
+            // ── App Bar ──────────────────────────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppTokens.screenPaddingH,
-                vertical: AppTokens.space12,
+                vertical: AppTokens.space16,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -92,7 +94,8 @@ class ProfileScreen extends ConsumerWidget {
                           ?.copyWith(fontWeight: FontWeight.w800)),
                   IconButton(
                     icon: const Icon(Icons.settings_rounded),
-                    onPressed: () => context.push('/settings'),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed('/settings'),
                   ),
                 ],
               ),
@@ -107,7 +110,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Hero Card ───────────────────────────────────────────────────
+                    // ── Hero Card ───────────────────────────────────────────────────────────────
                     Builder(builder: (context) {
                       final sessions = statsAsync.when(
                         data: (s) => s['totalSessions'] as int,
@@ -115,15 +118,15 @@ class ProfileScreen extends ConsumerWidget {
                         error: (_, __) => 0,
                       );
                       return progressAsync.when(
-                        data: (p) =>
-                            _HeroCard(progress: p, totalSessions: sessions),
+                        data: (p) => _HeroCard(
+                            progress: p, totalSessions: sessions),
                         loading: () => const SkeletonCard(height: 140),
                         error: (_, __) => const SizedBox(),
                       );
                     }),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Statistics ────────────────────────────────────────────────
+                    // ── Statistics ─────────────────────────────────────────────────────────────
                     Text('Statistics',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
@@ -135,21 +138,22 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Game Breakdown ────────────────────────────────────────────
+                    // ── Game Breakdown ───────────────────────────────────────────────────────────
                     Text('Game Breakdown',
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: AppTokens.space16),
                     statsAsync.when(
                       data: (stats) {
-                        final gameStats =
-                            stats['gameStats'] as List<Map<String, dynamic>>;
+                        final gameStats = stats['gameStats'] as List;
                         if (gameStats.isEmpty) {
                           return _EmptyBreakdown();
                         }
                         return Column(
                           children: [
-                            _GameBreakdownChart(gameStats: gameStats),
+                            _GameBreakdownChart(
+                                gameStats: gameStats
+                                    .cast<Map<String, dynamic>>()),
                             const SizedBox(height: AppTokens.space16),
                             gameProgressAsync.when(
                               data: (counts) =>
@@ -166,7 +170,27 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppTokens.space24),
 
-                    // ── Saved Words ───────────────────────────────────────────────
+                    // ── 7-Day Progress (F-05) ───────────────────────────────────────────────────
+                    Text('7-Day Progress',
+                        style: textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: AppTokens.space16),
+                    Consumer(
+                      builder: (context, ref2, _) {
+                        final chartAsync =
+                            ref2.watch(gameSessionStatsProvider);
+                        return chartAsync.when(
+                          data: (stats) =>
+                              _ProgressCharts(dailyStats: stats),
+                          loading: () =>
+                              const SkeletonCard(height: 200),
+                          error: (_, __) => const SizedBox(),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: AppTokens.space24),
+
+                    // ── Saved Words ───────────────────────────────────────────────────────────
                     _SavedWordsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
@@ -180,7 +204,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ── Hero Card ──────────────────────────────────────────────────────────────────────────
+// ── Hero Card ──────────────────────────────────────────────────────────────────────────────
 
 class _HeroCard extends ConsumerWidget {
   final UserProgressModel progress;
@@ -195,14 +219,18 @@ class _HeroCard extends ConsumerWidget {
     final level = LevelCalculator.levelFor(progress.totalXp);
 
     return Container(
+      padding: const EdgeInsets.all(AppTokens.space20),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.wordCardEnd],
+        ),
+        borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
       ),
-      padding: const EdgeInsets.all(AppTokens.space16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar row
           Row(
             children: [
               Container(
@@ -230,7 +258,6 @@ class _HeroCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppTokens.space16),
-          // Stats row
           Row(
             children: [
               _HeroStat(value: '${progress.totalXp}', label: 'XP'),
@@ -278,7 +305,7 @@ class _Divider extends StatelessWidget {
   }
 }
 
-// ── Overall Stats ────────────────────────────────────────────────────────────────────
+// ── Overall Stats ────────────────────────────────────────────────────────────────────────
 
 class _OverallStats extends StatelessWidget {
   final Map<String, dynamic> stats;
@@ -386,7 +413,7 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-// ── Game Breakdown ────────────────────────────────────────────────────────────────────
+// ── Game Breakdown ───────────────────────────────────────────────────────────────────────
 
 class _EmptyBreakdown extends StatelessWidget {
   @override
@@ -543,7 +570,7 @@ class _DonutPainter extends CustomPainter {
       old.total != total || old.gameStats != gameStats;
 }
 
-// ── Game Progress Bars (UX-06) ─────────────────────────────────────────────────
+// ── Game Progress Bars (UX-06) ──────────────────────────────────────────────────────────
 
 class _GameProgressBars extends StatelessWidget {
   final Map<String, Map<String, int>> progressCounts;
@@ -600,7 +627,7 @@ class _GameProgressBars extends StatelessWidget {
                             overflow: TextOverflow.ellipsis),
                       ),
                       Text(
-                        '$mastered / $total',
+                        '$mastered / $total',
                         style: textTheme.labelSmall?.copyWith(
                             color: colorScheme.onSurfaceVariant),
                       ),
@@ -627,7 +654,149 @@ class _GameProgressBars extends StatelessWidget {
   }
 }
 
-// ── Saved Words Entry ─────────────────────────────────────────────────────────────────
+// ── 7-Day Progress Charts (F-05) ────────────────────────────────────────────────────────
+
+class _ProgressCharts extends StatelessWidget {
+  final List<DailyStats> dailyStats;
+  const _ProgressCharts({required this.dailyStats});
+
+  static const _dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final maxXp = dailyStats.fold<int>(0, (m, s) => s.xp > m ? s.xp : m);
+
+    return Container(
+      padding: const EdgeInsets.all(AppTokens.space16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // XP Bar Chart
+          Text('Daily XP',
+              style:
+                  textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: AppTokens.space12),
+          SizedBox(
+            height: 120,
+            child: BarChart(
+              BarChartData(
+                maxY: (maxXp * 1.2).ceilToDouble().clamp(10, double.infinity),
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.toInt();
+                        if (i < 0 || i >= dailyStats.length)
+                          return const SizedBox();
+                        final dow = dailyStats[i].date.weekday - 1;
+                        return Text(
+                          _dayLabels[dow % 7],
+                          style: textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                barGroups: List.generate(dailyStats.length, (i) {
+                  final s = dailyStats[i];
+                  return BarChartGroupData(
+                    x: i,
+                    barRods: [
+                      BarChartRodData(
+                        toY: s.xp.toDouble(),
+                        color: s.hasActivity
+                            ? AppColors.primary
+                            : colorScheme.outlineVariant,
+                        width: 20,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppTokens.space20),
+
+          // Accuracy Line Chart
+          Text('Accuracy Trend',
+              style:
+                  textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: AppTokens.space12),
+          SizedBox(
+            height: 100,
+            child: LineChart(
+              LineChartData(
+                minY: 0,
+                maxY: 100,
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      getTitlesWidget: (value, meta) {
+                        if (value % 50 != 0) return const SizedBox();
+                        return Text('${value.toInt()}%',
+                            style: textTheme.labelSmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant));
+                      },
+                    ),
+                  ),
+                  rightTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: List.generate(dailyStats.length, (i) {
+                      final s = dailyStats[i];
+                      return FlSpot(i.toDouble(),
+                          s.hasActivity ? (s.accuracy * 100) : 0);
+                    }),
+                    isCurved: true,
+                    color: AppColors.reward,
+                    barWidth: 2,
+                    dotData: const FlDotData(show: true),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: AppColors.reward.withOpacity(0.1),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Saved Words Entry ───────────────────────────────────────────────────────────────────────
 
 class _SavedWordsEntry extends ConsumerWidget {
   @override
