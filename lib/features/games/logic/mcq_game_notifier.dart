@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -63,11 +62,22 @@ class McqGameNotifier extends StateNotifier<McqGameState>
     state = state.copyWith(isLoading: true, initError: null);
     try {
       final builder = builderFactory.get(config.gameType);
-      final questions = await builder.build(config).timeout(
+      var questions = await builder.build(config).timeout(
         GameRules.initializeTimeout,
         onTimeout: () =>
             throw const SessionFailure('Game data load timed out'),
       );
+      // UX-01: Practice Mistakes — when forcedWordIds is set, keep only the
+      // questions whose wordId matches. This replays exactly the words the
+      // player got wrong in the previous session. Falls back to the full set
+      // if none of the built questions match (e.g. asset-backed game types
+      // like Whose Quote whose questions don't carry a DB wordId).
+      if (config.forcedWordIds.isNotEmpty) {
+        final forced = questions
+            .where((q) => config.forcedWordIds.contains(q.wordId))
+            .toList();
+        if (forced.isNotEmpty) questions = forced;
+      }
       state = state.copyWith(
         isLoading: false,
         questions: questions,
@@ -111,11 +121,15 @@ class McqGameNotifier extends StateNotifier<McqGameState>
     );
   }
 
+  // UX-01: added optional `wordId` parameter — passed from McqQuestion.wordId
+  // so MistakeItem records which DB word the player got wrong, enabling the
+  // Practice Mistakes button to re-queue those exact words.
   void _emitWrong(
     String question,
     String userAnswer,
     String correctAnswer, [
     List<String> allCorrectAnswers = const [],
+    int? wordId,
   ]) {
     HapticFeedback.heavyImpact();
     state = state.copyWith(
@@ -129,6 +143,7 @@ class McqGameNotifier extends StateNotifier<McqGameState>
           userAnswer: userAnswer,
           correctAnswer: correctAnswer,
           allCorrectAnswers: allCorrectAnswers,
+          wordId: wordId,
         ),
       ],
     );
@@ -148,7 +163,12 @@ class McqGameNotifier extends StateNotifier<McqGameState>
       }
     } else {
       _emitWrong(
-          q.questionText, answer, q.correctAnswer, q.allCorrectAnswers);
+        q.questionText,
+        answer,
+        q.correctAnswer,
+        q.allCorrectAnswers,
+        q.wordId, // UX-01: thread wordId into MistakeItem
+      );
     }
     if (q.wordId != null) {
       // Fire-and-forget — failure is non-fatal for gameplay.

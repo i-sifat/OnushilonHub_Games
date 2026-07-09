@@ -185,6 +185,10 @@ class GameConfig {
   final String? era; // for whose_quote
   final String? category; // for whose_quote
   final bool trackAnswerTime; // for unscramble
+  /// UX-01: when non-empty, the MCQ notifier will filter built questions to
+  /// only those whose wordId is in this list, creating a focused retry
+  /// session on exactly the words the player previously got wrong.
+  final List<int> forcedWordIds;
 
   const GameConfig({
     required this.gameType,
@@ -193,6 +197,7 @@ class GameConfig {
     this.era,
     this.category,
     this.trackAnswerTime = false,
+    this.forcedWordIds = const [],
   });
 }
 
@@ -205,11 +210,17 @@ class MistakeItem {
   /// word). Empty for question types that have a single correct answer.
   final List<String> allCorrectAnswers;
 
+  /// DB word ID for this mistake — used by UX-01 Practice Mistakes to
+  /// re-queue only the words the player got wrong. Null for asset-backed
+  /// games (whoseQuote) where questions are not tied to a words row.
+  final int? wordId;
+
   const MistakeItem({
     required this.question,
     required this.userAnswer,
     required this.correctAnswer,
     this.allCorrectAnswers = const [],
+    this.wordId,
   });
 }
 
@@ -219,7 +230,9 @@ class GameResult {
   final int correctCount;
   final int wrongCount;
   final int elapsedSeconds;
+  /// Base XP from correct answers (correctCount x xpPerCorrect).
   final int baseXp;
+  /// Bonus XP from speed streaks; 0 for non-Speed-Racing games.
   final int bonusXp;
   final List<MistakeItem> mistakes;
 
