@@ -277,7 +277,8 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
 
                     const SizedBox(height: AppTokens.space32),
 
-                    // Actions
+                    // ── Actions ────────────────────────────────────────────
+                    // Play Again (new random session, same game type)
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
@@ -294,10 +295,35 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                     ),
                     const SizedBox(height: AppTokens.space12),
 
-                    // UX-01: Practice Mistakes — only shown when mistakes carry
-                    // wordIds (i.e. DB-backed game types). Routes to the same
-                    // game with forcedWordIds so the session focuses on exactly
-                    // the words the player got wrong.
+                    // UX-07: Same Words Again — replay exact same word pool.
+                    // Only shown for DB-backed games where sessionWordIds is set.
+                    if (result.sessionWordIds.isNotEmpty) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            _invalidateHomeProviders(ref);
+                            context.go(
+                              '/games/play/${result.gameType.dbKey}',
+                              extra: GameConfig(
+                                gameType: result.gameType,
+                                questionCount: result.sessionWordIds.length
+                                    .clamp(5, 20),
+                                forcedWordIds: result.sessionWordIds,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Same Words Again'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 56),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppTokens.space12),
+                    ],
+
+                    // UX-01: Practice Mistakes — focus only on wrong words.
                     if (mistakeWordIds.isNotEmpty) ...[
                       SizedBox(
                         width: double.infinity,
@@ -481,9 +507,8 @@ class _MistakeCard extends StatelessWidget {
               children: [
                 Text(
                   'All correct: ',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: AppColors.correctGreen,
-                  ),
+                  style: textTheme.labelSmall
+                      ?.copyWith(color: AppColors.correctGreen),
                 ),
                 ...allCorrect.map((a) => Container(
                       padding: const EdgeInsets.symmetric(
