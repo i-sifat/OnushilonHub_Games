@@ -18,6 +18,10 @@ dependencies:
   path_provider: ^2.1.3
   shared_preferences: ^2.2.3
   google_fonts: ^8.1.0
+  # F-03: daily practice reminders
+  flutter_local_notifications: ^17.0.0
+  # F-05: progress charts on Profile
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:
@@ -29,11 +33,11 @@ flutter:
   assets:
     # ── SQLite vocabulary database (replaces all JSON word data) ─────────────
     - assets/db/
-    # ── Quote data (small JSON files, kept as-is) ────────────────────────────
+    # ── Quote data (small JSON files, kept as-is) ────────────────────────
     - assets/json/quotes.json
     - assets/json/quote_authors.json
     - assets/json/quote_eras.json
     - assets/json/quote_works.json
     - assets/json/quote_quiz_questions.json
-    # ── Images ───────────────────────────────────────────────────────────────
+    # ── Images ───────────────────────────────────────────────────────────
     - assets/images/
