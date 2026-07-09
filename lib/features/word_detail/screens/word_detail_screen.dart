@@ -8,7 +8,7 @@ import '../../../database/database_service.dart';
 import '../../../database/word_detail_extensions.dart';
 import '../../../core/providers/saved_words_provider.dart';
 
-// ── Providers ────────────────────────────────────────────────────────────────
+// ── Providers ────────────────────────────────────────────────────────
 
 /// Loads the full WordRow for a given word ID.
 final _wordDetailProvider =
@@ -28,7 +28,7 @@ final _ipaProvider =
   return DatabaseService.instance.getIpaForWord(wordId);
 });
 
-// ── Screen ───────────────────────────────────────────────────────────────────
+// ── Screen ──────────────────────────────────────────────────────────────
 
 /// Word detail screen. Route: /word/:wordId
 ///
@@ -61,21 +61,25 @@ class WordDetailScreen extends ConsumerWidget {
             data: (word) {
               if (word == null) return const SizedBox();
               final saved = savedWordsAsync.maybeWhen(
-                data: (list) => list.contains(word.word),
+                data: (list) => list.any((sw) => sw.word == word.word),
                 orElse: () => false,
               );
               return IconButton(
                 icon: Icon(
-                  saved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                  saved
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_outline_rounded,
                   color: saved ? AppColors.primary : null,
                 ),
                 tooltip: saved ? 'Unsave word' : 'Save word',
                 onPressed: () async {
                   final notifier = ref.read(savedWordsProvider.notifier);
                   if (saved) {
-                    await notifier.unsaveWord(word.word);
+                    // fix(build): SavedWordsNotifier uses remove(), not unsaveWord()
+                    await notifier.remove(word.word);
                   } else {
-                    await notifier.saveWord(word.word, word.definition);
+                    // fix(build): SavedWordsNotifier uses save(), not saveWord()
+                    await notifier.save(word.word, word.definition);
                   }
                 },
               );
@@ -101,7 +105,7 @@ class WordDetailScreen extends ConsumerWidget {
               vertical: AppTokens.space24,
             ),
             children: [
-              // ── Word Heading ────────────────────────────────────────────
+              // ── Word Heading ──────────────────────────────────────
               Text(
                 word.word,
                 style: textTheme.displaySmall?.copyWith(
@@ -109,7 +113,7 @@ class WordDetailScreen extends ConsumerWidget {
                 ),
               ),
 
-              // ── IPA ─────────────────────────────────────────────────────
+              // ── IPA ───────────────────────────────────────────
               ipaAsync.when(
                 data: (ipa) {
                   if (ipa == null || ipa.isEmpty) return const SizedBox();
@@ -130,31 +134,30 @@ class WordDetailScreen extends ConsumerWidget {
 
               const SizedBox(height: AppTokens.space24),
 
-              // ── POS + Definition ────────────────────────────────────────
+              // ── POS + Definition ───────────────────────────────
               if (word.pos.isNotEmpty || word.definition.isNotEmpty)
                 _SectionCard(
                   children: [
-                    if (word.pos.isNotEmpty) ...
-                      [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: AppTokens.space8,
-                              vertical: AppTokens.space2),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius:
-                                BorderRadius.circular(AppTokens.radiusPill),
-                          ),
-                          child: Text(
-                            word.pos.toUpperCase(),
-                            style: textTheme.labelSmall?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
-                            ),
+                    if (word.pos.isNotEmpty) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppTokens.space8,
+                            vertical: AppTokens.space2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(AppTokens.radiusPill),
+                        ),
+                        child: Text(
+                          word.pos.toUpperCase(),
+                          style: textTheme.labelSmall?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: AppTokens.space8),
-                      ],
+                      ),
+                      const SizedBox(height: AppTokens.space8),
+                    ],
                     if (word.definition.isNotEmpty)
                       Text(word.definition, style: textTheme.bodyLarge),
                   ],
@@ -162,7 +165,7 @@ class WordDetailScreen extends ConsumerWidget {
 
               const SizedBox(height: AppTokens.space16),
 
-              // ── Bengali Meaning ─────────────────────────────────────────
+              // ── Bengali Meaning ────────────────────────────────
               if (word.banglaMeaning.isNotEmpty)
                 _SectionCard(
                   label: '\u09AC\u09BE\u0982\u09B2\u09BE \u0985\u09B0\u09CD\u09A5',
@@ -177,7 +180,7 @@ class WordDetailScreen extends ConsumerWidget {
               if (word.banglaMeaning.isNotEmpty)
                 const SizedBox(height: AppTokens.space16),
 
-              // ── Usage Example ───────────────────────────────────────────
+              // ── Usage Example ─────────────────────────────────
               usageAsync.when(
                 data: (example) {
                   if (example == null || example.isEmpty) {
@@ -206,27 +209,25 @@ class WordDetailScreen extends ConsumerWidget {
                 error: (_, __) => const SizedBox(),
               ),
 
-              // ── Synonyms ────────────────────────────────────────────────
-              if (word.synonyms.isNotEmpty) ...
-                [
-                  _WordChipsSection(
-                    label: 'Synonyms',
-                    words: word.synonyms,
-                    onTap: (w) => _navigateToWord(context, ref, w),
-                  ),
-                  const SizedBox(height: AppTokens.space16),
-                ],
+              // ── Synonyms ──────────────────────────────────────
+              if (word.synonyms.isNotEmpty) ...[
+                _WordChipsSection(
+                  label: 'Synonyms',
+                  words: word.synonyms,
+                  onTap: (w) => _navigateToWord(context, ref, w),
+                ),
+                const SizedBox(height: AppTokens.space16),
+              ],
 
-              // ── Antonyms ────────────────────────────────────────────────
-              if (word.antonyms.isNotEmpty) ...
-                [
-                  _WordChipsSection(
-                    label: 'Antonyms',
-                    words: word.antonyms,
-                    onTap: (w) => _navigateToWord(context, ref, w),
-                  ),
-                  const SizedBox(height: AppTokens.space16),
-                ],
+              // ── Antonyms ──────────────────────────────────────
+              if (word.antonyms.isNotEmpty) ...[
+                _WordChipsSection(
+                  label: 'Antonyms',
+                  words: word.antonyms,
+                  onTap: (w) => _navigateToWord(context, ref, w),
+                ),
+                const SizedBox(height: AppTokens.space16),
+              ],
 
               const SizedBox(height: AppTokens.space48),
             ],
@@ -256,7 +257,7 @@ class WordDetailScreen extends ConsumerWidget {
   }
 }
 
-// ── Supporting Widgets ────────────────────────────────────────────────────────
+// ── Supporting Widgets ──────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
   final String? label;
@@ -281,17 +282,16 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (label != null) ...
-            [
-              Text(
-                label!,
-                style: textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
+          if (label != null) ...[
+            Text(
+              label!,
+              style: textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: AppTokens.space8),
-            ],
+            ),
+            const SizedBox(height: AppTokens.space8),
+          ],
           ...children,
         ],
       ),

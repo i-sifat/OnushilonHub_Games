@@ -88,16 +88,19 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
           focusNode: _focusNode,
           style: textTheme.bodyLarge,
           decoration: InputDecoration(
-            hintText: 'Search words…',
+            hintText: 'Search words\u2026',
             border: InputBorder.none,
             hintStyle: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
           textInputAction: TextInputAction.search,
-          onSubmitted: (_) => _debounce?.cancel().then(
-                (_) => _search(_controller.text.trim()),
-              ),
+          // fix(build): Timer.cancel() returns void — cannot chain .then().
+          // Split into two sequential statements instead.
+          onSubmitted: (_) {
+            _debounce?.cancel();
+            _search(_controller.text.trim());
+          },
         ),
         actions: [
           if (_controller.text.isNotEmpty)
@@ -161,7 +164,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
             ),
             const SizedBox(height: AppTokens.space16),
             Text(
-              'No results for “${_controller.text.trim()}”',
+              'No results for "${_controller.text.trim()}"',
               style: textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -190,7 +193,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
   }
 }
 
-// ── Result tile ──────────────────────────────────────────────────────────────
+// ── Result tile ────────────────────────────────────────────────────────────
 
 class _SearchResultTile extends StatelessWidget {
   final WordSearchResult result;

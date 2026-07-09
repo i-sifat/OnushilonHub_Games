@@ -29,7 +29,7 @@ class NotificationService {
   final _plugin = FlutterLocalNotificationsPlugin();
   bool _initialised = false;
 
-  // ── Initialisation ───────────────────────────────────────────────────────────
+  // ── Initialisation ───────────────────────────────────────────────────────
 
   /// Must be called once during app startup (before runApp).
   Future<void> initialize() async {
@@ -71,11 +71,12 @@ class NotificationService {
       tz.setLocalLocation(tz.getLocation(localTzName));
     } catch (e) {
       // Fall back to UTC if timezone detection fails.
-      debugPrint('NotificationService: timezone detection failed ($e), using UTC');
+      debugPrint(
+          'NotificationService: timezone detection failed ($e), using UTC');
     }
   }
 
-  // ── Permission ─────────────────────────────────────────────────────────────
+  // ── Permission ─────────────────────────────────────────────────
 
   /// Request POST_NOTIFICATIONS permission (Android 13+).
   /// Returns true if permission is granted or not required.
@@ -87,9 +88,13 @@ class NotificationService {
     return granted ?? false;
   }
 
-  // ── Public API ─────────────────────────────────────────────────────────────
+  // ── Public API ─────────────────────────────────────────────────
 
   /// Schedule a daily reminder at [hour]:[minute].
+  ///
+  /// Persists the time in SharedPreferences. Cancels any existing reminder
+  /// before scheduling the new one so there is always at most one pending
+  /// notification.
   Future<void> scheduleDailyReminder(int hour, int minute) async {
     final hasPermission = await requestPermission();
     if (!hasPermission) {
@@ -122,7 +127,7 @@ class NotificationService {
     );
   }
 
-  // ── Internal ─────────────────────────────────────────────────────────────────
+  // ── Internal ───────────────────────────────────────────────────────────────
 
   Future<void> _scheduleImpl(int hour, int minute) async {
     const androidDetails = AndroidNotificationDetails(
@@ -137,12 +142,16 @@ class NotificationService {
 
     await _plugin.zonedSchedule(
       _kNotificationId,
-      'Time to practice! \uD83D\uDCDA',
+      'Time to practice! \u{1F4DA}',
       'Your daily vocabulary session is waiting.',
       _nextInstanceOf(hour, minute),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
+      // fix(build): required param added — flutter_local_notifications ^17
+      // made uiLocalNotificationDateInterpretation a required named parameter.
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 

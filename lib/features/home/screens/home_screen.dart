@@ -23,7 +23,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Listen for seed completion and rebuild once done.
     DatabaseService.instance.seedReady.addListener(_onSeedReady);
   }
 
@@ -83,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// ── Seeding Banner ────────────────────────────────────────────────────────────────────
+// ── Seeding Banner ─────────────────────────────────────────────────────────────
 
 class _SeedingBanner extends StatelessWidget {
   const _SeedingBanner();
@@ -118,7 +117,7 @@ class _SeedingBanner extends StatelessWidget {
   }
 }
 
-// ── App Bar ──────────────────────────────────────────────────────────────────────────
+// ── App Bar ────────────────────────────────────────────────────────────────────
 
 class _HomeAppBar extends ConsumerWidget {
   const _HomeAppBar();
@@ -170,7 +169,7 @@ class _HomeAppBar extends ConsumerWidget {
   }
 }
 
-// ── Stats Row ───────────────────────────────────────────────────────────────────────────
+// ── Stats Row ─────────────────────────────────────────────────────────────────
 
 class _StatsRow extends ConsumerWidget {
   const _StatsRow();
@@ -259,7 +258,7 @@ class _StatPill extends StatelessWidget {
   }
 }
 
-// ── Daily Word Card ──────────────────────────────────────────────────────────────────────
+// ── Daily Word Card ──────────────────────────────────────────────────────────
 
 class _DailyWordCard extends ConsumerWidget {
   const _DailyWordCard();
@@ -273,6 +272,10 @@ class _DailyWordCard extends ConsumerWidget {
       loading: () => const SkeletonCard(height: 200),
       error: (_, __) => const SizedBox(),
       data: (word) {
+        // fix(build): dailyWordProvider returns WordRow? — guard against null
+        // before accessing any properties to satisfy null safety.
+        if (word == null) return const SizedBox();
+
         final savedAsync = ref.watch(savedWordsProvider);
         final isSaved = savedAsync.when(
           data: (list) => list.any((w) => w.word == word.word),
@@ -385,9 +388,7 @@ class _DailyWordCard extends ConsumerWidget {
                     ),
                   ),
 
-                  // UX-05: Quick Game button — independent tap target below
-                  // the word info section so it doesn’t conflict with the
-                  // GestureDetector above.
+                  // UX-05: Quick Game button
                   Divider(
                     color: Colors.white.withValues(alpha: 0.15),
                     height: 1,
@@ -444,11 +445,8 @@ class _DailyWordCard extends ConsumerWidget {
   }
 }
 
-// ── Card icon button ────────────────────────────────────────────────────────────────────
+// ── Card icon button ──────────────────────────────────────────────────────────────────
 
-/// Semi-transparent circular icon button for the daily word card.
-/// Tap handling is done by the wrapping GestureDetector; this widget
-/// provides only the visual affordance.
 class _CardIconBtn extends StatelessWidget {
   final IconData icon;
   const _CardIconBtn({super.key, required this.icon});
@@ -467,7 +465,7 @@ class _CardIconBtn extends StatelessWidget {
   }
 }
 
-// ── Your Progress Section ─────────────────────────────────────────────────────────────
+// ── Your Progress Section ────────────────────────────────────────────────────────
 
 class _YourProgressSection extends ConsumerWidget {
   const _YourProgressSection();
@@ -543,7 +541,7 @@ class _YourProgressSection extends ConsumerWidget {
   }
 }
 
-// ── Your Games Section ─────────────────────────────────────────────────────────────
+// ── Your Games Section ──────────────────────────────────────────────────────
 
 class _YourGamesSection extends ConsumerWidget {
   const _YourGamesSection();
@@ -559,10 +557,14 @@ class _YourGamesSection extends ConsumerWidget {
       loading: () => <String>{},
       error: (_, __) => <String>{},
     );
-    final progress = progressAsync.when(
-      data: (map) => map,
-      loading: () => <String, int>{},
-      error: (_, __) => <String, int>{},
+    // fix(build): homeGameProgressProvider returns Map<String, Map<String,dynamic>>
+    // (each value is {'mastered': n, 'total': n}). The old loading/error fallbacks
+    // used <String, int>{} which caused Dart to widen the type to Map<String, Object>,
+    // making progress[key] an Object that couldn't be assigned to int.
+    final Map<String, dynamic> progress = progressAsync.when(
+      data: (map) => map as Map<String, dynamic>,
+      loading: () => const <String, dynamic>{},
+      error: (_, __) => const <String, dynamic>{},
     );
 
     return Column(
@@ -585,7 +587,13 @@ class _YourGamesSection extends ConsumerWidget {
           itemCount: GameType.values.length,
           itemBuilder: (context, i) {
             final gt = GameType.values[i];
-            final mastered = progress[gt.dbKey] ?? 0;
+            // fix(build): extract mastered safely from nested map or int
+            final rawVal = progress[gt.dbKey];
+            final mastered = rawVal is int
+                ? rawVal
+                : rawVal is Map<String, dynamic>
+                    ? (rawVal['mastered'] as int? ?? 0)
+                    : 0;
             final hasPlayed = played.contains(gt.dbKey);
             return _GameTile(
               gameType: gt,
