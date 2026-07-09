@@ -6,7 +6,7 @@
 import 'database_service.dart';
 
 extension WordDetailQueries on DatabaseService {
-  // ── Single-word lookup ──────────────────────────────────────────────────
+  // ── Single-word lookup ────────────────────────────────────────────────────────
 
   /// Fetch a complete [WordRow] by its primary key.
   ///
@@ -74,6 +74,8 @@ extension WordDetailQueries on DatabaseService {
       // DB-01 removed the example JOIN from _loadWordRows.
       // Use getUsageExample(wordId) for on-demand access.
       example: '',
+      // Derive difficulty from word length, matching _loadWordRows behaviour.
+      difficulty: DatabaseService.difficultyForLength(word.length),
     );
   }
 
@@ -108,7 +110,7 @@ extension WordDetailQueries on DatabaseService {
     return rows.first['ipa'] as String?;
   }
 
-  // ── Reverse lookup (word text → id) ────────────────────────────────────
+  // ── Reverse lookup (word text → id) ───────────────────────────────────────
 
   /// Resolve a word string (any case) to its internal [words.id].
   ///

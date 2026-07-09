@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' show Color, ValueNotifier;
-
 import '../../../../core/theme/app_colors.dart';
 import '../game_rules.dart';
 
@@ -53,6 +52,18 @@ class TimerState {
     required this.timedOut,
     required this.isPaused,
   });
+
+  TimerState copyWith({
+    double? timeLeft,
+    bool? timedOut,
+    bool? isPaused,
+  }) {
+    return TimerState(
+      timeLeft: timeLeft ?? this.timeLeft,
+      timedOut: timedOut ?? this.timedOut,
+      isPaused: isPaused ?? this.isPaused,
+    );
+  }
 
   double get fraction =>
       (timeLeft / GameRules.speedRacingTimerSeconds).clamp(0.0, 1.0);
