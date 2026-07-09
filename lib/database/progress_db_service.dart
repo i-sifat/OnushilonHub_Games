@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
+import 'srs_calculator.dart';
 import '../core/models/user_progress_model.dart';
 
 final progressDbServiceProvider = Provider((ref) {
@@ -17,22 +18,55 @@ class ProgressDbService {
 
   // ── Word progress ─────────────────────────────────────────────────────────
 
+  /// F-01: Persists a word answer and updates the SM-2 schedule.
   Future<void> markWordStatus({
     required int wordId,
     required String gameType,
     required String status,
   }) async {
-    await _db.db.insert(
-      'word_progress',
-      {
-        'word_id': wordId,
-        'game_type': gameType,
-        'status': status,
-        'attempts': 1,
-        'last_attempted': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+
+    // Read current SM-2 state for compounding interval calculation.
+    final existing = await _db.db.rawQuery(
+      'SELECT attempts, ease_factor FROM word_progress WHERE word_id = ? AND game_type = ?',
+      [wordId, gameType],
     );
+    final currentAttempts = existing.isEmpty
+        ? 0
+        : (existing.first['attempts'] as int? ?? 0);
+    final currentEaseFactor = existing.isEmpty
+        ? SrsCalculator.initialEaseFactor
+        : (existing.first['ease_factor'] as double? ??
+            SrsCalculator.initialEaseFactor);
+
+    final newAttempts = currentAttempts + 1;
+    final wasCorrect = status == 'mastered';
+
+    final srs = SrsCalculator.nextReview(
+      attempts: newAttempts,
+      wasCorrect: wasCorrect,
+      easeFactor: currentEaseFactor,
+    );
+
+    await _db.db.rawInsert('''
+      INSERT INTO word_progress
+        (word_id, game_type, status, attempts, last_attempted, next_review_at, ease_factor)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(word_id, game_type) DO UPDATE SET
+        status         = excluded.status,
+        attempts       = excluded.attempts,
+        last_attempted = excluded.last_attempted,
+        next_review_at = excluded.next_review_at,
+        ease_factor    = excluded.ease_factor
+    ''', [
+      wordId,
+      gameType,
+      status,
+      newAttempts,
+      nowMs,
+      srs.nextReviewAt.millisecondsSinceEpoch,
+      srs.easeFactor,
+    ]);
   }
 
   Future<Map<String, int>> getWordProgressCounts({
@@ -86,7 +120,7 @@ class ProgressDbService {
     );
   }
 
-  /// Updates streak: +1 if played yesterday, resets to 1 otherwise.
+  /// Updates the streak counter: +1 if played yesterday, resets to 1 otherwise.
   /// No-op if already updated today.
   Future<void> updateStreak() async {
     final rows = await _db.db.query(
@@ -100,7 +134,7 @@ class ProgressDbService {
     final today = DateTime(now.year, now.month, now.day);
     final lastMs = row['last_played_at'] as int?;
     final lastDay = lastMs != null
-        ? (DateTime.fromMillisecondsSinceEpoch(lastMs)).let(
+        ? DateTime.fromMillisecondsSinceEpoch(lastMs).let(
             (d) => DateTime(d.year, d.month, d.day))
         : null;
     if (lastDay == today) return;

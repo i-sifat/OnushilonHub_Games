@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_service.dart';
+import 'srs_calculator.dart';
 import '../core/models/user_progress_model.dart';
 
 final wordDbServiceProvider = Provider((ref) {
@@ -18,6 +19,8 @@ class WordDbService {
   // ── Word eligibility ──────────────────────────────────────────────────────
 
   /// Returns a list of [WordRow]s eligible for [gameType] at [difficulty].
+  ///
+  /// F-01: Uses SM-2 schedule filter instead of binary mastery exclusion.
   Future<List<WordRow>> getEligibleWords({
     required String gameType,
     required int difficulty,
@@ -41,12 +44,16 @@ class WordDbService {
     final fetchLimit = (limit * 4).clamp(limit, 2000);
     final upperClause =
         gameType == 'unscramble' ? 'AND w.word = UPPER(w.word)' : '';
+
+    // F-01: SRS schedule filter — words due for review or never seen.
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+
     final rows = await _db.db.rawQuery('''
       SELECT w.id, w.word, wp.last_attempted
       FROM words w
       LEFT JOIN word_progress wp
         ON w.id = wp.word_id AND wp.game_type = ?
-      WHERE (wp.status IS NULL OR wp.status != 'mastered')
+      WHERE (wp.word_id IS NULL OR wp.next_review_at IS NULL OR wp.next_review_at <= ?)
         $upperClause
         $diffClause
         $defClause
@@ -54,7 +61,7 @@ class WordDbService {
         $antClause
       ORDER BY RANDOM()
       LIMIT $fetchLimit
-    ''', [gameType]);
+    ''', [gameType, nowMs]);
     final now = DateTime.now().millisecondsSinceEpoch;
     final sorted = rows.map((r) {
       final last = r['last_attempted'] as int?;
@@ -73,27 +80,29 @@ class WordDbService {
     final diffClause = difficulty > 0 ? 'AND w.difficulty = $difficulty' : '';
     final upperClause =
         gameType == 'unscramble' ? 'AND w.word = UPPER(w.word)' : '';
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
     return (await _db.db.rawQuery('''
       SELECT COUNT(*) AS c
       FROM words w
       LEFT JOIN word_progress wp ON w.id = wp.word_id AND wp.game_type = ?
-      WHERE (wp.status IS NULL OR wp.status != 'mastered')
+      WHERE (wp.word_id IS NULL OR wp.next_review_at IS NULL OR wp.next_review_at <= ?)
         $upperClause $diffClause
-    ''', [gameType])).first['c'] as int? ?? 0;
+    ''', [gameType, nowMs])).first['c'] as int? ?? 0;
   }
 
   /// Returns the daily featured word (highest priority unmastered word).
   Future<WordRow?> getDailyWord() async {
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
     final rows = await _db.db.rawQuery('''
       SELECT w.id
       FROM words w
       LEFT JOIN word_progress wp ON w.id = wp.word_id AND wp.game_type = 'daily'
-      WHERE (wp.status IS NULL OR wp.status != 'mastered')
+      WHERE (wp.word_id IS NULL OR wp.next_review_at IS NULL OR wp.next_review_at <= ?)
         AND w.word = UPPER(w.word)
         AND EXISTS (SELECT 1 FROM definitions d WHERE d.word_id = w.id AND d.sense_order = 0)
       ORDER BY COALESCE(wp.last_attempted, 0) ASC
       LIMIT 1
-    ''');
+    ''', [nowMs]);
     if (rows.isEmpty) return null;
     final result = await _loadWordRows([rows.first['id'] as int]);
     return result.isEmpty ? null : result.first;
