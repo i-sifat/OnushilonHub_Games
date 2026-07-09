@@ -63,6 +63,14 @@ extension WordDetailQueries on DatabaseService {
         : (bnRows.first['meaning'] as String? ?? '');
     final bn = rawBn.isEmpty ? '' : rawBn.split(',').first.trim();
 
+    // Derive supported games from available word data — mirrors _loadWordRows.
+    final hasDef = def != null && (def['definition'] as String? ?? '').isNotEmpty;
+    final supportedGames = <String>[
+      'unscramble',
+      if (hasDef) ...['true_false', 'speed_racing', 'meaning_chase', 'definition_match'],
+      if (syns.isNotEmpty) 'synonym_antonym',
+    ];
+
     return WordRow(
       id: id,
       word: word,
@@ -76,10 +84,11 @@ extension WordDetailQueries on DatabaseService {
       example: '',
       // Derive difficulty from word length, matching _loadWordRows behaviour.
       difficulty: DatabaseService.difficultyForLength(word.length),
+      supportedGames: supportedGames,
     );
   }
 
-  // ── On-demand usage example (DB-01 companion) ───────────────────────────
+  // ── On-demand usage example (DB-01 companion) ───────────────────────────────
 
   /// Fetch the first usage example for [wordId], or null if none exists.
   ///
@@ -98,7 +107,7 @@ extension WordDetailQueries on DatabaseService {
     return rows.first['example'] as String?;
   }
 
-  // ── IPA lookup ──────────────────────────────────────────────────────────
+  // ── IPA lookup ───────────────────────────────────────────────────────────────
 
   /// Fetch the IPA pronunciation string for [wordId], or null if unavailable.
   Future<String?> getIpaForWord(int wordId) async {
