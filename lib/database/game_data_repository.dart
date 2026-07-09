@@ -20,7 +20,7 @@ final databaseServiceProvider = Provider<DatabaseService>((ref) {
 });
 
 /// Provider for the game-data repository. The concrete type is exposed for
-/// backward compatibility; it also `implements IGameRepository` (Task 7) so
+/// backward compatibility; it also `implements IGameRepository` so
 /// new code can depend on the interface.
 final gameDataRepositoryProvider = Provider<GameDataRepository>((ref) {
   ref.keepAlive();
@@ -59,10 +59,14 @@ class ResolvedWhoseQuoteQuestion {
   });
 }
 
+/// G-05 / A-03: Type alias so [IGameRepository] callers can refer to eras
+/// using the shorter [Era] name without importing quote_model.dart directly.
+typedef Era = QuoteEraModel;
+
 /// Unified data source for all game content.
 ///
 /// • IPA, definitions, synonyms, antonyms → SQLite queries against vocabulary.db
-/// • Quotes / authors / eras → small JSON files (kept as-is; only 100 quotes)
+/// • Quotes / authors / eras → small JSON files (kept as-is; only ~100 quotes)
 ///
 /// Memory cache: only the current game's question set is cached (released via
 /// [clearCache]). No full-table caching.
@@ -87,10 +91,9 @@ class GameDataRepository implements IGameRepository {
   @override
   Future<List<IpaModel>> getRandomIpaEntries({required int count}) async {
     // IPA2: always reload 2000 entries fresh — same pattern as DM1/DM5.
-    // The original conditional (if _ipaCache == null) meant:
-    //   (a) only 0.55% of 29,055 IPA entries were ever reached per session,
-    //   (b) a stale cache from a force-quit persisted into the next session.
-    // Loading 2000 entries gives broad variety while remaining fast (<50ms).
+    // The original conditional (if _ipaCache == null) meant only 0.55% of
+    // 29,055 IPA entries were ever reached per session, and a stale cache
+    // from a force-quit persisted into the next session.
     await _loadIpaFromDb(2000);
     final list = _ipaCache!.toList()..shuffle(Random());
     return list.take(count).toList();
@@ -226,6 +229,80 @@ class GameDataRepository implements IGameRepository {
           .toList();
     } catch (e) {
       throw RepositoryException('Failed to load definition distractor pool',
+          cause: e);
+    }
+  }
+
+  /// G-05: Independent synonym distractor pool — no mastery filter.
+  ///
+  /// Returns a random pool of [limit] vocabulary entries as [DefinitionModel]
+  /// values. [SynonymAntonymBuilder] uses [DefinitionModel.word] as the
+  /// distractor text for synonym MCQ options.
+  ///
+  /// Mirrors [getDefinitionDistractorPool]:
+  ///   • NOT cached — fresh random draw every call.
+  ///   • NOT mastery-filtered — full vocabulary available regardless of player level.
+  @override
+  Future<List<DefinitionModel>> getSynonymDistractorPool({
+    required int limit,
+  }) async {
+    try {
+      final rows = await _db.db.rawQuery('''
+        SELECT w.word, d.pos, d.definition
+        FROM definitions d
+        JOIN words w ON w.id = d.word_id
+        WHERE d.sense_order = 0
+          AND LENGTH(d.definition) > 10
+          AND LENGTH(d.definition) <= 120
+        ORDER BY RANDOM()
+        LIMIT ?
+      ''', [limit]);
+      final seen = <String>{};
+      return rows
+          .map((r) => DefinitionModel(
+                word: r['word'] as String,
+                partOfSpeech: r['pos'] as String? ?? '',
+                definition: r['definition'] as String,
+              ))
+          .where((d) => d.word.isNotEmpty && seen.add(d.word))
+          .toList();
+    } catch (e) {
+      throw RepositoryException('Failed to load synonym distractor pool',
+          cause: e);
+    }
+  }
+
+  /// G-05: Independent antonym distractor pool — no mastery filter.
+  ///
+  /// Identical to [getSynonymDistractorPool] — both pool methods draw from the
+  /// same full-vocabulary slice to give distractors that are plausible English
+  /// words regardless of how many a player has already mastered.
+  @override
+  Future<List<DefinitionModel>> getAntonymDistractorPool({
+    required int limit,
+  }) async {
+    try {
+      final rows = await _db.db.rawQuery('''
+        SELECT w.word, d.pos, d.definition
+        FROM definitions d
+        JOIN words w ON w.id = d.word_id
+        WHERE d.sense_order = 0
+          AND LENGTH(d.definition) > 10
+          AND LENGTH(d.definition) <= 120
+        ORDER BY RANDOM()
+        LIMIT ?
+      ''', [limit]);
+      final seen = <String>{};
+      return rows
+          .map((r) => DefinitionModel(
+                word: r['word'] as String,
+                partOfSpeech: r['pos'] as String? ?? '',
+                definition: r['definition'] as String,
+              ))
+          .where((d) => d.word.isNotEmpty && seen.add(d.word))
+          .toList();
+    } catch (e) {
+      throw RepositoryException('Failed to load antonym distractor pool',
           cause: e);
     }
   }
@@ -493,11 +570,8 @@ class GameDataRepository implements IGameRepository {
     try {
       final lower = words.map((w) => w.toLowerCase()).toList();
       final ph = lower.map((_) => '?').join(',');
-      // DM6: ORDER BY word DESC so UPPERCASE rows (e.g. 'WOLF') are processed
-      // last and win the last-write-wins dict comprehension over any lowercase
-      // orphan rows (e.g. 'wolf') that share the same LOWER(word) key.
-      // After the DB cleanup there are 0 case-duplicate pairs, but this ORDER BY
-      // makes the resolution deterministic and safe against future data changes.
+      // DM6: ORDER BY word ASC so UPPERCASE rows are processed last and win
+      // the last-write-wins dict comprehension over any lowercase orphan rows.
       final rows = await _db.db.rawQuery(
         'SELECT id, LOWER(word) AS wl FROM words WHERE LOWER(word) IN ($ph) ORDER BY word ASC',
         lower,
