@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../shared/shell/main_shell.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/games/screens/games_hub_screen.dart';
@@ -15,9 +16,12 @@ import '../../features/settings/screens/settings_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/onboarding/screens/name_input_screen.dart';
+import '../../features/word_detail/screens/word_detail_screen.dart';
+import '../../features/search/screens/word_search_screen.dart';
+
 import '../models/game_config.dart' show GameConfig, GameResult;
 
-final appRouterProvider = Provider<GoRouter>((ref) {
+final appRouterProvider = Provider((ref) {
   ref.keepAlive();
   return GoRouter(
     initialLocation: '/splash',
@@ -34,6 +38,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/name',
         builder: (_, __) => const NameInputScreen(),
+      ),
+      // F-04: word search screen
+      GoRoute(
+        path: '/search',
+        builder: (_, __) => const WordSearchScreen(),
+      ),
+      // Word detail screen (UX-03)
+      GoRoute(
+        path: '/word/:wordId',
+        builder: (_, state) => WordDetailScreen(
+          wordId: int.parse(state.pathParameters['wordId']!),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, __, shell) => MainShell(shell: shell),
@@ -55,28 +71,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     gameType: state.pathParameters['gameType']!,
                   ),
                 ),
-
-                // ── Unscramble — unique keyboard-input UI ──────────────────
+                // ── Unscramble — unique keyboard-input UI ──────────────────────────
                 GoRoute(
                   path: 'play/unscramble',
                   builder: (_, state) =>
                       UnscrambleGameScreen(config: state.extra as GameConfig),
                 ),
-
-                // ── True / False — unique two-button UI ────────────────────
+                // ── True / False — unique two-button UI ──────────────────────────
                 GoRoute(
                   path: 'play/true_false',
                   builder: (_, state) =>
                       TrueFalseGameScreen(config: state.extra as GameConfig),
                 ),
-
-                // ── All MCQ-style games → single UniversalMcqGameScreen ────
-                //
-                // Meaning Chase, Synonym Match, Antonym Match, Speed Racing,
-                // IPA Match, Definition Match, and Whose Quote all share
-                // identical gameplay mechanics (show prompt → pick 1 of 4).
-                // The screen adapts visually via GameType tokens; Speed Racing
-                // additionally shows a self-contained timer bar.
+                // ── MCQ games ──────────────────────────────────────────────────────────
                 GoRoute(
                   path: 'play/meaning_chase',
                   builder: (_, state) => UniversalMcqGameScreen(
