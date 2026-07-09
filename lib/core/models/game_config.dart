@@ -186,8 +186,8 @@ class GameConfig {
   final String? category; // for whose_quote
   final bool trackAnswerTime; // for unscramble
   /// UX-01: when non-empty, the MCQ notifier will filter built questions to
-  /// only those whose wordId is in this list, creating a focused retry
-  /// session on exactly the words the player previously got wrong.
+  /// only those whose wordId is in this list (forced words appear first),
+  /// filling remaining slots with random extras up to [questionCount].
   final List<int> forcedWordIds;
 
   const GameConfig({
@@ -235,6 +235,9 @@ class GameResult {
   /// Bonus XP from speed streaks; 0 for non-Speed-Racing games.
   final int bonusXp;
   final List<MistakeItem> mistakes;
+  /// UX-07: all word IDs that appeared in this session (not just mistakes).
+  /// Used by the 'Same Words' Play Again mode to replay the exact same pool.
+  final List<int> sessionWordIds;
 
   /// [elapsedSeconds] is the canonical field name.
   /// [durationSeconds] is a backward-compat alias accepted by the constructor
@@ -250,6 +253,7 @@ class GameResult {
     required this.baseXp,
     this.bonusXp = 0,
     required this.mistakes,
+    this.sessionWordIds = const [],
   }) : elapsedSeconds = elapsedSeconds ?? durationSeconds ?? 0;
 
   double get accuracy =>

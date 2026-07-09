@@ -67,16 +67,24 @@ class McqGameNotifier extends StateNotifier<McqGameState>
         onTimeout: () =>
             throw const SessionFailure('Game data load timed out'),
       );
-      // UX-01: Practice Mistakes — when forcedWordIds is set, keep only the
-      // questions whose wordId matches. This replays exactly the words the
-      // player got wrong in the previous session. Falls back to the full set
-      // if none of the built questions match (e.g. asset-backed game types
-      // like Whose Quote whose questions don't carry a DB wordId).
+      // UX-01 / UX-05: Practice Mistakes / Quick Game — when forcedWordIds is
+      // set, the forced words appear FIRST (guaranteed to be in Q1..N), then
+      // the remaining slots are filled with random questions from the pool.
+      // Falls back to full question list if none of the built questions match
+      // the forced IDs (e.g. asset-backed games like Whose Quote).
       if (config.forcedWordIds.isNotEmpty) {
         final forced = questions
             .where((q) => config.forcedWordIds.contains(q.wordId))
             .toList();
-        if (forced.isNotEmpty) questions = forced;
+        if (forced.isNotEmpty) {
+          final extras = questions
+              .where((q) => !config.forcedWordIds.contains(q.wordId))
+              .toList()
+            ..shuffle();
+          final needed =
+              (config.questionCount - forced.length).clamp(0, extras.length);
+          questions = [...forced, ...extras.take(needed)];
+        }
       }
       state = state.copyWith(
         isLoading: false,
@@ -122,8 +130,7 @@ class McqGameNotifier extends StateNotifier<McqGameState>
   }
 
   // UX-01: added optional `wordId` parameter — passed from McqQuestion.wordId
-  // so MistakeItem records which DB word the player got wrong, enabling the
-  // Practice Mistakes button to re-queue those exact words.
+  // so MistakeItem records which DB word the player got wrong.
   void _emitWrong(
     String question,
     String userAnswer,
@@ -167,7 +174,7 @@ class McqGameNotifier extends StateNotifier<McqGameState>
         answer,
         q.correctAnswer,
         q.allCorrectAnswers,
-        q.wordId, // UX-01: thread wordId into MistakeItem
+        q.wordId,
       );
     }
     if (q.wordId != null) {
@@ -222,6 +229,13 @@ class McqGameNotifier extends StateNotifier<McqGameState>
   }
 
   GameResult buildResult() {
+    // UX-07: collect all word IDs from every question in the session so the
+    // 'Same Words' Play Again mode can replay the exact same pool.
+    final sessionWordIds = state.questions
+        .map((q) => q.wordId)
+        .whereType<int>()
+        .toSet()
+        .toList();
     return GameResult(
       gameType: config.gameType,
       score: state.score,
@@ -231,6 +245,7 @@ class McqGameNotifier extends StateNotifier<McqGameState>
       wrongCount: state.wrongCount,
       elapsedSeconds: state.elapsedSeconds,
       mistakes: state.mistakes,
+      sessionWordIds: sessionWordIds,
     );
   }
 
