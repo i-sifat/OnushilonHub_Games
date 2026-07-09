@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
 import '../core/models/user_progress_model.dart';
 
@@ -85,7 +86,7 @@ class ProgressDbService {
     );
   }
 
-  /// Updates the streak counter: +1 if played yesterday, resets to 1 otherwise.
+  /// Updates streak: +1 if played yesterday, resets to 1 otherwise.
   /// No-op if already updated today.
   Future<void> updateStreak() async {
     final rows = await _db.db.query(
@@ -99,7 +100,7 @@ class ProgressDbService {
     final today = DateTime(now.year, now.month, now.day);
     final lastMs = row['last_played_at'] as int?;
     final lastDay = lastMs != null
-        ? DateTime.fromMillisecondsSinceEpoch(lastMs).let(
+        ? (DateTime.fromMillisecondsSinceEpoch(lastMs)).let(
             (d) => DateTime(d.year, d.month, d.day))
         : null;
     if (lastDay == today) return;
