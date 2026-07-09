@@ -1,10 +1,12 @@
 import '../../../../core/models/game_config.dart';
-import '../../../../database/game_data_repository.dart';
+import '../../../../database/i_game_repository.dart';
 import 'mcq_question.dart';
 import 'mcq_question_builder.dart';
 
+/// A-03: now accepts [IGameRepository].
 class WhoseQuoteBuilder extends McqQuestionBuilder {
-  final GameDataRepository repo;
+  final IGameRepository repo;
+
   const WhoseQuoteBuilder(this.repo);
 
   @override
@@ -15,11 +17,8 @@ class WhoseQuoteBuilder extends McqQuestionBuilder {
     return resolved
         .map((q) => McqQuestion(
               prompt: '"${q.quoteText}"',
-              // WQ1: show era as context clue, not as the sole subtitle.
-              // "Who said this?" is always shown so the player knows the task.
-              // Era is appended as context only when available.
               promptSubtitle: q.eraName.isNotEmpty
-                  ? 'Who said this? · ${q.eraName}'
+                  ? 'Who said this? \u00b7 ${q.eraName}'
                   : 'Who said this?',
               options: q.options,
               correctAnswer: q.correctAuthor,

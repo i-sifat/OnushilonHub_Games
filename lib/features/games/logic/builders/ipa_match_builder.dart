@@ -1,22 +1,16 @@
 import 'dart:math';
 
 import '../../../../core/models/game_config.dart';
-import '../../../../database/game_data_repository.dart';
+import '../../../../database/i_game_repository.dart';
 import '../game_rules.dart';
 import '../ipa/ipa_difficulty.dart';
 import '../ipa/ipa_option_set_builder.dart';
 import 'mcq_question.dart';
 import 'mcq_question_builder.dart';
 
-/// IPA Match question builder.
-///
-/// For each target word, distractors are derived from the same word's IPA
-/// using [IpaOptionSetBuilder] (difficulty-aware). If same-word generation
-/// underflows for a particular entry, the builder supplies other entries'
-/// IPA as a fallback pool — guaranteeing every emitted question has exactly
-/// [GameRules.mcqOptionCount] unique options with a single correct answer.
+/// A-03: now accepts [IGameRepository].
 class IpaMatchBuilder extends McqQuestionBuilder {
-  final GameDataRepository repo;
+  final IGameRepository repo;
   final IpaOptionSetBuilder optionSetBuilder;
 
   IpaMatchBuilder(this.repo, {IpaOptionSetBuilder? optionSetBuilder})
@@ -25,22 +19,21 @@ class IpaMatchBuilder extends McqQuestionBuilder {
   @override
   Future<List<McqQuestion>> build(GameConfig config) async {
     final count = resolveQuestionCount(config);
-    final entries =
-        await repo.getRandomIpaEntries(count: count + GameRules.ipaOverfetchBuffer);
+    final entries = await repo.getRandomIpaEntries(
+        count: count + GameRules.ipaOverfetchBuffer);
     if (entries.isEmpty) return const [];
 
     final rng = Random();
     final pool = entries.toList()..shuffle(rng);
     final selected = pool.take(count).toList();
     final crossWordPool = pool.map((e) => e.ipa).toList();
-
     final wordIdMap = await repo.getWordIdsByLowercase(
       selected.map((e) => e.word).toList(),
     );
 
     final difficulty = IpaDifficulty.fromLegacy(config.difficulty);
-
     final out = <McqQuestion>[];
+
     for (final entry in selected) {
       final optionSet = optionSetBuilder.build(
         correctIpa: entry.ipa,
@@ -50,34 +43,22 @@ class IpaMatchBuilder extends McqQuestionBuilder {
       if (optionSet == null) continue;
 
       out.add(McqQuestion(
-        // IPA1: display word in UPPERCASE to match every other game in the
-        // family. IPA entries are stored lowercase in the DB; .toUpperCase()
-        // here is purely presentational — the wordId lookup uses .toLowerCase()
-        // so mastery tracking is unaffected.
         prompt: entry.word.toUpperCase(),
         promptSubtitle: 'Choose the correct IPA pronunciation',
         options: optionSet.options,
         correctAnswer: optionSet.correctAnswer,
-        questionText: 'IPA for "\${entry.word}"',
+        questionText: 'IPA for "${entry.word}"',
         wordId: wordIdMap[entry.word.toLowerCase()],
       ));
     }
 
-    // G-13: session-wide correct-answer dedup.
-    // Mirror the MC4/DM4 pattern applied to every other game: scrub any
-    // distractor that is also a correct answer elsewhere in this session.
-    // Falls back to original options if scrubbing would leave < minOptionCount.
     final sessionCorrects = out.map((q) => q.correctAnswer).toSet();
-
-    final deduped = out.map((q) {
+    return out.map((q) {
       final cleanOpts = q.options
           .where((o) => o == q.correctAnswer || !sessionCorrects.contains(o))
           .toList();
-
       if (cleanOpts.length < GameRules.minOptionCount) return q;
-
       cleanOpts.shuffle(rng);
-
       return McqQuestion(
         prompt: q.prompt,
         promptSubtitle: q.promptSubtitle,
@@ -87,7 +68,5 @@ class IpaMatchBuilder extends McqQuestionBuilder {
         wordId: q.wordId,
       );
     }).toList();
-
-    return deduped;
   }
 }

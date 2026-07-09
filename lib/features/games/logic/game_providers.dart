@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+
 import '../../../core/models/game_config.dart';
 import '../../../database/game_data_repository.dart';
+import '../../../database/i_game_repository.dart';
 import 'builders/definition_match_builder.dart';
 import 'builders/ipa_match_builder.dart';
 import 'builders/mcq_question_builder.dart';
@@ -15,12 +17,9 @@ import 'state/mcq_game_state.dart';
 import 'state/unscramble_game_state.dart';
 import 'unscramble_notifier.dart';
 
-/// Declarative builder registration (Task 3).
-///
-/// Adding a new MCQ-style game requires exactly two changes:
-///   1. one new `*_builder.dart` file under `logic/builders/`
-///   2. one line in this map
-typedef _BuilderFn = McqQuestionBuilder Function(GameDataRepository);
+/// A-03: typedef now uses [IGameRepository] so any conforming implementation
+/// (including [MockGameRepository]) can be injected for testing.
+typedef _BuilderFn = McqQuestionBuilder Function(IGameRepository);
 
 const Map<GameType, _BuilderFn> _builderRegistry = {
   GameType.ipaMatch: IpaMatchBuilder.new,
@@ -33,8 +32,7 @@ const Map<GameType, _BuilderFn> _builderRegistry = {
   GameType.trueFalse: TrueFalseBuilder.new,
 };
 
-final questionBuilderFactoryProvider =
-    Provider<McqQuestionBuilderFactory>((ref) {
+final questionBuilderFactoryProvider = Provider((ref) {
   final repo = ref.watch(gameDataRepositoryProvider);
   return McqQuestionBuilderFactory({
     for (final entry in _builderRegistry.entries)
@@ -42,9 +40,6 @@ final questionBuilderFactoryProvider =
   });
 });
 
-// ── Riverpod-first notifiers (Task 1 + 2) ──────────────────────────────────
-
-/// Family-scoped MCQ notifier — one instance per active [GameConfig].
 final mcqGameNotifierProvider = StateNotifierProvider.autoDispose
     .family<McqGameNotifier, McqGameState, GameConfig>((ref, config) {
   final notifier = McqGameNotifier(
@@ -56,10 +51,8 @@ final mcqGameNotifierProvider = StateNotifierProvider.autoDispose
   return notifier;
 });
 
-/// Family-scoped Unscramble notifier — one per [GameConfig].
 final unscrambleGameNotifierProvider = StateNotifierProvider.autoDispose
-    .family<UnscrambleNotifier, UnscrambleGameState, GameConfig>(
-        (ref, config) {
+    .family<UnscrambleNotifier, UnscrambleGameState, GameConfig>((ref, config) {
   final notifier = UnscrambleNotifier(
     config: config,
     repo: ref.watch(gameDataRepositoryProvider),

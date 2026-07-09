@@ -1,12 +1,11 @@
 import '../../../../core/models/game_config.dart';
-import '../../../../database/game_data_repository.dart';
+import '../../../../database/i_game_repository.dart';
 import 'mcq_question.dart';
 import 'mcq_question_builder.dart';
 
-/// Builds synonym OR antonym questions. Discriminated by [isAntonym] so the
-/// same code path produces both, with no duplication.
+/// A-03: now accepts [IGameRepository].
 class SynonymAntonymBuilder extends McqQuestionBuilder {
-  final GameDataRepository repo;
+  final IGameRepository repo;
   final bool isAntonym;
 
   const SynonymAntonymBuilder(this.repo, {required this.isAntonym});
@@ -20,7 +19,6 @@ class SynonymAntonymBuilder extends McqQuestionBuilder {
     final rel = isAntonym ? 'antonym' : 'synonym';
     final wordIdMap = await repo
         .getWordIdsByLowercase(resolved.map((q) => q.word).toList());
-
     return resolved
         .map((q) => McqQuestion(
               prompt: q.word,
