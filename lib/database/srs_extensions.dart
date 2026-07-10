@@ -10,7 +10,7 @@ import 'srs_calculator.dart';
 /// are due for review according to the SM-2 schedule.
 extension SrsExtensions on DatabaseService {
   /// Ensures the SRS columns exist on [word_progress].
-  /// Safe to call repeatedly — catches [DatabaseException] if already present.
+  /// Safe to call repeatedly -- catches [DatabaseException] if already present.
   Future<void> ensureSrsColumns() async {
     try {
       await db.execute(
@@ -31,7 +31,7 @@ extension SrsExtensions on DatabaseService {
   Future<void> updateSrsSchedule({
     required int wordId,
     required String gameType,
-    required bool correct,
+    required bool wasCorrect,
   }) async {
     await ensureSrsColumns();
 
@@ -44,12 +44,12 @@ extension SrsExtensions on DatabaseService {
 
     final attempts = rows.isEmpty ? 0 : (rows.first['attempts'] as int? ?? 0);
     final currentEase = rows.isEmpty
-        ? 2.5
-        : (rows.first['ease_factor'] as double? ?? 2.5);
+        ? SrsCalculator.initialEaseFactor
+        : (rows.first['ease_factor'] as double? ?? SrsCalculator.initialEaseFactor);
 
     final result = SrsCalculator.nextReview(
       attempts: attempts + 1,
-      correct: correct,
+      wasCorrect: wasCorrect,
       easeFactor: currentEase,
     );
 
@@ -58,19 +58,19 @@ extension SrsExtensions on DatabaseService {
         (word_id, game_type, status, attempts, last_attempted, next_review_at, ease_factor)
       VALUES (?, ?, ?, 1, ?, ?, ?)
       ON CONFLICT(word_id, game_type) DO UPDATE SET
-        attempts       = attempts + 1,
+        attempts = attempts + 1,
         last_attempted = excluded.last_attempted,
         next_review_at = excluded.next_review_at,
-        ease_factor    = excluded.ease_factor,
-        status         = CASE
+        ease_factor = excluded.ease_factor,
+        status = CASE
           WHEN attempts + 1 >= 10 AND excluded.ease_factor >= 2.0
-            THEN 'mastered'
+          THEN 'mastered'
           ELSE status
         END
     ''', [
       wordId,
       gameType,
-      correct ? 'learning' : 'new',
+      wasCorrect ? 'learning' : 'new',
       DateTime.now().millisecondsSinceEpoch,
       result.nextReviewAtMs,
       result.easeFactor,
