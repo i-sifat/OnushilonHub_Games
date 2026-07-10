@@ -41,6 +41,9 @@ class SynonymAntonymBuilder extends McqQuestionBuilder {
         ? await repo.getAntonymDistractorPool(limit: 200)
         : await repo.getSynonymDistractorPool(limit: 200);
 
+    // Extract word strings from DefinitionModel pool for comparison.
+    final poolWords = distractorPool.map((d) => d.word).toList();
+
     // Resolve wordIds in a single batch call for mastery tracking.
     final wordIdMap = await repo
         .getWordIdsByLowercase(resolved.map((q) => q.word).toList());
@@ -53,8 +56,9 @@ class SynonymAntonymBuilder extends McqQuestionBuilder {
     for (final q in resolved) {
       // Filter pool: exclude all correct answers for this word and any
       // session-correct to prevent cross-question leakage.
-      final validDistractors = distractorPool
-          .where((w) => !q.allCorrect.contains(w) && !sessionCorrects.contains(w))
+      final validDistractors = poolWords
+          .where((w) =>
+              !q.allCorrect.contains(w) && !sessionCorrects.contains(w))
           .toList()
         ..shuffle(rng);
 
