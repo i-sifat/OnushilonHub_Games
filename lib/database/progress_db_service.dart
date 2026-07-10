@@ -16,7 +16,7 @@ class ProgressDbService {
 
   const ProgressDbService(this._db);
 
-  // ── Word progress ─────────────────────────────────────────────────────────
+  // ── Word progress ─────────────────────────────────────────────────────────────
 
   /// F-01: Persists a word answer and updates the SM-2 schedule.
   Future<void> markWordStatus({
@@ -35,16 +35,16 @@ class ProgressDbService {
         ? 0
         : (existing.first['attempts'] as int? ?? 0);
     final currentEaseFactor = existing.isEmpty
-        ? SrsCalculator.defaultEaseFactor
+        ? SrsCalculator.initialEaseFactor
         : (existing.first['ease_factor'] as double? ??
-            SrsCalculator.defaultEaseFactor);
+            SrsCalculator.initialEaseFactor);
 
     final newAttempts = currentAttempts + 1;
     final wasCorrect = status == 'mastered';
 
     final srs = SrsCalculator.nextReview(
       attempts: newAttempts,
-      correct: wasCorrect,
+      wasCorrect: wasCorrect,
       easeFactor: currentEaseFactor,
     );
 
@@ -97,7 +97,7 @@ class ProgressDbService {
     return result;
   }
 
-  // ── User progress ─────────────────────────────────────────────────────────
+  // ── User progress ─────────────────────────────────────────────────────────────
 
   Future<UserProgressModel> getUserProgress() async {
     final rows = await _db.db.query('user_progress', where: 'id = 1');

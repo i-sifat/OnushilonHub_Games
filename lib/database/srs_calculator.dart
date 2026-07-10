@@ -12,24 +12,26 @@ class SrsCalculator {
   static const double _easeBonus = 0.1;
   static const double _easePenalty = 0.8;
 
-  /// Public accessor for the default ease factor so callers outside this file
-  /// (e.g. progress_db_service.dart) can reference the initial value.
+  /// Public accessor for the default ease factor.
   static const double defaultEaseFactor = _defaultEaseFactor;
+
+  /// Legacy alias used by database_service.dart.
+  static const double initialEaseFactor = _defaultEaseFactor;
 
   /// Computes the next review [DateTime] and updated ease factor for a word.
   ///
   /// Parameters:
   /// [attempts] — total number of times the word has been tested.
-  /// [correct] — true if the player answered correctly in this session.
+  /// [wasCorrect] — true if the player answered correctly in this session.
   /// [easeFactor] — current ease factor (default [_defaultEaseFactor]).
   ///
   /// Returns a [SrsResult] containing the next review date and updated ease factor.
   static SrsResult nextReview({
     required int attempts,
-    required bool correct,
+    required bool wasCorrect,
     double easeFactor = _defaultEaseFactor,
   }) {
-    if (!correct) {
+    if (!wasCorrect) {
       // Wrong answer: review again in 1 day, reduce ease factor.
       final newEase = (easeFactor * _easePenalty).clamp(_minEaseFactor, 4.0);
       return SrsResult(
