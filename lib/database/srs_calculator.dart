@@ -4,7 +4,7 @@
 /// reviewed based on the player's answer history.
 ///
 /// References:
-///   https://www.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
+/// https://www.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
 class SrsCalculator {
   // SM-2 constants
   static const double _minEaseFactor = 1.3;
@@ -12,12 +12,16 @@ class SrsCalculator {
   static const double _easeBonus = 0.1;
   static const double _easePenalty = 0.8;
 
+  /// Public accessor for the default ease factor so callers outside this file
+  /// (e.g. progress_db_service.dart) can reference the initial value.
+  static const double defaultEaseFactor = _defaultEaseFactor;
+
   /// Computes the next review [DateTime] and updated ease factor for a word.
   ///
   /// Parameters:
-  ///   [attempts]   — total number of times the word has been tested.
-  ///   [correct]    — true if the player answered correctly in this session.
-  ///   [easeFactor] — current ease factor (default [_defaultEaseFactor]).
+  /// [attempts] — total number of times the word has been tested.
+  /// [correct] — true if the player answered correctly in this session.
+  /// [easeFactor] — current ease factor (default [_defaultEaseFactor]).
   ///
   /// Returns a [SrsResult] containing the next review date and updated ease factor.
   static SrsResult nextReview({
@@ -45,9 +49,9 @@ class SrsCalculator {
   }
 
   /// Computes the review interval in days using the SM-2 schedule:
-  ///   attempt 1 → 1 day
-  ///   attempt 2 → 3 days
-  ///   attempt 3+ → previous_interval × easeFactor
+  /// attempt 1 → 1 day
+  /// attempt 2 → 3 days
+  /// attempt 3+ → previous_interval × easeFactor
   static int _computeInterval(int attempts, double easeFactor) {
     if (attempts <= 1) return 1;
     if (attempts == 2) return 3;

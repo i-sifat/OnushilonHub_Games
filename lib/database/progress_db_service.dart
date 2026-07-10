@@ -4,7 +4,7 @@ import 'database_service.dart';
 import 'srs_calculator.dart';
 import '../core/models/user_progress_model.dart';
 
-final progressDbServiceProvider = Provider((ref) {
+final progressDbServiceProvider = Provider<ProgressDbService>((ref) {
   return ProgressDbService(DatabaseService.instance);
 });
 
@@ -35,16 +35,16 @@ class ProgressDbService {
         ? 0
         : (existing.first['attempts'] as int? ?? 0);
     final currentEaseFactor = existing.isEmpty
-        ? SrsCalculator.initialEaseFactor
+        ? SrsCalculator.defaultEaseFactor
         : (existing.first['ease_factor'] as double? ??
-            SrsCalculator.initialEaseFactor);
+            SrsCalculator.defaultEaseFactor);
 
     final newAttempts = currentAttempts + 1;
     final wasCorrect = status == 'mastered';
 
     final srs = SrsCalculator.nextReview(
       attempts: newAttempts,
-      wasCorrect: wasCorrect,
+      correct: wasCorrect,
       easeFactor: currentEaseFactor,
     );
 
@@ -53,11 +53,11 @@ class ProgressDbService {
         (word_id, game_type, status, attempts, last_attempted, next_review_at, ease_factor)
       VALUES (?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(word_id, game_type) DO UPDATE SET
-        status         = excluded.status,
-        attempts       = excluded.attempts,
+        status = excluded.status,
+        attempts = excluded.attempts,
         last_attempted = excluded.last_attempted,
         next_review_at = excluded.next_review_at,
-        ease_factor    = excluded.ease_factor
+        ease_factor = excluded.ease_factor
     ''', [
       wordId,
       gameType,
