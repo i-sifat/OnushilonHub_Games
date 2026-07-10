@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import '../core/models/quote_model.dart';
 import '../core/models/user_progress_model.dart';
 import '../features/games/logic/game_exception.dart';
 import 'i_game_repository.dart';
+import 'a06_cache_guard_extensions.dart';
 
 /// Riverpod handle for the singleton [DatabaseService]. Wrapping it in a
 /// provider lets controllers and repositories receive the dependency via
@@ -65,8 +67,8 @@ typedef Era = QuoteEraModel;
 
 /// Unified data source for all game content.
 ///
-/// • IPA, definitions, synonyms, antonyms → SQLite queries against vocabulary.db
-/// • Quotes / authors / eras → small JSON files (kept as-is; only ~100 quotes)
+/// - IPA, definitions, synonyms, antonyms -> SQLite queries against vocabulary.db
+/// - Quotes / authors / eras -> small JSON files (kept as-is; only ~100 quotes)
 ///
 /// Memory cache: only the current game's question set is cached (released via
 /// [clearCache]). No full-table caching.
@@ -85,27 +87,25 @@ class GameDataRepository implements IGameRepository {
   Map<int, QuoteAuthorModel>? _authorCache;
   Map<int, QuoteEraModel>? _eraCache;
 
+  // A-06: Concurrency guards prevent double-loads when two async build()
+  // calls fire simultaneously (e.g. user taps Start twice quickly).
+  final _ipaGuard = ConcurrentLoadGuard<void>();
+  final _defGuard = ConcurrentLoadGuard<void>();
+  final _quoteGuard = ConcurrentLoadGuard<void>();
+
   // ── IPA ────────────────────────────────────────────────────────────────────
 
   /// Returns [count] random IPA entries from the vocabulary DB.
   @override
   Future<List<IpaModel>> getRandomIpaEntries({required int count}) async {
-    // IPA2: always reload 2000 entries fresh — same pattern as DM1/DM5.
-    // The original conditional (if _ipaCache == null) meant only 0.55% of
-    // 29,055 IPA entries were ever reached per session, and a stale cache
-    // from a force-quit persisted into the next session.
-    await _loadIpaFromDb(2000);
+    // A-06: guard prevents duplicate DB loads on concurrent calls.
+    await _ipaGuard.run(() => _loadIpaFromDb(2000));
     final list = _ipaCache!.toList()..shuffle(Random());
     return list.take(count).toList();
   }
 
   Future<void> _loadIpaFromDb(int limit) async {
-    // IPA2: always clear first — guarantees freshness even after abnormal exit.
     _ipaCache = null;
-    // FIX: The original literal AND word NOT LIKE ''''%' was invalid SQLite
-    // because the escaped apostrophe sequence broke the LIKE string literal.
-    // Solution: pass the apostrophe-prefix pattern as a bound parameter (?)
-    // which avoids all single-quote escaping complexity entirely.
     final rows = await _db.db.rawQuery('''
       SELECT word, ipa FROM ipa_pronunciations
       WHERE locale = 'en_US'
@@ -117,7 +117,6 @@ class GameDataRepository implements IGameRepository {
       LIMIT ?
     ''', ["'%", limit]);
 
-    // Use IpaModel.fromEntry() so comma-split logic lives in one place.
     _ipaCache = rows
         .map((r) => IpaModel.fromEntry(
               r['word'] as String,
@@ -129,34 +128,24 @@ class GameDataRepository implements IGameRepository {
 
   // ── Definitions ────────────────────────────────────────────────────────────
 
-  /// Returns [count] random definition entries from the vocabulary DB.
-  ///
-  /// DM1: always reloads 2000 entries from the DB on every call — this
-  /// guarantees each session draws from a fresh random slice of the 53,470
-  /// available definitions instead of recycling the same tiny cache.
-  /// DM5: clearing _definitionCache before loading (not relying on
-  /// clearGameCache being called) ensures freshness even after an abnormal
-  /// app exit that skipped dispose().
   @override
   Future<List<DefinitionModel>> getRandomDefinitionEntries({
     required int count,
   }) async {
-    // DM5: always reload — do not reuse a stale cache from a previous session.
-    await _loadDefinitionsFromDb(2000);
+    // A-06: guard prevents duplicate DB loads on concurrent calls.
+    await _defGuard.run(() => _loadDefinitionsFromDb(2000));
     final list = _definitionCache!.toList()..shuffle(Random());
     return list.take(count).toList();
   }
 
   Future<List<DefinitionModel>> getAllDefinitions() async {
     if (_definitionCache == null) {
-      await _loadDefinitionsFromDb(2000);
+      await _defGuard.run(() => _loadDefinitionsFromDb(2000));
     }
     return List.unmodifiable(_definitionCache!);
   }
 
   Future<void> _loadDefinitionsFromDb(int limit) async {
-    // DM5: always clear first so a stale cache from a previous session never
-    // leaks into the new one — regardless of how the previous session ended.
     _definitionCache = null;
 
     final rows = await _db.db.rawQuery('''
@@ -169,14 +158,7 @@ class GameDataRepository implements IGameRepository {
       ORDER BY RANDOM()
       LIMIT ?
     ''', [limit]);
-    // DM3: LENGTH <= 120 caps definitions at a readable size for MCQ tiles.
-    // The longest definitions in the DB are 479 chars (GYMNOSPERMAE) — those
-    // would overflow option tiles on small screens and are now excluded.
-    // 3,005 definitions (5.6%) exceed 120 chars; 50,465 remain available.
 
-    // Deduplicate on definition text: the same definition string appearing for
-    // multiple words would allow a distractor to also be a correct answer for
-    // a different question in the same session.
     final seen = <String>{};
     _definitionCache = rows
         .map((r) => DefinitionModel(
@@ -188,20 +170,6 @@ class GameDataRepository implements IGameRepository {
         .toList();
   }
 
-  /// DM2: Returns a large independent pool of definitions for use as
-  /// distractors in Definition Match.
-  ///
-  /// This pool is intentionally SEPARATE from the question pool returned by
-  /// [getRandomDefinitionEntries]. Using one shared pool for both questions
-  /// and distractors creates a pattern-recognition exploit where every
-  /// distractor the player sees is also the correct answer for another
-  /// question in the same session.
-  ///
-  /// This method:
-  ///   • Is NOT cached — each call draws a fresh random set from the DB.
-  ///   • Does NOT filter by word_progress (mastery) — ensures distractors
-  ///     remain plentiful even for advanced players who have mastered many words.
-  ///   • Applies the same LENGTH <= 120 cap as the question pool (DM3).
   @override
   Future<List<DefinitionModel>> getDefinitionDistractorPool({
     required int limit,
@@ -233,15 +201,6 @@ class GameDataRepository implements IGameRepository {
     }
   }
 
-  /// G-05: Independent synonym distractor pool — no mastery filter.
-  ///
-  /// Returns a random pool of [limit] vocabulary entries as [DefinitionModel]
-  /// values. [SynonymAntonymBuilder] uses [DefinitionModel.word] as the
-  /// distractor text for synonym MCQ options.
-  ///
-  /// Mirrors [getDefinitionDistractorPool]:
-  ///   • NOT cached — fresh random draw every call.
-  ///   • NOT mastery-filtered — full vocabulary available regardless of player level.
   @override
   Future<List<DefinitionModel>> getSynonymDistractorPool({
     required int limit,
@@ -272,11 +231,6 @@ class GameDataRepository implements IGameRepository {
     }
   }
 
-  /// G-05: Independent antonym distractor pool — no mastery filter.
-  ///
-  /// Identical to [getSynonymDistractorPool] — both pool methods draw from the
-  /// same full-vocabulary slice to give distractors that are plausible English
-  /// words regardless of how many a player has already mastered.
   @override
   Future<List<DefinitionModel>> getAntonymDistractorPool({
     required int limit,
@@ -309,7 +263,6 @@ class GameDataRepository implements IGameRepository {
 
   // ── Synonyms / Antonyms ────────────────────────────────────────────────────
 
-  /// Returns [count] synonym-match questions from vocabulary.db.
   @override
   Future<List<ResolvedSynonymAntonymQuestion>> getRandomSynonymQuestions({
     required int count,
@@ -317,7 +270,6 @@ class GameDataRepository implements IGameRepository {
     return _buildSynonymAntonymQuestions(count: count, isAntonym: false);
   }
 
-  /// Returns [count] antonym-match questions from vocabulary.db.
   @override
   Future<List<ResolvedSynonymAntonymQuestion>> getRandomAntonymQuestions({
     required int count,
@@ -332,15 +284,9 @@ class GameDataRepository implements IGameRepository {
     final table = isAntonym ? 'antonyms' : 'synonyms';
     final col = isAntonym ? 'antonym' : 'synonym';
 
-    // Fetch words that have at least one entry in the target table.
-    // SA1 FIX: removed LIMIT 10 from GROUP_CONCAT subquery.
-    // With LIMIT 10, words like RAP (273 synonyms) had correctList capped at
-    // 10 entries — the remaining 260+ valid synonyms could appear as
-    // distractors, marking genuinely correct player answers as WRONG.
-    // Removing the limit ensures correctList contains ALL synonyms/antonyms.
     final wordRows = await _db.db.rawQuery('''
       SELECT w.id, w.word,
-             (SELECT GROUP_CONCAT($col, '|') FROM $table WHERE word_id = w.id) AS answers
+        (SELECT GROUP_CONCAT($col, '|') FROM $table WHERE word_id = w.id) AS answers
       FROM words w
       WHERE EXISTS (SELECT 1 FROM $table WHERE word_id = w.id)
       ORDER BY RANDOM()
@@ -349,7 +295,6 @@ class GameDataRepository implements IGameRepository {
 
     if (wordRows.isEmpty) return [];
 
-    // Build distractor pool
     final distractorRows = await _db.db.rawQuery('''
       SELECT DISTINCT $col AS answer FROM $table
       ORDER BY RANDOM()
@@ -384,24 +329,18 @@ class GameDataRepository implements IGameRepository {
         word: word,
         correctAnswer: correct,
         options: options,
-        // Store the full correctList so the builder / notifier can use it
-        // for multi-answer validation if needed in future.
         allCorrect: correctList,
       ));
     }
 
-    // SA2: session-wide dedup — scrub any distractor that is the correct
-    // answer for another question in this session. A player who just answered
-    // Q3 correctly with 'glad' should not see 'glad' as a wrong distractor
-    // in Q7, where it would get them marked wrong for recognising it.
     final sessionCorrects = questions.map((q) => q.correctAnswer).toSet();
     final rng2 = Random();
     return questions.map((q) {
       final cleanOpts = q.options
           .where((o) => o == q.correctAnswer ||
-                        !sessionCorrects.contains(o))
+              !sessionCorrects.contains(o))
           .toList();
-      if (cleanOpts.length < 4) return q; // fallback: keep original if too few
+      if (cleanOpts.length < 4) return q;
       cleanOpts.shuffle(rng2);
       return ResolvedSynonymAntonymQuestion(
         word: q.word,
@@ -414,7 +353,6 @@ class GameDataRepository implements IGameRepository {
 
   // ── Rich Quotes ────────────────────────────────────────────────────────────
 
-  /// Returns [count] WhoseQuote questions.
   @override
   Future<List<ResolvedWhoseQuoteQuestion>> getRandomWhoseQuoteQuestions({
     required int count,
@@ -464,32 +402,37 @@ class GameDataRepository implements IGameRepository {
     return _eraCache!.values.toList()..sort((a, b) => a.id.compareTo(b.id));
   }
 
+  /// A-06: guarded to prevent concurrent JSON parsing when two game
+  /// sessions start simultaneously.
   Future<void> _ensureRichQuotesLoaded() async {
     if (_richQuoteCache != null && _authorCache != null && _eraCache != null) {
       return;
     }
+    await _quoteGuard.run(() => _loadRichQuotes());
+  }
 
-    // Load authors and eras first so we can cross-validate quote entries.
+  Future<void> _loadRichQuotes() async {
+    if (_richQuoteCache != null && _authorCache != null && _eraCache != null) {
+      return;
+    }
+
     final authorsRaw = await rootBundle.loadString('assets/json/quote_authors.json');
     final erasRaw = await rootBundle.loadString('assets/json/quote_eras.json');
 
-    final authorList = (jsonDecode(authorsRaw) as List<dynamic>)
+    final authorList = (jsonDecode(authorsRaw) as List)
         .map((e) => QuoteAuthorModel.fromJson(e as Map<String, dynamic>))
         .toList();
     _authorCache = {for (final a in authorList) a.id: a};
 
-    final eraList = (jsonDecode(erasRaw) as List<dynamic>)
+    final eraList = (jsonDecode(erasRaw) as List)
         .map((e) => QuoteEraModel.fromJson(e as Map<String, dynamic>))
         .toList();
     _eraCache = {for (final e in eraList) e.id: e};
 
-    // Parse quotes — skip any entry whose author_id or era_id is null, or
-    // whose author_id has no matching entry in the authors list. These are
-    // data errors that would cause a hard cast crash at runtime.
     final quotesRaw = await rootBundle.loadString('assets/json/quotes.json');
     final validAuthorIds = _authorCache!.keys.toSet();
     final validEraIds = _eraCache!.keys.toSet();
-    _richQuoteCache = (jsonDecode(quotesRaw) as List<dynamic>)
+    _richQuoteCache = (jsonDecode(quotesRaw) as List)
         .where((e) {
           final m = e as Map<String, dynamic>;
           final authorId = m['author_id'];
@@ -505,14 +448,12 @@ class GameDataRepository implements IGameRepository {
 
   // ── Utility ───────────────────────────────────────────────────────────────
 
-  /// Releases game-specific caches. Call when leaving a game screen.
   @override
   void clearGameCache() {
     _ipaCache = null;
     _definitionCache = null;
   }
 
-  /// Releases all caches including quote data.
   @override
   void clearCache() {
     _ipaCache = null;
@@ -522,7 +463,7 @@ class GameDataRepository implements IGameRepository {
     _eraCache = null;
   }
 
-  // ── Word data exposed for builders (no direct DB access elsewhere) ───────
+  // ── Word data exposed for builders ───────────────────────────────────────
 
   @override
   Future<List<WordRow>> getEligibleWords({
@@ -559,19 +500,12 @@ class GameDataRepository implements IGameRepository {
     }
   }
 
-  /// Batch-resolves word IDs for a list of words (case-insensitive).
-  ///
-  /// Returns a map keyed by the *lowercase* word. Missing words are simply
-  /// absent — callers should treat `null` as "no mastery tracking for this
-  /// item" rather than an error.
   @override
   Future<Map<String, int>> getWordIdsByLowercase(List<String> words) async {
     if (words.isEmpty) return const {};
     try {
       final lower = words.map((w) => w.toLowerCase()).toList();
       final ph = lower.map((_) => '?').join(',');
-      // DM6: ORDER BY word ASC so UPPERCASE rows are processed last and win
-      // the last-write-wins dict comprehension over any lowercase orphan rows.
       final rows = await _db.db.rawQuery(
         'SELECT id, LOWER(word) AS wl FROM words WHERE LOWER(word) IN ($ph) ORDER BY word ASC',
         lower,
@@ -606,9 +540,6 @@ class GameDataRepository implements IGameRepository {
 
   // ── Session persistence ──────────────────────────────────────────────────
 
-  /// Persists a finished session and rolls XP + streak into user_progress.
-  /// Throws [RepositoryException] on failure so the controller can surface
-  /// a meaningful error to the player instead of silently swallowing it.
   @override
   Future<void> persistSession({
     required GameSessionModel session,
