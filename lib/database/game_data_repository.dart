@@ -11,19 +11,15 @@ import '../core/models/user_progress_model.dart';
 import '../features/games/logic/game_exception.dart';
 import 'i_game_repository.dart';
 import 'a06_cache_guard_extensions.dart';
+import 'quote_progress_extensions.dart';
 
-/// Riverpod handle for the singleton [DatabaseService]. Wrapping it in a
-/// provider lets controllers and repositories receive the dependency via
-/// constructor injection instead of reaching into `DatabaseService.instance`
-/// directly.
+/// Riverpod handle for the singleton [DatabaseService].
 final databaseServiceProvider = Provider<DatabaseService>((ref) {
   ref.keepAlive();
   return DatabaseService.instance;
 });
 
-/// Provider for the game-data repository. The concrete type is exposed for
-/// backward compatibility; it also `implements IGameRepository` so
-/// new code can depend on the interface.
+/// Provider for the game-data repository.
 final gameDataRepositoryProvider = Provider<GameDataRepository>((ref) {
   ref.keepAlive();
   return GameDataRepository(ref.watch(databaseServiceProvider));
@@ -35,8 +31,6 @@ class ResolvedSynonymAntonymQuestion {
   final String word;
   final String correctAnswer;
   final List<String> options;
-  /// All valid synonyms/antonyms for [word] — used for session-wide dedup
-  /// and future multi-answer validation.
   final List<String> allCorrect;
 
   const ResolvedSynonymAntonymQuestion({
@@ -61,44 +55,30 @@ class ResolvedWhoseQuoteQuestion {
   });
 }
 
-/// G-05 / A-03: Type alias so [IGameRepository] callers can refer to eras
-/// using the shorter [Era] name without importing quote_model.dart directly.
 typedef Era = QuoteEraModel;
 
-/// Unified data source for all game content.
-///
-/// - IPA, definitions, synonyms, antonyms -> SQLite queries against vocabulary.db
-/// - Quotes / authors / eras -> small JSON files (kept as-is; only ~100 quotes)
-///
-/// Memory cache: only the current game's question set is cached (released via
-/// [clearCache]). No full-table caching.
 class GameDataRepository implements IGameRepository {
   final DatabaseService _db;
 
   GameDataRepository(this._db);
 
-  // ── Lightweight in-memory caches (cleared between games) ─────────────────
+  // ── Caches ──────────────────────────────────────────────────────────────
 
   List<IpaModel>? _ipaCache;
   List<DefinitionModel>? _definitionCache;
-
-  // Quote data (small JSON, loaded once)
   List<RichQuoteModel>? _richQuoteCache;
   Map<int, QuoteAuthorModel>? _authorCache;
   Map<int, QuoteEraModel>? _eraCache;
 
-  // A-06: Concurrency guards prevent double-loads when two async build()
-  // calls fire simultaneously (e.g. user taps Start twice quickly).
+  // A-06: Concurrency guards
   final _ipaGuard = ConcurrentLoadGuard<void>();
   final _defGuard = ConcurrentLoadGuard<void>();
   final _quoteGuard = ConcurrentLoadGuard<void>();
 
-  // ── IPA ────────────────────────────────────────────────────────────────────
+  // ── IPA ────────────────────────────────────────────────────────────────
 
-  /// Returns [count] random IPA entries from the vocabulary DB.
   @override
   Future<List<IpaModel>> getRandomIpaEntries({required int count}) async {
-    // A-06: guard prevents duplicate DB loads on concurrent calls.
     await _ipaGuard.run(() => _loadIpaFromDb(2000));
     final list = _ipaCache!.toList()..shuffle(Random());
     return list.take(count).toList();
@@ -126,13 +106,12 @@ class GameDataRepository implements IGameRepository {
         .toList();
   }
 
-  // ── Definitions ────────────────────────────────────────────────────────────
+  // ── Definitions ────────────────────────────────────────────────────────
 
   @override
   Future<List<DefinitionModel>> getRandomDefinitionEntries({
     required int count,
   }) async {
-    // A-06: guard prevents duplicate DB loads on concurrent calls.
     await _defGuard.run(() => _loadDefinitionsFromDb(2000));
     final list = _definitionCache!.toList()..shuffle(Random());
     return list.take(count).toList();
@@ -147,7 +126,6 @@ class GameDataRepository implements IGameRepository {
 
   Future<void> _loadDefinitionsFromDb(int limit) async {
     _definitionCache = null;
-
     final rows = await _db.db.rawQuery('''
       SELECT w.word, d.pos, d.definition
       FROM definitions d
@@ -185,7 +163,6 @@ class GameDataRepository implements IGameRepository {
         ORDER BY RANDOM()
         LIMIT ?
       ''', [limit]);
-
       final seen = <String>{};
       return rows
           .map((r) => DefinitionModel(
@@ -261,7 +238,7 @@ class GameDataRepository implements IGameRepository {
     }
   }
 
-  // ── Synonyms / Antonyms ────────────────────────────────────────────────────
+  // ── Synonyms / Antonyms ────────────────────────────────────────────────
 
   @override
   Future<List<ResolvedSynonymAntonymQuestion>> getRandomSynonymQuestions({
@@ -351,8 +328,9 @@ class GameDataRepository implements IGameRepository {
     }).toList();
   }
 
-  // ── Rich Quotes ────────────────────────────────────────────────────────────
+  // ── Rich Quotes ────────────────────────────────────────────────────────
 
+  /// G-12: Filters out mastered quotes so players see fresh content.
   @override
   Future<List<ResolvedWhoseQuoteQuestion>> getRandomWhoseQuoteQuestions({
     required int count,
@@ -365,11 +343,21 @@ class GameDataRepository implements IGameRepository {
     final eras = _eraCache!;
     final rng = Random();
 
+    // G-12: Get mastered quote IDs and filter them out of the pool.
+    final masteredIds = await _db.getMasteredQuoteIds();
+
     var pool = eraId != null
         ? quotes.where((q) => q.eraId == eraId).toList()
         : quotes.toList();
+
+    // Remove mastered quotes from the pool.
+    if (masteredIds.isNotEmpty) {
+      pool = pool.where((q) => !masteredIds.contains(q.id)).toList();
+    }
+
     pool.shuffle(rng);
 
+    // Fallback: if too few unmastered quotes remain, use the full pool.
     if (pool.length < 4) pool = quotes.toList()..shuffle(rng);
 
     final selected = pool.take(count).toList();
@@ -387,6 +375,9 @@ class GameDataRepository implements IGameRepository {
         ..shuffle(rng);
       final options = [correctAuthor, ...distractors.take(3)]..shuffle(rng);
 
+      // G-12: Record this quote as seen for mastery tracking.
+      _db.recordQuoteSeen(q.id);
+
       return ResolvedWhoseQuoteQuestion(
         quoteText: q.text,
         correctAuthor: correctAuthor,
@@ -402,8 +393,6 @@ class GameDataRepository implements IGameRepository {
     return _eraCache!.values.toList()..sort((a, b) => a.id.compareTo(b.id));
   }
 
-  /// A-06: guarded to prevent concurrent JSON parsing when two game
-  /// sessions start simultaneously.
   Future<void> _ensureRichQuotesLoaded() async {
     if (_richQuoteCache != null && _authorCache != null && _eraCache != null) {
       return;
@@ -446,7 +435,7 @@ class GameDataRepository implements IGameRepository {
         .toList();
   }
 
-  // ── Utility ───────────────────────────────────────────────────────────────
+  // ── Utility ───────────────────────────────────────────────────────────
 
   @override
   void clearGameCache() {
@@ -463,7 +452,7 @@ class GameDataRepository implements IGameRepository {
     _eraCache = null;
   }
 
-  // ── Word data exposed for builders ───────────────────────────────────────
+  // ── Word data ───────────────────────────────────────────────────────────
 
   @override
   Future<List<WordRow>> getEligibleWords({
@@ -522,7 +511,7 @@ class GameDataRepository implements IGameRepository {
     return map[word.toLowerCase()];
   }
 
-  // ── Mastery / progress writes ────────────────────────────────────────────
+  // ── Writes ──────────────────────────────────────────────────────────────
 
   @override
   Future<void> markWordStatus({
@@ -537,8 +526,6 @@ class GameDataRepository implements IGameRepository {
       throw RepositoryException('Failed to mark word status', cause: e);
     }
   }
-
-  // ── Session persistence ──────────────────────────────────────────────────
 
   @override
   Future<void> persistSession({
