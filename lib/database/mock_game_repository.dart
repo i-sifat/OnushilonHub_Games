@@ -1,11 +1,11 @@
-import 'database_service.dart' show WordRow;
-import 'game_data_repository.dart'
-    show ResolvedSynonymAntonymQuestion, ResolvedWhoseQuoteQuestion, Era;
-import 'i_game_repository.dart';
 import '../core/models/definition_model.dart';
 import '../core/models/ipa_model.dart';
 import '../core/models/quote_model.dart';
 import '../core/models/user_progress_model.dart';
+import 'database_service.dart' show WordRow;
+import 'game_data_repository.dart'
+    show ResolvedSynonymAntonymQuestion, ResolvedWhoseQuoteQuestion;
+import 'i_game_repository.dart';
 
 /// A-03: In-memory [IGameRepository] for unit tests and widget previews.
 ///
@@ -15,8 +15,8 @@ class MockGameRepository implements IGameRepository {
   // ── IPA ──────────────────────────────────────────────────────────────────
   @override
   Future<List<IpaModel>> getRandomIpaEntries({required int count}) async {
-    return List.generate(
-        count, (i) => IpaModel.fromEntry('WORD${i + 1}', '/w\u025c\u02d0d ${i + 1}/'));
+    return List.generate(count,
+        (i) => IpaModel.fromEntry('WORD${i + 1}', '/w\u025c\u02d0d ${i + 1}/'));
   }
 
   // ── Definitions ──────────────────────────────────────────────────────────
@@ -184,8 +184,8 @@ class MockGameRepository implements IGameRepository {
   @override
   Future<List<Map<String, dynamic>>> getMeaningChasePhrases(
       {required int limit}) async {
-    return List.generate(
-        limit, (i) => {'en': 'PHRASE${i + 1}', 'bn': 'mock_bn_${i + 1}', 'id': i + 1});
+    return List.generate(limit,
+        (i) => {'en': 'PHRASE${i + 1}', 'bn': 'mock_bn_${i + 1}', 'id': i + 1});
   }
 
   @override
