@@ -215,11 +215,14 @@ class WordDbService {
     required int limit,
   }) async {
     try {
+      // NOTE: bengali_dictionary uses columns (en, bn, is_phrase) — matches
+      // DB-04's schema, not (word, meaning). The previous version of this
+      // method queried the wrong columns and would have silently returned
+      // an empty list on every call.
       final rows = await _db.db.rawQuery('''
-        SELECT b.word, b.meaning
-        FROM bengali_dictionary b
-        WHERE b.word LIKE '% %'
-          AND LENGTH(b.meaning) > 0
+        SELECT en, bn
+        FROM bengali_dictionary
+        WHERE is_phrase = 1 AND LENGTH(TRIM(bn)) > 0
         ORDER BY RANDOM()
         LIMIT ?
       ''', [limit]);

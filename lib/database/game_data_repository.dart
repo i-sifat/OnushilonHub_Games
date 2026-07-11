@@ -12,6 +12,9 @@ import '../features/games/logic/game_exception.dart';
 import 'i_game_repository.dart';
 import 'a06_cache_guard_extensions.dart';
 import 'quote_progress_extensions.dart';
+import 'word_db_service.dart';
+import 'progress_db_service.dart';
+import 'session_db_service.dart';
 
 /// Riverpod handle for the singleton [DatabaseService].
 final databaseServiceProvider = Provider<DatabaseService>((ref) {
@@ -20,9 +23,17 @@ final databaseServiceProvider = Provider<DatabaseService>((ref) {
 });
 
 /// Provider for the game-data repository.
+///
+/// A-01: Word/progress/session reads and writes are delegated to the
+/// domain services rather than calling DatabaseService directly.
 final gameDataRepositoryProvider = Provider<GameDataRepository>((ref) {
   ref.keepAlive();
-  return GameDataRepository(ref.watch(databaseServiceProvider));
+  return GameDataRepository(
+    ref.watch(databaseServiceProvider),
+    ref.watch(wordDbServiceProvider),
+    ref.watch(progressDbServiceProvider),
+    ref.watch(sessionDbServiceProvider),
+  );
 });
 
 // ── Resolved question types ────────────────────────────────────────────────
@@ -59,8 +70,11 @@ typedef Era = QuoteEraModel;
 
 class GameDataRepository implements IGameRepository {
   final DatabaseService _db;
+  final WordDbService _words;
+  final ProgressDbService _progress;
+  final SessionDbService _session;
 
-  GameDataRepository(this._db);
+  GameDataRepository(this._db, this._words, this._progress, this._session);
 
   // ── Caches ──────────────────────────────────────────────────────────────
 
@@ -464,7 +478,7 @@ class GameDataRepository implements IGameRepository {
     bool requiresAntonym = false,
   }) {
     try {
-      return _db.getEligibleWords(
+      return _words.getEligibleWords(
         gameType: gameType,
         difficulty: difficulty,
         limit: limit,
@@ -482,7 +496,7 @@ class GameDataRepository implements IGameRepository {
     required int limit,
   }) {
     try {
-      return _db.getMeaningChasePhrases(limit: limit);
+      return _words.getMeaningChasePhrases(limit: limit);
     } catch (e) {
       throw RepositoryException(
           'Failed to load meaning-chase phrases', cause: e);
@@ -520,7 +534,7 @@ class GameDataRepository implements IGameRepository {
     required String status,
   }) async {
     try {
-      await _db.markWordStatus(
+      await _progress.markWordStatus(
           wordId: wordId, gameType: gameType, status: status);
     } catch (e) {
       throw RepositoryException('Failed to mark word status', cause: e);
@@ -533,9 +547,9 @@ class GameDataRepository implements IGameRepository {
     required int xpEarned,
   }) async {
     try {
-      await _db.saveGameSession(session);
-      await _db.addXp(xpEarned);
-      await _db.updateStreak();
+      await _session.saveGameSession(session);
+      await _progress.addXp(xpEarned);
+      await _progress.updateStreak();
     } catch (e) {
       throw RepositoryException('Failed to persist game session', cause: e);
     }

@@ -5,7 +5,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../core/models/user_progress_model.dart';
-import 'srs_calculator.dart';
 
 /// Central SQLite service.
 ///
@@ -185,73 +184,9 @@ class DatabaseService {
   }
 
   // ── Word Queries ──────────────────────────────────────────────────────────
-
-  Future<List<WordRow>> getEligibleWords({
-    required String gameType,
-    required int difficulty,
-    required int limit,
-    /// When true, only words that have an entry in [definitions] (sense_order=0)
-    /// are returned. Set this for any game that displays a definition so words
-    /// with no usable definition are excluded at the DB level.
-    bool requiresDefinition = false,
-    /// When true, only words that have at least one synonym are returned.
-    bool requiresSynonym = false,
-    /// When true, only words that have at least one antonym are returned.
-    bool requiresAntonym = false,
-  }) async {
-    // Use the stored difficulty column rather than computing LENGTH() at query
-    // time — significantly faster on large result sets.
-    final diffClause = difficulty > 0 ? 'AND w.difficulty = $difficulty' : '';
-    final defClause = requiresDefinition
-        ? 'AND EXISTS (SELECT 1 FROM definitions d WHERE d.word_id = w.id AND d.sense_order = 0 AND LENGTH(d.definition) > 0)'
-        : '';
-    final synClause = requiresSynonym
-        ? 'AND EXISTS (SELECT 1 FROM synonyms s WHERE s.word_id = w.id)'
-        : '';
-    final antClause = requiresAntonym
-        ? 'AND EXISTS (SELECT 1 FROM antonyms a WHERE a.word_id = w.id)'
-        : '';
-    final fetchLimit = (limit * 4).clamp(limit, 2000);
-
-    // Unscramble requires UPPERCASE-only words so that scrambled tiles are
-    // consistent and lowercase duplicate rows (which lack English definitions)
-    // are excluded. Other game types should see the full word pool.
-    final upperClause =
-        gameType == 'unscramble' ? 'AND w.word = UPPER(w.word)' : '';
-
-    // F-01: SM-2 schedule filter. A word is eligible when:
-    //   • It has no progress row yet (wp.word_id IS NULL — new word), OR
-    //   • It has never been scheduled (next_review_at IS NULL), OR
-    //   • Its next review is now due (next_review_at <= current time).
-    // This replaces the binary 'status != mastered' exclusion so words
-    // resurface on their SM-2 schedule instead of being excluded forever.
-    final nowMs = DateTime.now().millisecondsSinceEpoch;
-
-    final rows = await db.rawQuery('''
-      SELECT w.id, w.word, wp.last_attempted
-      FROM words w
-      LEFT JOIN word_progress wp
-        ON w.id = wp.word_id AND wp.game_type = ?
-      WHERE (wp.word_id IS NULL OR wp.next_review_at IS NULL OR wp.next_review_at <= ?)
-      $upperClause
-      $diffClause
-      $defClause
-      $synClause
-      $antClause
-      ORDER BY RANDOM()
-      LIMIT $fetchLimit
-    ''', [gameType, nowMs]);
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final sorted = rows.map((r) {
-      final last = r['last_attempted'] as int?;
-      return (id: r['id'] as int, priority: last == null ? 999999999 : now - last);
-    }).toList()
-      ..sort((a, b) => b.priority.compareTo(a.priority));
-
-    final ids = sorted.take(limit).map((e) => e.id).toList();
-    return _loadWordRows(ids);
-  }
+  // A-01: getEligibleWords/getDailyWord/getEligibleWordCount/_loadWordRows
+  // moved to WordDbService. game_data_repository.dart now injects
+  // WordDbService directly instead of calling DatabaseService for these.
 
   /// Returns the difficulty level (1/2/3) for a word length, matching the
   /// pre-computed [difficulty] column in the [words] table.
@@ -261,201 +196,12 @@ class DatabaseService {
     return 3;
   }
 
-  Future<List<WordRow>> _loadWordRows(List<int> ids) async {
-    if (ids.isEmpty) return [];
-    final ph = ids.map((_) => '?').join(',');
-
-    // Word texts
-    final wordTexts = await db.rawQuery(
-      'SELECT id, word FROM words WHERE id IN ($ph)', ids,
-    );
-    final wordTextMap = {for (final r in wordTexts) r['id'] as int: r['word'] as String};
-
-    // Definitions (first sense only) with example
-    final defRows = await db.rawQuery('''
-      SELECT d.word_id, d.pos, d.definition, ue.example
-      FROM definitions d
-      LEFT JOIN usage_examples ue ON ue.definition_id = d.id
-      WHERE d.word_id IN ($ph) AND d.sense_order = 0
-    ''', ids);
-    final defMap = {for (final r in defRows) r['word_id'] as int: r};
-
-    // Synonyms (up to 10 per word, deduplicated at source)
-    final synRows = await db.rawQuery('''
-      SELECT word_id, GROUP_CONCAT(synonym, '|') AS syns
-      FROM (SELECT word_id, synonym FROM synonyms WHERE word_id IN ($ph) LIMIT 10)
-      GROUP BY word_id
-    ''', ids);
-    final synMap = {for (final r in synRows) r['word_id'] as int: r['syns'] as String? ?? ''};
-
-    // Antonyms (up to 10 per word, deduplicated at source)
-    final antRows = await db.rawQuery('''
-      SELECT word_id, GROUP_CONCAT(antonym, '|') AS ants
-      FROM (SELECT word_id, antonym FROM antonyms WHERE word_id IN ($ph) LIMIT 10)
-      GROUP BY word_id
-    ''', ids);
-    final antMap = {for (final r in antRows) r['word_id'] as int: r['ants'] as String? ?? ''};
-
-    // Bengali meanings — IPA-table trimming means only matching words remain.
-    // MC6: ORDER BY LENGTH(bd.bn) ASC so the Dart last-write-wins dict keeps
-    // the longest (most complete) Bengali entry when multiple rows share the
-    // same LOWER(en) key.
-    final bnRows = await db.rawQuery('''
-      SELECT LOWER(w.word) AS wl, bd.bn
-      FROM words w
-      JOIN bengali_dictionary bd ON LOWER(w.word) = LOWER(bd.en)
-      WHERE w.id IN ($ph)
-      ORDER BY LENGTH(bd.bn) ASC
-    ''', ids);
-    final bnMap = {for (final r in bnRows) r['wl'] as String: r['bn'] as String};
-
-    return ids.map((id) {
-      final word = wordTextMap[id] ?? '';
-      final defRow = defMap[id];
-      final definition = defRow?['definition'] as String? ?? '';
-      final example = (defRow?['example'] as String? ?? '').isNotEmpty
-          ? defRow!['example'] as String
-          : word;
-      final pos = defRow?['pos'] as String? ?? '';
-      final syns = (synMap[id] ?? '').split('|').where((s) => s.isNotEmpty).toList();
-      final ants = (antMap[id] ?? '').split('|').where((s) => s.isNotEmpty).toList();
-      // Trim verbose bn values like "সত্য (Adj.), প্রকৃত (Adj.)..." to just
-      // the primary meaning before the first comma.
-      final rawBn = bnMap[word.toLowerCase()] ?? '';
-      final bn = rawBn.isEmpty ? '' : rawBn.split(',').first.trim();
-      final len = word.length;
-
-      return WordRow(
-        id: id,
-        word: word,
-        definition: definition.isNotEmpty ? definition : bn,
-        example: example,
-        pos: pos,
-        difficulty: difficultyForLength(len),
-        synonyms: syns,
-        antonyms: ants,
-        banglaMeaning: bn,
-        supportedGames: const [
-          'unscramble', 'synonym_match', 'antonym_match',
-          'meaning_chase', 'true_false', 'speed_racing',
-        ],
-      );
-    }).where((w) => w.word.isNotEmpty).toList();
-  }
-
-  Future<WordRow?> getDailyWord() async {
-    final now = DateTime.now();
-    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
-    final total = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM words')) ?? 0;
-    if (total == 0) return null;
-    final rows = await db.rawQuery(
-      'SELECT id FROM words ORDER BY id LIMIT 1 OFFSET ?',
-      [dayOfYear % total],
-    );
-    if (rows.isEmpty) return null;
-    final list = await _loadWordRows([rows.first['id'] as int]);
-    return list.isEmpty ? null : list.first;
-  }
-
-  Future<int> getEligibleWordCount({
-    required String gameType,
-    required int difficulty,
-  }) async {
-    final diffClause = difficulty > 0 ? 'AND w.difficulty = $difficulty' : '';
-    final nowMs = DateTime.now().millisecondsSinceEpoch;
-    return Sqflite.firstIntValue(await db.rawQuery('''
-      SELECT COUNT(*) FROM words w
-      LEFT JOIN word_progress wp ON w.id = wp.word_id AND wp.game_type = ?
-      WHERE (wp.word_id IS NULL OR wp.next_review_at IS NULL OR wp.next_review_at <= ?)
-      $diffClause
-    ''', [gameType, nowMs])) ?? 0;
-  }
-
   // ── Progress Queries ──────────────────────────────────────────────────────
-
-  /// F-01: Persists a word answer and updates the SM-2 schedule.
-  ///
-  /// Reads the current [ease_factor] for this word/game combination,
-  /// computes the next review interval via [SrsCalculator.nextReview], and
-  /// stores both [next_review_at] and the updated [ease_factor].
-  Future<void> markWordStatus({
-    required int wordId,
-    required String gameType,
-    required String status,
-  }) async {
-    final nowMs = DateTime.now().millisecondsSinceEpoch;
-
-    // Read current SM-2 state for compounding interval calculation.
-    final existing = await db.rawQuery(
-      'SELECT attempts, ease_factor FROM word_progress WHERE word_id = ? AND game_type = ?',
-      [wordId, gameType],
-    );
-    final currentAttempts = existing.isEmpty
-        ? 0
-        : (existing.first['attempts'] as int? ?? 0);
-    final currentEaseFactor = existing.isEmpty
-        ? SrsCalculator.initialEaseFactor
-        : (existing.first['ease_factor'] as double? ??
-            SrsCalculator.initialEaseFactor);
-
-    final newAttempts = currentAttempts + 1;
-    final wasCorrect = status == 'mastered';
-
-    final srs = SrsCalculator.nextReview(
-      attempts: newAttempts,
-      wasCorrect: wasCorrect,
-      easeFactor: currentEaseFactor,
-    );
-
-    await db.rawInsert('''
-      INSERT INTO word_progress
-        (word_id, game_type, status, attempts, last_attempted, next_review_at, ease_factor)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(word_id, game_type) DO UPDATE SET
-        status         = excluded.status,
-        attempts       = excluded.attempts,
-        last_attempted = excluded.last_attempted,
-        next_review_at = excluded.next_review_at,
-        ease_factor    = excluded.ease_factor
-    ''', [
-      wordId,
-      gameType,
-      status,
-      newAttempts,
-      nowMs,
-      srs.nextReviewAt.millisecondsSinceEpoch,
-      srs.easeFactor,
-    ]);
-  }
-
-  Future<Map<String, int>> getWordProgressCounts({required String gameType}) async {
-    final mastered = Sqflite.firstIntValue(await db.rawQuery(
-      "SELECT COUNT(*) FROM word_progress WHERE game_type = ? AND status = 'mastered'",
-      [gameType],
-    )) ?? 0;
-    final total = Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) FROM words'),
-    ) ?? 0;
-    return {'mastered': mastered, 'total': total};
-  }
-
-  Future<Map<String, Map<String, int>>> getAllGameProgressCounts() async {
-    const gameTypes = [
-      'unscramble', 'synonym_match', 'antonym_match',
-      'meaning_chase', 'true_false', 'speed_racing',
-    ];
-    final result = <String, Map<String, int>>{};
-    for (final g in gameTypes) {
-      result[g] = await getWordProgressCounts(gameType: g);
-    }
-    return result;
-  }
+  // A-01: markWordStatus/getWordProgressCounts/getAllGameProgressCounts moved
+  // to ProgressDbService; saveGameSession moved to SessionDbService.
+  // game_data_repository.dart (the only caller) now injects those directly.
 
   // ── Session Queries ───────────────────────────────────────────────────────
-
-  Future<void> saveGameSession(GameSessionModel session) async {
-    await db.insert('game_sessions', session.toDb());
-  }
 
   /// Returns up to [limit] most recent sessions, optionally filtered by
   /// [gameType]. Capped to prevent unbounded growth as sessions accumulate.
@@ -689,19 +435,9 @@ class DatabaseService {
   Future<List<String>> getDistinctEras() async => [];
   Future<List<String>> getDistinctCategories() async => [];
 
-  // Meaning Chase phrase fallback
-  // Returns multi-word Bengali phrases (is_phrase=1) for Meaning Chase
-  // fallback when not enough single-word questions can be built.
-  Future<List<Map<String, dynamic>>> getMeaningChasePhrases({
-    required int limit,
-  }) async {
-    return db.rawQuery(
-      'SELECT en, bn FROM bengali_dictionary'
-      ' WHERE is_phrase = 1 AND LENGTH(TRIM(bn)) > 0'
-      ' ORDER BY RANDOM() LIMIT ?',
-      [limit],
-    );
-  }
+  // Meaning Chase phrase fallback moved to WordDbService.getMeaningChasePhrases
+  // (A-01). game_data_repository.dart is the only caller and now injects
+  // WordDbService directly.
 }
 
 // ── Extension helpers ─────────────────────────────────────────────────────────
