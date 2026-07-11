@@ -392,7 +392,7 @@ class _ThemeSheet extends StatelessWidget {
   }
 
   void _setThemeMode(BuildContext context, ThemeMode mode) {
-    ref.read(themeModeProvider.notifier).state = mode;
+    ref.read(themeModeProvider.notifier).setThemeMode(mode);
     Navigator.of(context).pop();
   }
 }
@@ -460,7 +460,7 @@ class _FontSizeSheet extends StatelessWidget {
   }
 
   void _setFontSize(BuildContext context, AppFontSize size) {
-    ref.read(fontSizeProvider.notifier).state = size;
+    ref.read(fontSizeProvider.notifier).setFontSize(size);
     Navigator.of(context).pop();
   }
 }

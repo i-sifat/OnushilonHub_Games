@@ -144,7 +144,7 @@ class WordDetailScreen extends ConsumerWidget {
                             horizontal: AppTokens.space8,
                             vertical: AppTokens.space2),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius:
                               BorderRadius.circular(AppTokens.radiusPill),
                         ),
@@ -277,7 +277,7 @@ class _SectionCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
         border: Border.all(
-            color: colorScheme.outlineVariant.withOpacity(0.5)),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

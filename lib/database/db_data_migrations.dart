@@ -1,4 +1,3 @@
-import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
 
 /// DB-03 / DB-04 / DB-05: One-shot data-enrichment migration helpers.
@@ -12,10 +11,10 @@ import 'database_service.dart';
 ///
 /// DB-04: Back-fill Bengali meaning gaps.
 ///   23,471 UPPERCASE words have no Bengali meaning.  This helper accepts a
-///   caller-supplied Map<String, String> (word → meaning) and inserts rows.
+///   caller-supplied `Map<String, String>` (word → meaning) and inserts rows.
 ///
 /// DB-05: Insert IPA from an external source.
-///   Accepts a caller-supplied Map<String, String> (word → IPA) and inserts
+///   Accepts a caller-supplied `Map<String, String>` (word → IPA) and inserts
 ///   rows into ipa_pronunciations with locale = 'en_US', skipping duplicates.
 extension DataMigrations on DatabaseService {
   // ── DB-03 ─────────────────────────────────────────────────────────────
@@ -49,9 +48,9 @@ extension DataMigrations on DatabaseService {
 
         // Copy bengali_dictionary entry.
         await txn.rawInsert('''
-          INSERT OR IGNORE INTO bengali_dictionary (word, meaning)
-          SELECT UPPER(word), meaning FROM bengali_dictionary WHERE word = ?
-        ''', [lower]);
+          INSERT OR IGNORE INTO bengali_dictionary (en, bn, is_phrase)
+          SELECT UPPER(en), bn, is_phrase FROM bengali_dictionary WHERE LOWER(en) = ?
+        ''', [lower.toLowerCase()]);
 
         promoted++;
       }
@@ -76,10 +75,10 @@ extension DataMigrations on DatabaseService {
         if (meaning.isEmpty) continue;
         // Only insert if the word exists and has no meaning yet.
         final count = await txn.rawInsert('''
-          INSERT OR IGNORE INTO bengali_dictionary (word, meaning)
-          SELECT ?, ?
+          INSERT OR IGNORE INTO bengali_dictionary (en, bn, is_phrase)
+          SELECT ?, ?, 0
           WHERE EXISTS (SELECT 1 FROM words WHERE word = ?)
-            AND NOT EXISTS (SELECT 1 FROM bengali_dictionary WHERE word = ?)
+            AND NOT EXISTS (SELECT 1 FROM bengali_dictionary WHERE LOWER(en) = LOWER(?))
         ''', [word, meaning, word, word]);
         inserted += count;
       }
@@ -91,26 +90,29 @@ extension DataMigrations on DatabaseService {
 
   /// Inserts IPA pronunciations from an external source (e.g. CMU dict).
   ///
-  /// [ipaMap] maps word strings to their IPA transcription (e.g. "HELLO" →
+  /// [ipaMap] maps word strings to their IPA transcription (e.g. "hello" →
   /// "hɛˈloʊ"). Inserts into `ipa_pronunciations` with locale = 'en_US',
-  /// skipping words that already have an IPA entry.  Returns count inserted.
+  /// skipping words that already have an IPA entry. Returns count inserted.
+  ///
+  /// Note: ipa_pronunciations has no word_id FK — it stores the word as
+  /// lowercase text directly (matching the existing seeded rows), joined
+  /// against [words] only at read time via getIpaForWord's UPPER() join.
   Future<int> backfillIpaPronunciations(
       Map<String, String> ipaMap) async {
     int inserted = 0;
     await db.transaction((txn) async {
       for (final entry in ipaMap.entries) {
-        final word = entry.key.toUpperCase();
+        final word = entry.key.toLowerCase();
         final ipa = entry.value;
         if (ipa.isEmpty) continue;
-        // Look up the word_id.
-        final ids = await txn.rawQuery(
-          'SELECT id FROM words WHERE word = ? LIMIT 1', [word]);
-        if (ids.isEmpty) continue;
-        final wordId = ids.first['id'] as int;
+        // Only insert if the word actually exists in the vocabulary.
+        final exists = await txn.rawQuery(
+          'SELECT 1 FROM words WHERE UPPER(word) = UPPER(?) LIMIT 1', [word]);
+        if (exists.isEmpty) continue;
         final count = await txn.rawInsert('''
-          INSERT OR IGNORE INTO ipa_pronunciations (word_id, word, ipa, locale)
-          VALUES (?, ?, ?, 'en_US')
-        ''', [wordId, word, ipa]);
+          INSERT OR IGNORE INTO ipa_pronunciations (word, ipa, locale)
+          VALUES (?, ?, 'en_US')
+        ''', [word, ipa]);
         inserted += count;
       }
     });

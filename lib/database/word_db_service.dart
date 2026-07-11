@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_service.dart';
-import 'srs_calculator.dart';
-import '../core/models/user_progress_model.dart';
 
 final wordDbServiceProvider = Provider((ref) {
   return WordDbService(DatabaseService.instance);

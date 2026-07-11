@@ -231,7 +231,7 @@ class _StatPill extends StatelessWidget {
         vertical: AppTokens.space6,
       ),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(AppTokens.radiusPill),
       ),
       child: Row(
@@ -497,7 +497,7 @@ class _YourProgressSection extends ConsumerWidget {
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
             border: Border.all(
-                color: colorScheme.outlineVariant.withOpacity(0.5)),
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,7 +653,7 @@ class _GameTile extends StatelessWidget {
                 Text(
                   '$mastered \u2713',
                   style: textTheme.labelSmall?.copyWith(
-                    color: gameType.iconColor.withOpacity(0.7),
+                    color: gameType.iconColor.withValues(alpha: 0.7),
                     fontSize: 10,
                   ),
                 ),

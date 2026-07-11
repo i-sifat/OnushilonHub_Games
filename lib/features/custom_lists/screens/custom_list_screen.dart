@@ -185,7 +185,7 @@ class _WordListDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch live updates so additions/removals refresh automatically.
     final listsAsync = ref.watch(customListsProvider);
-    final liveList = listsAsync.valueOrNull?.firstWhere(
+    final liveList = listsAsync.value?.firstWhere(
       (l) => l.id == list.id,
       orElse: () => list,
     );

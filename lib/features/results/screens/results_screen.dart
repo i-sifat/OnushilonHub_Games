@@ -122,7 +122,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.primary.withOpacity(0.2),
+                            color: colorScheme.primary.withValues(alpha: 0.2),
                             blurRadius: 32,
                             offset: const Offset(0, 8),
                           ),
@@ -161,14 +161,14 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           end: Alignment.bottomRight,
                           colors: [
                             AppColors.primary,
-                            AppColors.primary.withOpacity(0.8),
+                            AppColors.primary.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius:
                             BorderRadius.circular(AppTokens.radiusLarge),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
@@ -179,7 +179,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           Text(
                             'Final Score',
                             style: textTheme.labelLarge?.copyWith(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               letterSpacing: 1,
                             ),
                           ),
@@ -198,7 +198,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                             Text(
                               '${result.baseXp} base + ${result.bonusXp} speed bonus',
                               style: textTheme.labelSmall?.copyWith(
-                                color: Colors.white.withOpacity(0.75),
+                                color: Colors.white.withValues(alpha: 0.75),
                               ),
                             ),
                             const SizedBox(height: AppTokens.space2),
@@ -206,7 +206,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                           Text(
                             'XP Earned',
                             style: textTheme.labelSmall?.copyWith(
-                              color: Colors.white.withOpacity(0.75),
+                              color: Colors.white.withValues(alpha: 0.75),
                             ),
                           ),
                         ],
@@ -401,9 +401,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppTokens.space16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: fullWidth
           ? Row(
@@ -467,7 +467,7 @@ class _MistakeCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
         border: Border.all(
-            color: colorScheme.outlineVariant.withOpacity(0.5)),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,7 +515,7 @@ class _MistakeCard extends StatelessWidget {
                           horizontal: AppTokens.space6,
                           vertical: AppTokens.space2),
                       decoration: BoxDecoration(
-                        color: AppColors.correctGreen.withOpacity(0.1),
+                        color: AppColors.correctGreen.withValues(alpha: 0.1),
                         borderRadius:
                             BorderRadius.circular(AppTokens.radiusPill),
                       ),

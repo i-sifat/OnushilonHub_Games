@@ -130,7 +130,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
             Icon(
               Icons.search_rounded,
               size: 64,
-              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
             ),
             const SizedBox(height: AppTokens.space16),
             Text(
@@ -143,7 +143,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
             Text(
               'Type to find definitions, synonyms, IPA and more.',
               style: textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -160,7 +160,7 @@ class _WordSearchScreenState extends State<WordSearchScreen> {
             Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
             ),
             const SizedBox(height: AppTokens.space16),
             Text(
@@ -256,7 +256,7 @@ class _SearchResultTile extends StatelessWidget {
                   vertical: AppTokens.space2,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   borderRadius:
                       BorderRadius.circular(AppTokens.radiusPill),
                 ),

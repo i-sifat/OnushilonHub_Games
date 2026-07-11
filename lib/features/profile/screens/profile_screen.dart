@@ -703,8 +703,9 @@ class _ProgressCharts extends StatelessWidget {
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         final i = value.toInt();
-                        if (i < 0 || i >= dailyStats.length)
+                        if (i < 0 || i >= dailyStats.length) {
                           return const SizedBox();
+                        }
                         final dow = dailyStats[i].date.weekday - 1;
                         return Text(
                           _dayLabels[dow % 7],
@@ -783,7 +784,7 @@ class _ProgressCharts extends StatelessWidget {
                     dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.reward.withOpacity(0.1),
+                      color: AppColors.reward.withValues(alpha: 0.1),
                     ),
                   ),
                 ],

@@ -250,18 +250,3 @@ class QuoteQuizQuestionModel {
   /// Returns all 4 options in a shuffleable list.
   List<String> get allAnswers => [correctAnswer, ...wrongAnswers];
 }
-
-/// Resolved question — quote text + author name resolved from the data layer.
-class ResolvedWhoseQuoteQuestion {
-  final String quoteText;
-  final String correctAuthor;
-  final String eraName;
-  final List<String> options; // 4 shuffled options
-
-  const ResolvedWhoseQuoteQuestion({
-    required this.quoteText,
-    required this.correctAuthor,
-    required this.eraName,
-    required this.options,
-  });
-}

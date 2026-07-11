@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/models/game_config.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/game_header.dart';
@@ -11,7 +12,6 @@ import '../../../shared/widgets/game_elapsed_timer.dart';
 import '../../../shared/widgets/game_load_error.dart';
 import '../../../shared/widgets/game_screen_lifecycle_mixin.dart';
 import '../logic/game_providers.dart';
-import '../logic/state/mcq_game_state.dart';
 
 /// True / False screen.
 ///
@@ -48,6 +48,24 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
   Future _handleExit() async {
     final shouldExit = await handleGameExitAttempt();
     if (shouldExit && mounted) context.go('/games');
+  }
+
+  /// Computes the visual state for one True/False button once the question
+  /// is answered: the correct choice highlights green, a wrong pick the
+  /// player made highlights red, everything else stays idle.
+  _TFAnswerState _tfAnswerState(
+    String label,
+    bool isAnswered,
+    String correctAnswer,
+  ) {
+    if (!isAnswered) {
+      return _selectedAnswer == label
+          ? _TFAnswerState.selected
+          : _TFAnswerState.idle;
+    }
+    if (label == correctAnswer) return _TFAnswerState.correct;
+    if (label == _selectedAnswer) return _TFAnswerState.wrong;
+    return _TFAnswerState.idle;
   }
 
   @override
@@ -132,7 +150,7 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                                     AppTokens.radiusLarge),
                                 border: Border.all(
                                   color: colorScheme.outlineVariant
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Column(
@@ -197,28 +215,38 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
                             ),
                           ),
                           const SizedBox(height: AppTokens.space24),
-                          if (!state.isAnswered)
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _TFButton(
-                                    label: 'True \u2713',
-                                    color: Colors.green,
-                                    onTap: () => _answer('True'),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _TFButton(
+                                  label: 'True \u2713',
+                                  color: Colors.green,
+                                  onTap: () => _answer('True'),
+                                  answerState: _tfAnswerState(
+                                    'True',
+                                    state.isAnswered,
+                                    q.correctAnswer,
                                   ),
                                 ),
-                                const SizedBox(
-                                    width: AppTokens.space16),
-                                Expanded(
-                                  child: _TFButton(
-                                    label: 'False \u2717',
-                                    color: Colors.red,
-                                    onTap: () => _answer('False'),
+                              ),
+                              const SizedBox(
+                                  width: AppTokens.space16),
+                              Expanded(
+                                child: _TFButton(
+                                  label: 'False \u2717',
+                                  color: Colors.red,
+                                  onTap: () => _answer('False'),
+                                  answerState: _tfAnswerState(
+                                    'False',
+                                    state.isAnswered,
+                                    q.correctAnswer,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
                           if (state.isAnswered) ...[
+                            const SizedBox(height: AppTokens.space16),
                             if (q.correctDefinition != null &&
                                 q.correctDefinition!.isNotEmpty) ...[
                               _CorrectDefinitionReveal(
@@ -243,44 +271,85 @@ class _TrueFalseGameScreenState extends ConsumerState<TrueFalseGameScreen>
   }
 }
 
+/// Visual state for a True/False button, mirroring [AnswerState] from
+/// [GameAnswerTile] but kept local since this screen has a bespoke
+/// two-button layout instead of a list of option tiles.
+enum _TFAnswerState { idle, selected, correct, wrong }
+
 class _TFButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
+  final _TFAnswerState answerState;
 
   const _TFButton({
     required this.label,
     required this.color,
     required this.onTap,
+    this.answerState = _TFAnswerState.idle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = answerState == _TFAnswerState.correct ||
+        answerState == _TFAnswerState.wrong;
+
+    Color bgColor = color.withValues(alpha: 0.12);
+    Color borderColor = color.withValues(alpha: 0.5);
+    Color textColor = color;
+    IconData? trailingIcon;
+
+    switch (answerState) {
+      case _TFAnswerState.correct:
+        bgColor = AppColors.correctGreenLight;
+        borderColor = AppColors.correctGreen;
+        textColor = AppColors.correctGreen;
+        trailingIcon = Icons.check_circle_rounded;
+        break;
+      case _TFAnswerState.wrong:
+        bgColor = AppColors.errorRedLight;
+        borderColor = AppColors.errorRed;
+        textColor = AppColors.errorRed;
+        trailingIcon = Icons.cancel_rounded;
+        break;
+      case _TFAnswerState.selected:
+      case _TFAnswerState.idle:
+        break;
+    }
+
     return Material(
-      color: color.withOpacity(0.12),
+      color: bgColor,
       borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
       child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
+        onTap: isDisabled
+            ? null
+            : () {
+                HapticFeedback.lightImpact();
+                onTap();
+              },
         borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
         child: Container(
           height: 64,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
-            border: Border.all(
-              color: color.withOpacity(0.5),
-              width: 1.5,
-            ),
+            border: Border.all(color: borderColor, width: 1.5),
           ),
           alignment: Alignment.center,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: textColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: AppTokens.space8),
+                Icon(trailingIcon, color: textColor, size: 20),
+              ],
+            ],
           ),
         ),
       ),
@@ -307,10 +376,10 @@ class _CorrectDefinitionReveal extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppTokens.space16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTokens.radiusLarge),
         border: Border.all(
-          color: Colors.green.withOpacity(0.4),
+          color: Colors.green.withValues(alpha: 0.4),
         ),
       ),
       child: Column(

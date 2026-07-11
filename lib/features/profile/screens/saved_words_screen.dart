@@ -224,7 +224,7 @@ class _SavedWordTile extends StatelessWidget {
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
           border: Border.all(
-            color: colorScheme.outlineVariant.withOpacity(0.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
         ),
         child: Row(
@@ -234,7 +234,7 @@ class _SavedWordTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.bookmark_rounded,

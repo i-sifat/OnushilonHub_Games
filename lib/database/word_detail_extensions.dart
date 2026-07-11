@@ -45,7 +45,7 @@ extension WordDetailQueries on DatabaseService {
 
     // Bengali meaning
     final bnRows = await db.rawQuery(
-      'SELECT meaning FROM bengali_dictionary WHERE word = ? LIMIT 1',
+      'SELECT bn FROM bengali_dictionary WHERE LOWER(en) = ? LIMIT 1',
       [word.toLowerCase()],
     );
 
@@ -60,7 +60,7 @@ extension WordDetailQueries on DatabaseService {
         antsRaw.split('|').where((s) => s.isNotEmpty).toList();
     final rawBn = bnRows.isEmpty
         ? ''
-        : (bnRows.first['meaning'] as String? ?? '');
+        : (bnRows.first['bn'] as String? ?? '');
     final bn = rawBn.isEmpty ? '' : rawBn.split(',').first.trim();
 
     // Derive supported games from available word data — mirrors _loadWordRows.
@@ -110,11 +110,17 @@ extension WordDetailQueries on DatabaseService {
   // ── IPA lookup ───────────────────────────────────────────────────────────────
 
   /// Fetch the IPA pronunciation string for [wordId], or null if unavailable.
+  ///
+  /// ipa_pronunciations stores the word as text (no word_id FK), so this
+  /// joins through [words] to resolve the id → text → IPA lookup.
   Future<String?> getIpaForWord(int wordId) async {
-    final rows = await db.rawQuery(
-      'SELECT ipa FROM ipa_pronunciations WHERE word_id = ? LIMIT 1',
-      [wordId],
-    );
+    final rows = await db.rawQuery('''
+      SELECT ip.ipa
+      FROM ipa_pronunciations ip
+      JOIN words w ON UPPER(w.word) = UPPER(ip.word)
+      WHERE w.id = ? AND ip.locale = 'en_US'
+      LIMIT 1
+    ''', [wordId]);
     if (rows.isEmpty) return null;
     return rows.first['ipa'] as String?;
   }

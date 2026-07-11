@@ -21,6 +21,7 @@ dependencies:
   # F-03: daily practice reminders
   flutter_local_notifications: ^17.0.0
   flutter_timezone: ^1.0.4
+  timezone: ^0.10.0
   # F-05: progress charts on Profile
   fl_chart: ^0.69.0
 
