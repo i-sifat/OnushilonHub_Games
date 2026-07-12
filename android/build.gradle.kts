@@ -5,26 +5,30 @@ allprojects {
     }
 }
 
-// Force all subprojects (including plugins like flutter_timezone) to
-// compile Kotlin to JVM 17, matching the app's compileOptions.
+// Force subprojects' Kotlin compile tasks to a JVM target that matches
+// their own Java compile task, avoiding "Inconsistent JVM Target
+// Compatibility Between Java and Kotlin Tasks".
 //
-// Kotlin and Java compile tasks must agree on the same JVM target or
-// Gradle fails with "Inconsistent JVM Target Compatibility Between Java
-// and Kotlin Tasks". Plugin modules pulled from pub (e.g. flutter_timezone)
-// ship their own build.gradle that may not set Java compatibility to 17,
-// so both task types are forced here — forcing only Kotlin (as before)
-// left Java at the plugin's own default (11) while Kotlin was bumped to
-// 17, which is what caused the mismatch.
+// We only control this via KotlinCompile.compilerOptions — attempting to
+// force JavaCompile.sourceCompatibility/targetCompatibility here does NOT
+// reliably stick for Android-library plugin modules, since AGP wires those
+// properties from its own `compileOptions` extension after this script
+// runs, silently overriding a raw task-property assignment. So instead of
+// fighting Java upward, we match Kotlin to whatever each plugin's own Java
+// target already is:
+//   - flutter_timezone ships with Java 11 — its Kotlin task is pinned to 11.
+//   - everything else follows the app's Java 17 (see android/app/build.gradle.kts).
 subprojects {
     afterEvaluate {
+        val kotlinJvmTarget = if (project.name == "flutter_timezone") {
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+        } else {
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        }
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
             compilerOptions {
-                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                jvmTarget.set(kotlinJvmTarget)
             }
-        }
-        tasks.withType<JavaCompile>().configureEach {
-            sourceCompatibility = JavaVersion.VERSION_17.toString()
-            targetCompatibility = JavaVersion.VERSION_17.toString()
         }
     }
 }
