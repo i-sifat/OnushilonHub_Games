@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../database/custom_list_extensions.dart';
 import '../../database/database_service.dart';
 import '../../database/game_data_repository.dart' show databaseServiceProvider;
@@ -53,14 +54,34 @@ class CustomListNotifier extends AsyncNotifier<List<CustomWordList>> {
   }
 
   /// Creates a new word list with [name].
+  ///
+  /// Throws a [StateError] with a friendly message if [name] is already
+  /// taken (word_lists.name has a UNIQUE constraint) — callers should catch
+  /// this and show it to the user rather than letting the raw
+  /// [DatabaseException] surface.
   Future<void> create(String name) async {
-    await _db.createWordList(name);
+    try {
+      await _db.createWordList(name);
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        throw StateError('A list named "$name" already exists.');
+      }
+      rethrow;
+    }
     ref.invalidateSelf();
   }
 
-  /// Renames list [id] to [newName].
+  /// Renames list [id] to [newName]. See [create] for the duplicate-name
+  /// error contract.
   Future<void> rename(int id, String newName) async {
-    await _db.renameWordList(id, newName);
+    try {
+      await _db.renameWordList(id, newName);
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        throw StateError('A list named "$newName" already exists.');
+      }
+      rethrow;
+    }
     ref.invalidateSelf();
   }
 

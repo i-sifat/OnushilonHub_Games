@@ -10,9 +10,12 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/utils/level_calculator.dart';
 import '../../../database/database_service.dart';
+import '../../../database/progress_db_service.dart';
+import '../../../database/session_db_service.dart';
 import '../../../core/providers/user_profile_provider.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../core/providers/saved_words_provider.dart';
+import '../../../core/providers/custom_list_provider.dart';
 import '../../../core/providers/game_session_stats_provider.dart';
 
 /// A-05: Replaced deprecated StateProvider (from legacy.dart) with a
@@ -37,12 +40,12 @@ final profileRefreshCounterProvider =
 
 final _profileStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   ref.watch(profileRefreshCounterProvider);
-  return DatabaseService.instance.getProfileStats();
+  return ref.watch(sessionDbServiceProvider).getProfileStats();
 });
 
 final _profileProgressProvider = FutureProvider<UserProgressModel>((ref) async {
   ref.watch(profileRefreshCounterProvider);
-  return DatabaseService.instance.getUserProgress();
+  return ref.watch(progressDbServiceProvider).getUserProgress();
 });
 
 // UX-06: per-game mastery progress (mastered / total words seen per game type)
@@ -192,6 +195,10 @@ class ProfileScreen extends ConsumerWidget {
 
                     // ── Saved Words ───────────────────────────────────────────────────────────
                     _SavedWordsEntry(),
+                    const SizedBox(height: AppTokens.space24),
+
+                    // ── Custom Word Lists (F-02) ─────────────────────────────────────────
+                    _CustomListsEntry(),
                     const SizedBox(height: AppTokens.space80),
                   ],
                 ),
@@ -855,6 +862,81 @@ class _SavedWordsEntry extends ConsumerWidget {
                         count == 0 ? 'No words saved yet' : '$count words saved',
                         style: textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    size: 18, color: colorScheme.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Custom Word Lists Entry (F-02) ──────────────────────────────────────────────────────────
+
+class _CustomListsEntry extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final listsAsync = ref.watch(customListsProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final count = listsAsync.when(
+      data: (lists) => lists.length,
+      loading: () => 0,
+      error: (_, __) => 0,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('My Word Lists',
+            style:
+                textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: AppTokens.space12),
+        InkWell(
+          onTap: () => context.push('/custom-lists'),
+          borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+          child: Container(
+            padding: const EdgeInsets.all(AppTokens.space16),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppTokens.radiusMedium),
+              border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.list_alt_rounded,
+                      color: AppColors.primary, size: 20),
+                ),
+                const SizedBox(width: AppTokens.space12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('My Word Lists',
+                          style: textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      Text(
+                        count == 0
+                            ? 'No lists yet'
+                            : '$count list${count == 1 ? '' : 's'}',
+                        style: textTheme.bodySmall
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),

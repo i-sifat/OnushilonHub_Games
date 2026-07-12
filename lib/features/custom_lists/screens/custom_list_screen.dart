@@ -105,9 +105,20 @@ class CustomListScreen extends ConsumerWidget {
       ),
     );
     if (name != null && name.isNotEmpty) {
-      await ref.read(customListsProvider.notifier).create(name);
+      try {
+        await ref.read(customListsProvider.notifier).create(name);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_friendlyError(e))),
+          );
+        }
+      }
     }
   }
+
+  String _friendlyError(Object e) =>
+      e is StateError ? e.message : 'Something went wrong. Please try again.';
 
   Future<void> _handleAction(
     BuildContext context,
@@ -143,7 +154,17 @@ class CustomListScreen extends ConsumerWidget {
           ),
         );
         if (newName != null && newName.isNotEmpty) {
-          await ref.read(customListsProvider.notifier).rename(list.id, newName);
+          try {
+            await ref
+                .read(customListsProvider.notifier)
+                .rename(list.id, newName);
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(_friendlyError(e))),
+              );
+            }
+          }
         }
 
       case _Action.delete:
@@ -193,8 +214,13 @@ class _WordListDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(list.name)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddWordDialog(context, ref),
+        tooltip: 'Add word',
+        child: const Icon(Icons.add),
+      ),
       body: words.isEmpty
-          ? const Center(child: Text('No words yet. Add words from game results.'))
+          ? const Center(child: Text('No words yet. Tap + to add one.'))
           : ListView.builder(
               itemCount: words.length,
               itemBuilder: (context, i) {
@@ -212,5 +238,38 @@ class _WordListDetailScreen extends ConsumerWidget {
               },
             ),
     );
+  }
+
+  Future<void> _showAddWordDialog(BuildContext context, WidgetRef ref) async {
+    final controller = TextEditingController();
+    final word = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Add Word'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'e.g. SERENDIPITY',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          textCapitalization: TextCapitalization.characters,
+          onSubmitted: (v) => Navigator.pop(context, v.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+    if (word != null && word.isNotEmpty) {
+      await ref.read(customListsProvider.notifier).addWord(list.id, word);
+    }
   }
 }

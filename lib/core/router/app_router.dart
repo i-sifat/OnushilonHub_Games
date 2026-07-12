@@ -18,6 +18,7 @@ import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/onboarding/screens/name_input_screen.dart';
 import '../../features/word_detail/screens/word_detail_screen.dart';
 import '../../features/search/screens/word_search_screen.dart';
+import '../../features/custom_lists/screens/custom_list_screen.dart';
 
 import '../models/game_config.dart' show GameConfig, GameResult;
 
@@ -142,6 +143,11 @@ final appRouterProvider = Provider((ref) {
       GoRoute(
         path: '/saved-words',
         builder: (_, __) => const SavedWordsScreen(),
+      ),
+      // F-02: custom word lists
+      GoRoute(
+        path: '/custom-lists',
+        builder: (_, __) => const CustomListScreen(),
       ),
     ],
     errorBuilder: (_, state) => Scaffold(

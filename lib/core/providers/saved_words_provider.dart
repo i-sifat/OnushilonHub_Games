@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../../database/database_service.dart';
+import '../../database/session_db_service.dart';
 
 class SavedWord {
   final String word;
@@ -21,13 +21,15 @@ class SavedWord {
 }
 
 class SavedWordsNotifier extends StateNotifier<AsyncValue<List<SavedWord>>> {
-  SavedWordsNotifier() : super(const AsyncValue.loading()) {
+  SavedWordsNotifier(this._session) : super(const AsyncValue.loading()) {
     _load();
   }
 
+  final SessionDbService _session;
+
   Future<void> _load() async {
     try {
-      final rows = await DatabaseService.instance.getSavedWords();
+      final rows = await _session.getSavedWords();
       state = AsyncValue.data(rows.map(SavedWord.fromMap).toList());
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -35,23 +37,23 @@ class SavedWordsNotifier extends StateNotifier<AsyncValue<List<SavedWord>>> {
   }
 
   Future<bool> isSaved(String word) async {
-    return DatabaseService.instance.isWordSaved(word);
+    return _session.isWordSaved(word);
   }
 
   Future<void> save(String word, String definition) async {
-    await DatabaseService.instance.saveWord(word, definition);
+    await _session.saveWord(word, definition);
     await _load();
   }
 
   Future<void> remove(String word) async {
-    await DatabaseService.instance.unsaveWord(word);
+    await _session.removeWord(word);
     await _load();
   }
 }
 
 final savedWordsProvider =
     StateNotifierProvider<SavedWordsNotifier, AsyncValue<List<SavedWord>>>(
-  (ref) => SavedWordsNotifier(),
+  (ref) => SavedWordsNotifier(ref.watch(sessionDbServiceProvider)),
 );
 
 /// A provider to quickly check if a specific word is saved.

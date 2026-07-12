@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import '../core/models/user_progress_model.dart';
 
 /// Central SQLite service.
 ///
@@ -55,6 +54,9 @@ class DatabaseService {
     _db = await openDatabase(
       path,
       version: 1,
+      // Required for `ON DELETE CASCADE` (used by word_list_items, F-02) to
+      // actually take effect — SQLite disables FK enforcement by default.
+      onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, _) => _ensureUserTables(db),
       onOpen: _ensureUserTables,
     );
@@ -202,68 +204,9 @@ class DatabaseService {
   // game_data_repository.dart (the only caller) now injects those directly.
 
   // ── Session Queries ───────────────────────────────────────────────────────
-
-  /// Returns up to [limit] most recent sessions, optionally filtered by
-  /// [gameType]. Capped to prevent unbounded growth as sessions accumulate.
-  Future<List<GameSessionModel>> getGameSessions({
-    String? gameType,
-    int limit = 200,
-  }) async {
-    final rows = await db.query(
-      'game_sessions',
-      where: gameType != null ? 'game_type = ?' : null,
-      whereArgs: gameType != null ? [gameType] : null,
-      orderBy: 'played_at DESC',
-      limit: limit,
-    );
-    return rows.map(GameSessionModel.fromDb).toList();
-  }
-
-  Future<Map<String, dynamic>> getProfileStats() async {
-    final totalSessions =
-        Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM game_sessions')) ?? 0;
-    final totalCorrect =
-        Sqflite.firstIntValue(await db.rawQuery('SELECT SUM(correct_count) FROM game_sessions')) ?? 0;
-    final totalWrong =
-        Sqflite.firstIntValue(await db.rawQuery('SELECT SUM(wrong_count) FROM game_sessions')) ?? 0;
-    final totalMastered = Sqflite.firstIntValue(await db.rawQuery(
-      "SELECT COUNT(*) FROM word_progress WHERE status = 'mastered'",
-    )) ?? 0;
-
-    final gameStats = await db.rawQuery('''
-      SELECT game_type,
-             COUNT(*) as sessions,
-             SUM(score) as total_score,
-             SUM(correct_count) as correct,
-             SUM(wrong_count) as wrong
-      FROM game_sessions
-      GROUP BY game_type
-      ORDER BY total_score DESC
-    ''');
-
-    return {
-      'totalSessions': totalSessions,
-      'totalCorrect': totalCorrect,
-      'totalWrong': totalWrong,
-      'totalMastered': totalMastered,
-      'gameStats': gameStats,
-    };
-  }
-
-  Future<bool> hasPlayedGame(String gameType) async {
-    final count = Sqflite.firstIntValue(
-      await db.rawQuery(
-        'SELECT COUNT(*) FROM game_sessions WHERE game_type = ?',
-        [gameType],
-      ),
-    );
-    return (count ?? 0) > 0;
-  }
-
-  Future<Set<String>> getPlayedGameTypes() async {
-    final rows = await db.rawQuery('SELECT DISTINCT game_type FROM game_sessions');
-    return rows.map((r) => r['game_type'] as String).toSet();
-  }
+  // A-01: getGameSessions/getProfileStats/hasPlayedGame/getPlayedGameTypes
+  // moved to SessionDbService. home_provider.dart / profile_screen.dart now
+  // inject SessionDbService directly instead of calling DatabaseService.
 
   Future<String?> getMostRecentGameType() async {
     final rows = await db.rawQuery(
@@ -273,89 +216,17 @@ class DatabaseService {
   }
 
   // ── User Progress ─────────────────────────────────────────────────────────
-
-  Future<UserProgressModel> getUserProgress() async {
-    final rows = await db.query('user_progress', where: 'id = 1');
-    if (rows.isEmpty) return const UserProgressModel();
-    return UserProgressModel.fromDb(rows.first);
-  }
-
-  Future<void> updateUserProgress(UserProgressModel model) async {
-    await db.update('user_progress', model.toDb(), where: 'id = 1');
-  }
-
-  Future<void> addXp(int xp) async {
-    await db.rawUpdate(
-      'UPDATE user_progress SET total_xp = total_xp + ? WHERE id = 1',
-      [xp],
-    );
-  }
-
-  Future<void> updateStreak() async {
-    final rows = await db.query(
-      'user_progress',
-      columns: ['streak', 'last_played_at'],
-      where: 'id = 1',
-    );
-    if (rows.isEmpty) return;
-
-    final row = rows.first;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final lastMs = row['last_played_at'] as int?;
-    final lastDay = lastMs != null
-        ? DateTime.fromMillisecondsSinceEpoch(lastMs).let(
-            (d) => DateTime(d.year, d.month, d.day))
-        : null;
-
-    if (lastDay == today) return;
-
-    final streak = row['streak'] as int;
-    final yesterday = today.subtract(const Duration(days: 1));
-    final newStreak = (lastDay == yesterday) ? streak + 1 : 1;
-
-    await db.update(
-      'user_progress',
-      {'streak': newStreak, 'last_played_at': today.millisecondsSinceEpoch},
-      where: 'id = 1',
-    );
-  }
+  // A-01: getUserProgress/updateUserProgress/addXp/updateStreak moved to
+  // ProgressDbService. All internal callers now inject that service.
 
   // ── Saved Words ───────────────────────────────────────────────────────────
-
-  Future<void> saveWord(String word, String definition) async {
-    await db.insert(
-      'saved_words',
-      {'word': word, 'definition': definition, 'saved_at': DateTime.now().millisecondsSinceEpoch},
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
-  }
-
-  Future<void> unsaveWord(String word) async {
-    await db.delete('saved_words', where: 'word = ?', whereArgs: [word]);
-  }
-
-  Future<bool> isWordSaved(String word) async {
-    return (Sqflite.firstIntValue(await db.rawQuery(
-          'SELECT COUNT(*) FROM saved_words WHERE word = ?', [word],
-        )) ??
-        0) > 0;
-  }
-
-  Future<List<Map<String, dynamic>>> getSavedWords() async {
-    return db.query('saved_words', orderBy: 'saved_at DESC');
-  }
+  // A-01: saveWord/unsaveWord/isWordSaved/getSavedWords moved to
+  // SessionDbService. saved_words_provider.dart now injects that directly.
 
   // ── Daily Goal ────────────────────────────────────────────────────────────
-
-  Future<int> getTodaySessionCount() async {
-    final start = DateTime.now().let((n) =>
-        DateTime(n.year, n.month, n.day).millisecondsSinceEpoch);
-    return Sqflite.firstIntValue(await db.rawQuery(
-          'SELECT COUNT(*) FROM game_sessions WHERE played_at >= ?', [start],
-        )) ??
-        0;
-  }
+  // A-01: getTodaySessionCount moved to SessionDbService. getDailyGoal /
+  // updateDailyGoal stay here — they're DailyGoalExtensions, a genuine
+  // single-source extension, not a Sprint 4/5 duplicate.
 
   // ── Quotes seeding ────────────────────────────────────────────────────────
 
@@ -438,12 +309,6 @@ class DatabaseService {
   // Meaning Chase phrase fallback moved to WordDbService.getMeaningChasePhrases
   // (A-01). game_data_repository.dart is the only caller and now injects
   // WordDbService directly.
-}
-
-// ── Extension helpers ─────────────────────────────────────────────────────────
-
-extension _Let<T> on T {
-  R let<R>(R Function(T) block) => block(this);
 }
 
 // ── WordRow ───────────────────────────────────────────────────────────────────

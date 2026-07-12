@@ -2,10 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/word_model.dart';
 import '../../../core/models/user_progress_model.dart';
 import '../../../database/word_repository.dart';
-import '../../../database/database_service.dart';
+import '../../../database/progress_db_service.dart';
+import '../../../database/session_db_service.dart';
 
 final userProgressProvider = FutureProvider<UserProgressModel>((ref) async {
-  return DatabaseService.instance.getUserProgress();
+  return ref.watch(progressDbServiceProvider).getUserProgress();
 });
 
 final dailyWordProvider = FutureProvider<WordModel?>((ref) async {
@@ -20,9 +21,9 @@ final homeGameProgressProvider =
 });
 
 final playedGamesProvider = FutureProvider<Set<String>>((ref) async {
-  return DatabaseService.instance.getPlayedGameTypes();
+  return ref.watch(sessionDbServiceProvider).getPlayedGameTypes();
 });
 
 final todaySessionCountProvider = FutureProvider<int>((ref) async {
-  return DatabaseService.instance.getTodaySessionCount();
+  return ref.watch(sessionDbServiceProvider).getTodaySessionCount();
 });
